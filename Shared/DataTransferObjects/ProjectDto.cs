@@ -1,4 +1,4 @@
 ﻿namespace Shared.DataTransferObjects
 {
-    public record ProjectDto(Guid ProjectId, string Name, DateTime CreatedAt);
+    public record ProjectDto(Guid ProjectId, string Name, DateTime CreatedAt, bool IsActive);
 }
