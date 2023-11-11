@@ -79,5 +79,13 @@ namespace FSPWebAPI.Presentation.Controllers
 
             return NoContent();
         }
+
+        [HttpDelete("{projectId:guid}")]
+        public async Task<IActionResult> DeleteProject(string userId, Guid projectId)
+        {
+            await _service.ProjectService.DeleteProject(userId, projectId, false);
+
+            return NoContent();
+        }
     }
 }

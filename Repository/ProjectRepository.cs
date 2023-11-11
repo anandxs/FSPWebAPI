@@ -26,5 +26,11 @@ namespace Repository
         {
             Create(project);
         }
+
+        public void DeleteProject(Project project)
+        {
+            Delete(project);
+        }
+
     }
 }

@@ -9,5 +9,6 @@ namespace Service.Contracts
         Task<ProjectDto> CreateProjectAsync(string ownerId, ProjectForCreationDto project);
         Task UpdateProject(string ownerId, Guid projectId, ProjectForUpdateDto project, bool trackChanges);
         Task ToggleArchive(string ownerId, Guid projectId, bool trackChanges);
+        Task DeleteProject(string ownerId, Guid projectId, bool trackChanges);
     }
 }

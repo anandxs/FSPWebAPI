@@ -119,5 +119,25 @@ namespace Service
             projectEntity.IsActive = !projectEntity.IsActive;
             await _repositoryManager.SaveAsync();
         }
+
+        public async Task DeleteProject(string ownerId, Guid projectId, bool trackChanges)
+        {
+            var user = await _userManager.FindByIdAsync(ownerId);
+
+            if (user is null)
+            {
+                throw new UserNotFoundException(ownerId);
+            }
+
+            var projectEntity = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(ownerId, projectId, trackChanges);
+
+            if (projectEntity is null)
+            {
+                throw new ProjectNotFoundException(projectId);
+            }
+
+            _repositoryManager.ProjectRepository.DeleteProject(projectEntity);
+            await _repositoryManager.SaveAsync();
+        }
     }
 }
