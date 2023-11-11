@@ -79,5 +79,25 @@ namespace Service
 
             return projectToReturn;
         }
+
+        public async Task UpdateProject(string ownerId, Guid projectId, ProjectForUpdateDto projectForUpdate, bool trackChanges)
+        {
+            var user = await _userManager.FindByIdAsync(ownerId);
+
+            if (user is null)
+            {
+                throw new UserNotFoundException(ownerId);
+            }
+
+            var projectEntity = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(ownerId, projectId, trackChanges);
+
+            if (projectEntity is null)
+            {
+                throw new ProjectNotFoundException(projectId);
+            }
+
+            _mapper.Map(projectForUpdate, projectEntity);
+            await _repositoryManager.SaveAsync();
+        }
     }
 }

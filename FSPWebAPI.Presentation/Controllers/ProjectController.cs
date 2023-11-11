@@ -48,5 +48,23 @@ namespace FSPWebAPI.Presentation.Controllers
 
             return CreatedAtRoute("GetProjectById", new { userId = userId, projectId = project.ProjectId }, project);
         }
+
+        [HttpPut("{projectId:guid}")]
+        public async Task<IActionResult> UpdateProject(string userId, Guid projectId, [FromBody] ProjectForUpdateDto projectDto)
+        {
+            if (projectDto is null)
+            {
+                return BadRequest("ProjectDto is null.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
+            await _service.ProjectService.UpdateProject(userId, projectId, projectDto, true);
+
+            return NoContent();
+        }
     }
 }
