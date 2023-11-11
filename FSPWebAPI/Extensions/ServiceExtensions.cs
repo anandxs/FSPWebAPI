@@ -70,7 +70,6 @@ namespace FSPWebAPI.Extensions
             })
                 .AddEntityFrameworkStores<RepositoryContext>()
                 .AddDefaultTokenProviders();
-
         }
 
         public static void ConfigureJWT(this IServiceCollection services, IConfiguration configuration)

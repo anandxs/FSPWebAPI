@@ -15,5 +15,7 @@ namespace Repository
         {
             base.OnModelCreating(modelBuilder);
         }
+
+        public DbSet<Project>? Projects { get; set; }
     }
 }

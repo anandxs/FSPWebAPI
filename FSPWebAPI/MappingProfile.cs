@@ -9,6 +9,7 @@ namespace FSPWebAPI
         public MappingProfile()
         {
             CreateMap<UserForRegistrationDto, User>();
+            CreateMap<Project, ProjectDto>();
         }
     }
 }
