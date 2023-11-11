@@ -66,5 +66,18 @@ namespace FSPWebAPI.Presentation.Controllers
 
             return NoContent();
         }
+
+        [HttpPut("{projectId:guid}/archive")]
+        public async Task<IActionResult> ToggleArchiveStatus(string userId, Guid projectId)
+        {
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
+            await _service.ProjectService.ToggleArchive(userId, projectId, true);
+
+            return NoContent();
+        }
     }
 }

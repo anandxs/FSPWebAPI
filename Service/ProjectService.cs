@@ -99,5 +99,25 @@ namespace Service
             _mapper.Map(projectForUpdate, projectEntity);
             await _repositoryManager.SaveAsync();
         }
+
+        public async Task ToggleArchive(string ownerId, Guid projectId, bool trackChanges)
+        {
+            var user = await _userManager.FindByIdAsync(ownerId);
+
+            if (user is null)
+            {
+                throw new UserNotFoundException(ownerId);
+            }
+
+            var projectEntity = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(ownerId, projectId, trackChanges);
+
+            if (projectEntity is null)
+            {
+                throw new ProjectNotFoundException(projectId);
+            }
+
+            projectEntity.IsActive = !projectEntity.IsActive;
+            await _repositoryManager.SaveAsync();
+        }
     }
 }
