@@ -12,8 +12,19 @@ namespace Repository
 
         public async Task<IEnumerable<Project>> GetProjectsOwnedByUserAsync(string userId, bool trackChanges)
         {
-            return await FindByCondition(x => x.OwnerId.Equals(userId), trackChanges)
+            return await FindByCondition(p => p.OwnerId.Equals(userId), trackChanges)
                     .ToListAsync(); ;
+        }
+
+        public async Task<Project> GetProjectOwnedByUserAsync(string userId, Guid projectId, bool trackChanges)
+        {
+            return await FindByCondition(p => p.OwnerId.Equals(userId) && p.ProjectId.Equals(projectId), trackChanges)
+                    .SingleOrDefaultAsync();
+        }
+
+        public void CreateProject(Project project)
+        {
+            Create(project);
         }
     }
 }

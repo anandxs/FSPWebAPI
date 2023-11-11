@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
+using Shared.DataTransferObjects;
 
 namespace FSPWebAPI.Presentation.Controllers
 {
@@ -20,6 +21,32 @@ namespace FSPWebAPI.Presentation.Controllers
             var projects = await _service.ProjectService.GetProjectsOwnedByUserAsync(userId, false);
 
             return Ok(projects);
+        }
+
+        [HttpGet("{projectId:guid}", Name = "GetProjectById")]
+        public async Task<IActionResult> GetProjectOwnedByUser(string userId, Guid projectId)
+        {
+            var project = await _service.ProjectService.GetProjectOwnedByUserAsync(userId, projectId, false);
+
+            return Ok(project);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> CreateProject(string userId, [FromBody] ProjectForCreationDto projectDto)
+        {
+            if (projectDto is null)
+            {
+                return BadRequest("ProjectDto is null.");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
+            var project = await _service.ProjectService.CreateProjectAsync(userId, projectDto);
+
+            return CreatedAtRoute("GetProjectById", new { userId = userId, projectId = project.ProjectId }, project);
         }
     }
 }

@@ -37,5 +37,47 @@ namespace Service
 
             return projectsDto;
         }
+
+        public async Task<ProjectDto> GetProjectOwnedByUserAsync(string userId, Guid projectId, bool trackChanges)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user is null)
+            {
+                throw new UserNotFoundException(userId);
+            }
+
+            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(userId, projectId, trackChanges);
+
+            if (project is null)
+            {
+                throw new ProjectNotFoundException(projectId);
+            }
+
+            var projectDto = _mapper.Map<ProjectDto>(project);
+
+            return projectDto;
+        }
+
+        public async Task<ProjectDto> CreateProjectAsync(string ownerId, ProjectForCreationDto project)
+        {
+            var user = await _userManager.FindByIdAsync(ownerId);
+
+            if (user is null)
+            {
+                throw new UserNotFoundException(ownerId);
+            }
+
+            var projectEntity = _mapper.Map<Project>(project);
+            projectEntity.CreatedAt = DateTime.Now;
+            projectEntity.OwnerId = ownerId;
+
+            _repositoryManager.ProjectRepository.CreateProject(projectEntity);
+            await _repositoryManager.SaveAsync();
+
+            var projectToReturn = _mapper.Map<ProjectDto>(projectEntity);
+
+            return projectToReturn;
+        }
     }
 }
