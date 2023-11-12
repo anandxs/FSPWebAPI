@@ -75,7 +75,13 @@ namespace FSPWebAPI.Presentation.Controllers
             return NoContent();
         }
 
-        // toggle archive status for list
+        [HttpPut("{groupId:guid}/archive")]
+        public async Task<IActionResult> ToggleGroupArchiveStatus(string userId, Guid projectId, Guid groupId)
+        {
+            await _service.GroupService.ToggleArchive(userId, projectId, groupId, true);
+
+            return NoContent();
+        }
 
         // delete list
     }
