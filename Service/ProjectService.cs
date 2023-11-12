@@ -25,12 +25,7 @@ namespace Service
 
         public async Task<IEnumerable<ProjectDto>> GetProjectsOwnedByUserAsync(string userId, bool trackChanges)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-
-            if (user is null)
-            {
-                throw new UserNotFoundException(userId);
-            }
+            await CheckIfUserExistsAsync(userId);
 
             var projectsFromDb = await _repositoryManager.ProjectRepository.GetProjectsOwnedByUserAsync(userId, trackChanges);
             var projectsDto = _mapper.Map<IEnumerable<ProjectDto>>(projectsFromDb);
@@ -40,19 +35,9 @@ namespace Service
 
         public async Task<ProjectDto> GetProjectOwnedByUserAsync(string userId, Guid projectId, bool trackChanges)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            await CheckIfUserExistsAsync(userId);
 
-            if (user is null)
-            {
-                throw new UserNotFoundException(userId);
-            }
-
-            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(userId, projectId, trackChanges);
-
-            if (project is null)
-            {
-                throw new ProjectNotFoundException(projectId);
-            }
+            var project = await GetProjectAndCheckIfItExistsAsync(userId, projectId, trackChanges);
 
             var projectDto = _mapper.Map<ProjectDto>(project);
 
@@ -61,12 +46,7 @@ namespace Service
 
         public async Task<ProjectDto> CreateProjectAsync(string ownerId, ProjectForCreationDto project)
         {
-            var user = await _userManager.FindByIdAsync(ownerId);
-
-            if (user is null)
-            {
-                throw new UserNotFoundException(ownerId);
-            }
+            await CheckIfUserExistsAsync(ownerId);
 
             var projectEntity = _mapper.Map<Project>(project);
 
@@ -80,19 +60,9 @@ namespace Service
 
         public async Task UpdateProject(string ownerId, Guid projectId, ProjectForUpdateDto projectForUpdate, bool trackChanges)
         {
-            var user = await _userManager.FindByIdAsync(ownerId);
+            await CheckIfUserExistsAsync(ownerId);
 
-            if (user is null)
-            {
-                throw new UserNotFoundException(ownerId);
-            }
-
-            var projectEntity = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(ownerId, projectId, trackChanges);
-
-            if (projectEntity is null)
-            {
-                throw new ProjectNotFoundException(projectId);
-            }
+            var projectEntity = await GetProjectAndCheckIfItExistsAsync(ownerId, projectId, trackChanges);
 
             _mapper.Map(projectForUpdate, projectEntity);
             await _repositoryManager.SaveAsync();
@@ -100,19 +70,9 @@ namespace Service
 
         public async Task ToggleArchive(string ownerId, Guid projectId, bool trackChanges)
         {
-            var user = await _userManager.FindByIdAsync(ownerId);
+            await CheckIfUserExistsAsync(ownerId);
 
-            if (user is null)
-            {
-                throw new UserNotFoundException(ownerId);
-            }
-
-            var projectEntity = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(ownerId, projectId, trackChanges);
-
-            if (projectEntity is null)
-            {
-                throw new ProjectNotFoundException(projectId);
-            }
+            var projectEntity = await GetProjectAndCheckIfItExistsAsync(ownerId, projectId, trackChanges);
 
             projectEntity.IsActive = !projectEntity.IsActive;
             await _repositoryManager.SaveAsync();
@@ -120,22 +80,34 @@ namespace Service
 
         public async Task DeleteProject(string ownerId, Guid projectId, bool trackChanges)
         {
-            var user = await _userManager.FindByIdAsync(ownerId);
+            await CheckIfUserExistsAsync(ownerId);
+
+            var projectEntity = await GetProjectAndCheckIfItExistsAsync(ownerId, projectId, trackChanges);
+
+            _repositoryManager.ProjectRepository.DeleteProject(projectEntity);
+            await _repositoryManager.SaveAsync();
+        }
+
+        private async Task CheckIfUserExistsAsync(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
 
             if (user is null)
             {
-                throw new UserNotFoundException(ownerId);
+                throw new UserNotFoundException(userId);
             }
+        }
 
-            var projectEntity = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(ownerId, projectId, trackChanges);
+        private async Task<Project> GetProjectAndCheckIfItExistsAsync(string userId, Guid projectId, bool trackChanges)
+        {
+            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(userId, projectId, trackChanges);
 
-            if (projectEntity is null)
+            if (project is null)
             {
                 throw new ProjectNotFoundException(projectId);
             }
 
-            _repositoryManager.ProjectRepository.DeleteProject(projectEntity);
-            await _repositoryManager.SaveAsync();
+            return project;
         }
     }
 }
