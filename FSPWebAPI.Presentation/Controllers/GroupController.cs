@@ -1,5 +1,6 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
+using Shared.DataTransferObjects;
 
 namespace FSPWebAPI.Presentation.Controllers
 {
@@ -24,7 +25,31 @@ namespace FSPWebAPI.Presentation.Controllers
             return Ok(group);
         }
 
-        // create list
+        [HttpPost]
+        public async Task<IActionResult> CreateGroup(string userId, Guid projectId, [FromBody] GroupForCreationDto groupForCreation)
+        {
+            if (groupForCreation is null)
+            {
+                return BadRequest("GroupForCreationDto was null");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
+            var group = await _service.GroupService.CreateGroupAsync(userId, projectId, groupForCreation, false);
+
+            return CreatedAtRoute(
+                "GetGroupById", 
+                new 
+                { 
+                    userId = userId,
+                    projectId = projectId,
+                    groupId = group.GroupId
+                }, 
+                group);
+        }
 
         // update list
 

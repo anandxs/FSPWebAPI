@@ -50,5 +50,31 @@ namespace Service
 
             return groupDto;
         }
+
+        public async Task<GroupDto> CreateGroupAsync(string userId, Guid projectId, GroupForCreationDto groupForCreation, bool trackChanges)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user is null)
+            {
+                throw new UserNotFoundException(userId);
+            }
+
+            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(userId, projectId, trackChanges);
+
+            if (project is null)
+            {
+                throw new ProjectNotFoundException(projectId);
+            }
+
+            var groupEntity = _mapper.Map<Group>(groupForCreation);
+
+            _repositoryManager.GroupRepository.CreateGroup(groupEntity, projectId);
+            await _repositoryManager.SaveAsync();
+
+            var groupToReturn = _mapper.Map<GroupDto>(groupEntity);
+
+            return groupToReturn;
+        }
     }
 }

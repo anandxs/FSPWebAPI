@@ -14,5 +14,11 @@ namespace Repository
         {
             return await FindByCondition(g => g.ProjectId.Equals(projectId) && g.GroupId.Equals(groupId), trackChanges).SingleOrDefaultAsync();
         }
+
+        public void CreateGroup(Group group, Guid projectId)
+        {
+            group.ProjectId = projectId;
+            Create(group);
+        }
     }
 }
