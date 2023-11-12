@@ -69,10 +69,8 @@ namespace Service
             }
 
             var projectEntity = _mapper.Map<Project>(project);
-            projectEntity.CreatedAt = DateTime.Now;
-            projectEntity.OwnerId = ownerId;
 
-            _repositoryManager.ProjectRepository.CreateProject(projectEntity);
+            _repositoryManager.ProjectRepository.CreateProject(projectEntity, ownerId);
             await _repositoryManager.SaveAsync();
 
             var projectToReturn = _mapper.Map<ProjectDto>(projectEntity);

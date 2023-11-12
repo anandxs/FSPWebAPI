@@ -22,8 +22,10 @@ namespace Repository
                     .SingleOrDefaultAsync();
         }
 
-        public void CreateProject(Project project)
+        public void CreateProject(Project project, string ownerId)
         {
+            project.CreatedAt = DateTime.Now;
+            project.OwnerId = ownerId;
             Create(project);
         }
 
