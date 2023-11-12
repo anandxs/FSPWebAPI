@@ -17,5 +17,6 @@ namespace Repository
         }
 
         public DbSet<Project>? Projects { get; set; }
+        public DbSet<Group>? Groups { get; set; }
     }
 }
