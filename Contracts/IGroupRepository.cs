@@ -7,5 +7,6 @@ namespace Contracts
         Task<IEnumerable<Group>> GetGroupsForProjectAsync(Guid projectId, bool trackChanges);
         Task<Group> GetGroupByIdAsync(Guid projectId, Guid groupId, bool trackChanges);
         void CreateGroup(Group group, Guid projectId);
+        void DeleteGroup(Group group);
     }
 }

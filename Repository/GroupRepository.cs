@@ -26,5 +26,10 @@ namespace Repository
             group.ProjectId = projectId;
             Create(group);
         }
+
+        public void DeleteGroup(Group group)
+        {
+            Delete(group);
+        }
     }
 }

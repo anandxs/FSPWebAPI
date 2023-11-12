@@ -83,6 +83,12 @@ namespace FSPWebAPI.Presentation.Controllers
             return NoContent();
         }
 
-        // delete list
+        [HttpDelete("{groupId:guid}")]
+        public async Task<IActionResult> DeleteGroup(string userId, Guid projectId, Guid groupId)
+        {
+            await _service.GroupService.DeleteGroup(userId, projectId, groupId, false);
+
+            return NoContent();
+        }
     }
 }
