@@ -25,19 +25,7 @@ namespace Service
 
         public async Task<IEnumerable<GroupDto>> GetGroupsForProjectAsync(string userId, Guid projectId, bool trackChanges)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-
-            if (user is null)
-            {
-                throw new UserNotFoundException(userId);
-            }
-
-            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(userId, projectId, trackChanges);
-
-            if (project is null)
-            {
-                throw new ProjectNotFoundException(projectId);
-            }
+            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
 
             var groups = await _repositoryManager.GroupRepository.GetGroupsForProjectAsync(projectId, trackChanges);
             var groupsDto = _mapper.Map<IEnumerable<GroupDto>>(groups);
@@ -47,26 +35,9 @@ namespace Service
 
         public async Task<GroupDto> GetGroupByIdAsync(string userId, Guid projectId, Guid groupId, bool trackChanges)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
 
-            if (user is null)
-            {
-                throw new UserNotFoundException(userId);
-            }
-
-            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(userId, projectId, trackChanges);
-
-            if (project is null)
-            {
-                throw new ProjectNotFoundException(projectId);
-            }
-
-            var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(projectId, groupId, trackChanges);
-
-            if (group is null)
-            {
-                throw new GroupNotFoundException(groupId);
-            }
+            var group = await GetProjectAndCheckIfItExistsAsync(projectId, groupId, trackChanges);
 
             var groupDto = _mapper.Map<GroupDto>(group);
 
@@ -75,19 +46,7 @@ namespace Service
 
         public async Task<GroupDto> CreateGroupAsync(string userId, Guid projectId, GroupForCreationDto groupForCreation, bool trackChanges)
         {
-            var user = await _userManager.FindByIdAsync(userId);
-
-            if (user is null)
-            {
-                throw new UserNotFoundException(userId);
-            }
-
-            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(userId, projectId, trackChanges);
-
-            if (project is null)
-            {
-                throw new ProjectNotFoundException(projectId);
-            }
+            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
 
             var groupEntity = _mapper.Map<Group>(groupForCreation);
 
@@ -100,26 +59,9 @@ namespace Service
         }
         public async Task UpdateGroupAsync(string userId, Guid projectId, Guid groupId, GroupForUpdateDto groupForUpdate, bool trackChanges)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
 
-            if (user is null)
-            {
-                throw new UserNotFoundException(userId);
-            }
-
-            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(userId, projectId, trackChanges);
-
-            if (project is null)
-            {
-                throw new ProjectNotFoundException(projectId);
-            }
-
-            var groupEntity = await _repositoryManager.GroupRepository.GetGroupByIdAsync(projectId, groupId, trackChanges);
-
-            if (groupEntity is null)
-            {
-                throw new GroupNotFoundException(groupId);
-            }
+            var groupEntity = await GetProjectAndCheckIfItExistsAsync(projectId, groupId, trackChanges);
 
             _mapper.Map(groupForUpdate, groupEntity);
             await _repositoryManager.SaveAsync();
@@ -127,20 +69,26 @@ namespace Service
 
         public async Task ToggleArchive(string userId, Guid projectId, Guid groupId, bool trackChanges)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
 
-            if (user is null)
-            {
-                throw new UserNotFoundException(userId);
-            }
+            var groupEntity = await GetProjectAndCheckIfItExistsAsync(projectId, groupId, trackChanges);
 
-            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(userId, projectId, trackChanges);
+            groupEntity.IsActive = !groupEntity.IsActive;
+            await _repositoryManager.SaveAsync();
+        }
 
-            if (project is null)
-            {
-                throw new ProjectNotFoundException(projectId);
-            }
+        public async Task DeleteGroup(string userId, Guid projectId, Guid groupId, bool trackChanges)
+        {
+            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
 
+            var groupEntity = await GetProjectAndCheckIfItExistsAsync(projectId, groupId, trackChanges);
+
+            _repositoryManager.GroupRepository.DeleteGroup(groupEntity);
+            await _repositoryManager.SaveAsync();
+        }
+
+        private async Task<Group> GetProjectAndCheckIfItExistsAsync(Guid projectId, Guid groupId, bool trackChanges)
+        {
             var groupEntity = await _repositoryManager.GroupRepository.GetGroupByIdAsync(projectId, groupId, trackChanges);
 
             if (groupEntity is null)
@@ -148,11 +96,10 @@ namespace Service
                 throw new GroupNotFoundException(groupId);
             }
 
-            groupEntity.IsActive = !groupEntity.IsActive;
-            await _repositoryManager.SaveAsync();
+            return groupEntity;
         }
 
-        public async Task DeleteGroup(string userId, Guid projectId, Guid groupId, bool trackChanges)
+        private async Task CheckIfUserAndProjectExistsAsync(string userId, Guid projectId, bool trackChanges)
         {
             var user = await _userManager.FindByIdAsync(userId);
 
@@ -167,16 +114,6 @@ namespace Service
             {
                 throw new ProjectNotFoundException(projectId);
             }
-
-            var groupEntity = await _repositoryManager.GroupRepository.GetGroupByIdAsync(projectId, groupId, trackChanges);
-
-            if (groupEntity is null)
-            {
-                throw new GroupNotFoundException(groupId);
-            }
-
-            _repositoryManager.GroupRepository.DeleteGroup(groupEntity);
-            await _repositoryManager.SaveAsync();
         }
     }
 }
