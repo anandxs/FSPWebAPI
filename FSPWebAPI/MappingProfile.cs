@@ -14,6 +14,7 @@ namespace FSPWebAPI
             CreateMap<ProjectForUpdateDto, Project>();
             CreateMap<GroupForCreationDto, Group>();
             CreateMap<Group, GroupDto>();
+            CreateMap<GroupForUpdateDto, Group>();
         }
     }
 }

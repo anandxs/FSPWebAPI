@@ -23,7 +23,7 @@ namespace FSPWebAPI.Presentation.Controllers
             return Ok(groups);
         }
 
-        [HttpGet("{groupId}", Name = "GetGroupById")]
+        [HttpGet("{groupId:guid}", Name = "GetGroupById")]
         public async Task<IActionResult> GetGroupById(string userId, Guid projectId, Guid groupId)
         {
             var group = await _service.GroupService.GetGroupByIdAsync(userId, projectId, groupId, false);
@@ -57,7 +57,23 @@ namespace FSPWebAPI.Presentation.Controllers
                 group);
         }
 
-        // update list
+        [HttpPut("{groupId:guid}")]
+        public async Task<IActionResult> UpdateGroup(string userId, Guid projectId, Guid groupId, [FromBody] GroupForUpdateDto groupForUpdate)
+        {
+            if (groupForUpdate is null)
+            {
+                return BadRequest("GroupForUpdateDto is null");
+            }
+
+            if (!ModelState.IsValid)
+            {
+                return UnprocessableEntity(ModelState);
+            }
+
+            await _service.GroupService.UpdateGroupAsync(userId, projectId, groupId, groupForUpdate, true);
+
+            return NoContent();
+        }
 
         // toggle archive status for list
 
