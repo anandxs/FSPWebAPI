@@ -4,6 +4,7 @@
     {
         IProjectRepository ProjectRepository { get; }
         IGroupRepository GroupRepository { get; }
+        IProjectRoleRepository ProjectRoleRepository { get; }
         Task SaveAsync();
     }
 }

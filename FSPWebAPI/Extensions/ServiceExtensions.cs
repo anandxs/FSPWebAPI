@@ -94,7 +94,8 @@ namespace FSPWebAPI.Extensions
                         ValidateIssuerSigningKey = true,
                         ValidIssuer = jwtConfiguration.ValidIssuer,
                         ValidAudience = jwtConfiguration.ValidAudience,
-                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey))
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+                        ClockSkew = TimeSpan.FromHours(8)
                     };
                 });
         }

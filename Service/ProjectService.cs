@@ -53,6 +53,9 @@ namespace Service
             _repositoryManager.ProjectRepository.CreateProject(projectEntity, ownerId);
             await _repositoryManager.SaveAsync();
 
+            _repositoryManager.ProjectRoleRepository.DefaultProjectRoleCreation(projectEntity.ProjectId);
+            await _repositoryManager.SaveAsync();
+
             var projectToReturn = _mapper.Map<ProjectDto>(projectEntity);
 
             return projectToReturn;
