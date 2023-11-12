@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FSPWebAPI.Presentation.ActionFilters;
+using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -32,18 +33,9 @@ namespace FSPWebAPI.Presentation.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateGroup(string userId, Guid projectId, [FromBody] GroupForCreationDto groupForCreation)
         {
-            if (groupForCreation is null)
-            {
-                return BadRequest("GroupForCreationDto was null");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return UnprocessableEntity(ModelState);
-            }
-
             var group = await _service.GroupService.CreateGroupAsync(userId, projectId, groupForCreation, false);
 
             return CreatedAtRoute(
@@ -58,18 +50,9 @@ namespace FSPWebAPI.Presentation.Controllers
         }
 
         [HttpPut("{groupId:guid}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateGroup(string userId, Guid projectId, Guid groupId, [FromBody] GroupForUpdateDto groupForUpdate)
         {
-            if (groupForUpdate is null)
-            {
-                return BadRequest("GroupForUpdateDto is null");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return UnprocessableEntity(ModelState);
-            }
-
             await _service.GroupService.UpdateGroupAsync(userId, projectId, groupId, groupForUpdate, true);
 
             return NoContent();

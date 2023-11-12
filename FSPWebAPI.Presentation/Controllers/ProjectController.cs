@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FSPWebAPI.Presentation.ActionFilters;
+using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -32,36 +33,18 @@ namespace FSPWebAPI.Presentation.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateProject(string userId, [FromBody] ProjectForCreationDto projectDto)
         {
-            if (projectDto is null)
-            {
-                return BadRequest("ProjectDto is null.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return UnprocessableEntity(ModelState);
-            }
-
             var project = await _service.ProjectService.CreateProjectAsync(userId, projectDto);
 
             return CreatedAtRoute("GetProjectById", new { userId = userId, projectId = project.ProjectId }, project);
         }
 
         [HttpPut("{projectId:guid}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateProject(string userId, Guid projectId, [FromBody] ProjectForUpdateDto projectDto)
         {
-            if (projectDto is null)
-            {
-                return BadRequest("ProjectDto is null.");
-            }
-
-            if (!ModelState.IsValid)
-            {
-                return UnprocessableEntity(ModelState);
-            }
-
             await _service.ProjectService.UpdateProject(userId, projectId, projectDto, true);
 
             return NoContent();
@@ -70,11 +53,6 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpPut("{projectId:guid}/archive")]
         public async Task<IActionResult> ToggleArchiveStatus(string userId, Guid projectId)
         {
-            if (!ModelState.IsValid)
-            {
-                return UnprocessableEntity(ModelState);
-            }
-
             await _service.ProjectService.ToggleArchive(userId, projectId, true);
 
             return NoContent();
