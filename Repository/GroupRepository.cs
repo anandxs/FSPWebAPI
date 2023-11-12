@@ -10,6 +10,12 @@ namespace Repository
         {
         }
 
+        public async Task<IEnumerable<Group>> GetGroupsForProjectAsync(Guid projectId, bool trackChanges)
+        {
+            return await FindByCondition(g => g.ProjectId.Equals(projectId), trackChanges)
+                    .ToListAsync();
+        }
+
         public async Task<Group> GetGroupByIdAsync(Guid projectId, Guid groupId, bool trackChanges)
         {
             return await FindByCondition(g => g.ProjectId.Equals(projectId) && g.GroupId.Equals(groupId), trackChanges).SingleOrDefaultAsync();

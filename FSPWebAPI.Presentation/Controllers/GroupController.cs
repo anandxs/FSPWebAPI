@@ -15,7 +15,13 @@ namespace FSPWebAPI.Presentation.Controllers
             _service = service;
         }
 
-        // get all lists for project
+        [HttpGet]
+        public async Task<IActionResult> GetGroupsForProject(string userId, Guid projectId)
+        {
+            var groups = await _service.GroupService.GetGroupsForProjectAsync(userId, projectId, false);
+
+            return Ok(groups);
+        }
 
         [HttpGet("{groupId}", Name = "GetGroupById")]
         public async Task<IActionResult> GetGroupById(string userId, Guid projectId, Guid groupId)
