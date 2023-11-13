@@ -22,7 +22,9 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> GetProjectsOwnedByUser(string userId)
         {
-            var projects = await _service.ProjectService.GetProjectsOwnedByUserAsync(userId, false);
+            var requesterId = GetRequesterId();
+
+            var projects = await _service.ProjectService.GetProjectsOwnedByUserAsync(userId, requesterId, false);
 
             return Ok(projects);
         }
@@ -30,7 +32,9 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpGet("{projectId:guid}", Name = "GetProjectById")]
         public async Task<IActionResult> GetProjectOwnedByUser(string userId, Guid projectId)
         {
-            var project = await _service.ProjectService.GetProjectOwnedByUserAsync(userId, projectId, false);
+            var requesterId = GetRequesterId();
+
+            var project = await _service.ProjectService.GetProjectOwnedByUserAsync(userId, projectId, requesterId, false);
 
             return Ok(project);
         }
@@ -39,7 +43,9 @@ namespace FSPWebAPI.Presentation.Controllers
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateProject(string userId, [FromBody] ProjectForCreationDto projectDto)
         {
-            var project = await _service.ProjectService.CreateProjectAsync(userId, projectDto);
+            var requesterId = GetRequesterId();
+
+            var project = await _service.ProjectService.CreateProjectAsync(userId, requesterId, projectDto);
 
             return CreatedAtRoute("GetProjectById", new { userId = userId, projectId = project.ProjectId }, project);
         }
@@ -58,7 +64,9 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpPut("{projectId:guid}/archive")]
         public async Task<IActionResult> ToggleArchiveStatus(string userId, Guid projectId)
         {
-            await _service.ProjectService.ToggleArchive(userId, projectId, true);
+            var requesterId = GetRequesterId();
+
+            await _service.ProjectService.ToggleArchive(userId, projectId, requesterId, true);
 
             return NoContent();
         }
@@ -66,7 +74,9 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpDelete("{projectId:guid}")]
         public async Task<IActionResult> DeleteProject(string userId, Guid projectId)
         {
-            await _service.ProjectService.DeleteProject(userId, projectId, false);
+            var requesterId = GetRequesterId();
+
+            await _service.ProjectService.DeleteProject(userId, projectId, requesterId, false);
 
             return NoContent();
         }

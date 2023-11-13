@@ -2,7 +2,7 @@
 {
     public sealed class IncorrectRoleException : ForbiddenRequestException
     {
-        public IncorrectRoleException() : base($"Your role does not have rights to this action.")
+        public IncorrectRoleException() : base($"You do not have rights to this action/resource.")
         {
         }
     }
