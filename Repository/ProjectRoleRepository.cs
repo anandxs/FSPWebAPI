@@ -31,9 +31,14 @@ namespace Repository
             });
         }
 
-        public async Task<ProjectRole> GetProjectRole(Guid projectId, string role, bool trackChanges)
+        public async Task<ProjectRole> GetProjectRoleByName(Guid projectId, string role, bool trackChanges)
         {
             return await FindByCondition(r => r.ProjectId.Equals(projectId) && r.Name.Equals(role), trackChanges).SingleOrDefaultAsync();
+        }
+
+        public async Task<ProjectRole> GetProjectRoleById(Guid projectId, Guid roleId, bool trackChanges)
+        {
+            return await FindByCondition(r => r.ProjectId.Equals(projectId) && r.RoleId.Equals(roleId), trackChanges).SingleOrDefaultAsync();
         }
     }
 }

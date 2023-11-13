@@ -56,7 +56,7 @@ namespace Service
             _repositoryManager.ProjectRoleRepository.DefaultProjectRoleCreation(projectEntity.ProjectId);
             await _repositoryManager.SaveAsync();
 
-            var adminRole = await _repositoryManager.ProjectRoleRepository.GetProjectRole(projectEntity.ProjectId, "Admin", false);
+            var adminRole = await _repositoryManager.ProjectRoleRepository.GetProjectRoleByName(projectEntity.ProjectId, "Admin", false);
 
             _repositoryManager.ProjectMemberRepository.AddProjectMember(projectEntity.ProjectId, ownerId, adminRole.RoleId);
             await _repositoryManager.SaveAsync();
@@ -66,11 +66,13 @@ namespace Service
             return projectToReturn;
         }
 
-        public async Task UpdateProject(string ownerId, Guid projectId, ProjectForUpdateDto projectForUpdate, bool trackChanges)
+        public async Task UpdateProjectAsync(string ownerId, Guid projectId, string requesterId, ProjectForUpdateDto projectForUpdate, bool trackChanges)
         {
             await CheckIfUserExistsAsync(ownerId);
 
             var projectEntity = await GetProjectAndCheckIfItExistsAsync(ownerId, projectId, trackChanges);
+
+            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin" });
 
             _mapper.Map(projectForUpdate, projectEntity);
             await _repositoryManager.SaveAsync();
@@ -103,6 +105,23 @@ namespace Service
             if (user is null)
             {
                 throw new UserNotFoundException(userId);
+            }
+        }
+
+        private async Task CheckIfRequesterIsAuthorized(Guid projectId, string requesterId, HashSet<string> allowedRoles)
+        {
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMember(projectId, requesterId, false);
+
+            if (requester is null)
+            {
+                throw new NotAProjectMemberException();
+            }
+
+            var requesterRole = await _repositoryManager.ProjectRoleRepository.GetProjectRoleById(projectId, (Guid)requester.ProjectRoleId, false);
+
+            if (!allowedRoles.Contains(requesterRole.Name))
+            {
+                throw new IncorrectRoleException();
             }
         }
 

@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
+using System.Security.Claims;
 
 namespace FSPWebAPI.Presentation.Controllers
 {
@@ -47,7 +48,9 @@ namespace FSPWebAPI.Presentation.Controllers
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateProject(string userId, Guid projectId, [FromBody] ProjectForUpdateDto projectDto)
         {
-            await _service.ProjectService.UpdateProject(userId, projectId, projectDto, true);
+            var requesterId = GetRequesterId();
+
+            await _service.ProjectService.UpdateProjectAsync(userId, projectId, requesterId, projectDto, true);
 
             return NoContent();
         }
@@ -66,6 +69,14 @@ namespace FSPWebAPI.Presentation.Controllers
             await _service.ProjectService.DeleteProject(userId, projectId, false);
 
             return NoContent();
+        }
+
+        private string GetRequesterId()
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            return claim.Value;
         }
     }
 }

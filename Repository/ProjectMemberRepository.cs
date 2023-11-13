@@ -1,5 +1,6 @@
 ﻿using Contracts;
 using Entities.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Repository
 {
@@ -17,6 +18,12 @@ namespace Repository
                 MemberId = memberId,
                 ProjectRoleId = roleId
             });
+        }
+
+        public async Task<ProjectMember> GetProjectMember(Guid projectId, string memberId, bool trackChanges)
+        {
+            return await FindByCondition(m => m.ProjectId.Equals(projectId) && m.MemberId.Equals(memberId), trackChanges)
+                    .SingleOrDefaultAsync();
         }
     }
 }
