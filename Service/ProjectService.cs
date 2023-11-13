@@ -108,6 +108,8 @@ namespace Service
             await _repositoryManager.SaveAsync();
         }
 
+        #region HELPER METHODS
+
         private async Task CheckIfUserExistsAsync(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
@@ -116,6 +118,18 @@ namespace Service
             {
                 throw new UserNotFoundException(userId);
             }
+        }
+
+        private async Task<Project> GetProjectAndCheckIfItExistsAsync(string userId, Guid projectId, bool trackChanges)
+        {
+            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(userId, projectId, trackChanges);
+
+            if (project is null)
+            {
+                throw new ProjectNotFoundException(projectId);
+            }
+
+            return project;
         }
 
         private async Task CheckIfRequesterIsAuthorized(Guid projectId, string requesterId, HashSet<string> allowedRoles)
@@ -135,18 +149,6 @@ namespace Service
             }
         }
 
-        private async Task<Project> GetProjectAndCheckIfItExistsAsync(string userId, Guid projectId, bool trackChanges)
-        {
-            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(userId, projectId, trackChanges);
-
-            if (project is null)
-            {
-                throw new ProjectNotFoundException(projectId);
-            }
-
-            return project;
-        }
-
         private void CheckIfRequesterIdAndRouteUserIdMatch(string userId, string requesterId)
         {
             if (userId != requesterId)
@@ -154,5 +156,7 @@ namespace Service
                 throw new IncorrectRoleException();
             }
         }
+
+        #endregion
     }
 }

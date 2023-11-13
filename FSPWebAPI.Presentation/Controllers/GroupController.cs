@@ -1,12 +1,15 @@
 ﻿using FSPWebAPI.Presentation.ActionFilters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
+using System.Security.Claims;
 
 namespace FSPWebAPI.Presentation.Controllers
 {
     [ApiController]
     [Route("api/users/{userId}/projects/{projectId}/groups")]
+    [Authorize]
     public class GroupController : ControllerBase
     {
         private readonly IServiceManager _service;
@@ -19,7 +22,9 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> GetGroupsForProject(string userId, Guid projectId)
         {
-            var groups = await _service.GroupService.GetGroupsForProjectAsync(userId, projectId, false);
+            var requesterId = GetRequesterId();
+
+            var groups = await _service.GroupService.GetGroupsForProjectAsync(userId, projectId, requesterId, false);
 
             return Ok(groups);
         }
@@ -27,7 +32,9 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpGet("{groupId:guid}", Name = "GetGroupById")]
         public async Task<IActionResult> GetGroupById(string userId, Guid projectId, Guid groupId)
         {
-            var group = await _service.GroupService.GetGroupByIdAsync(userId, projectId, groupId, false);
+            var requesterId = GetRequesterId();
+
+            var group = await _service.GroupService.GetGroupByIdAsync(userId, projectId, requesterId, groupId, false);
 
             return Ok(group);
         }
@@ -36,7 +43,9 @@ namespace FSPWebAPI.Presentation.Controllers
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateGroup(string userId, Guid projectId, [FromBody] GroupForCreationDto groupForCreation)
         {
-            var group = await _service.GroupService.CreateGroupAsync(userId, projectId, groupForCreation, false);
+            var requesterId = GetRequesterId();
+
+            var group = await _service.GroupService.CreateGroupAsync(userId, projectId, requesterId, groupForCreation, false);
 
             return CreatedAtRoute(
                 "GetGroupById", 
@@ -53,7 +62,9 @@ namespace FSPWebAPI.Presentation.Controllers
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateGroup(string userId, Guid projectId, Guid groupId, [FromBody] GroupForUpdateDto groupForUpdate)
         {
-            await _service.GroupService.UpdateGroupAsync(userId, projectId, groupId, groupForUpdate, true);
+            var requesterId = GetRequesterId();
+
+            await _service.GroupService.UpdateGroupAsync(userId, projectId, requesterId, groupId, groupForUpdate, true);
 
             return NoContent();
         }
@@ -61,7 +72,9 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpPut("{groupId:guid}/archive")]
         public async Task<IActionResult> ToggleGroupArchiveStatus(string userId, Guid projectId, Guid groupId)
         {
-            await _service.GroupService.ToggleArchive(userId, projectId, groupId, true);
+            var requesterId = GetRequesterId();
+
+            await _service.GroupService.ToggleArchive(userId, projectId, requesterId, groupId, true);
 
             return NoContent();
         }
@@ -69,9 +82,19 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpDelete("{groupId:guid}")]
         public async Task<IActionResult> DeleteGroup(string userId, Guid projectId, Guid groupId)
         {
-            await _service.GroupService.DeleteGroup(userId, projectId, groupId, false);
+            var requesterId = GetRequesterId();
+
+            await _service.GroupService.DeleteGroup(userId, projectId, requesterId, groupId, false);
 
             return NoContent();
+        }
+
+        private string GetRequesterId()
+        {
+            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            return claim.Value;
         }
     }
 }
