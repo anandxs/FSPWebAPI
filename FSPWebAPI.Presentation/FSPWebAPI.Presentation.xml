@@ -1,0 +1,15 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>FSPWebAPI.Presentation</name>
+    </assembly>
+    <members>
+        <member name="M:FSPWebAPI.Presentation.Controllers.AuthenticationController.RegisterUser(Shared.DataTransferObjects.UserForRegistrationDto)">
+            <summary>
+            Registers user with given email, password, first name and last name
+            </summary>
+            <param name="userForRegistration"></param>
+            <returns>Created at status code</returns>
+        </member>
+    </members>
+</doc>

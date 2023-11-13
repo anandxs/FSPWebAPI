@@ -1,4 +1,6 @@
-﻿using FSPWebAPI.Presentation.ActionFilters;
+﻿using Entities.ErrorModel;
+using FSPWebAPI.Presentation.ActionFilters;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
@@ -16,7 +18,14 @@ namespace FSPWebAPI.Presentation.Controllers
             _service = service;
         }
 
+        /// <summary>
+        /// Registers user with given email, password, first name and last name
+        /// </summary>
+        /// <param name="userForRegistration"></param>
+        /// <returns>Created at status code</returns>
         [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> RegisterUser([FromBody] UserForRegistrationDto userForRegistration)
         {
