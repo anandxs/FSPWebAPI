@@ -22,6 +22,7 @@ namespace CompanyEmployees.Extensions
                         {
                             NotFoundException => StatusCodes.Status404NotFound,
                             BadRequestException => StatusCodes.Status400BadRequest,
+                            ForbiddenRequestException => StatusCodes.Status403Forbidden,
                             _ => StatusCodes.Status500InternalServerError
                         };
 

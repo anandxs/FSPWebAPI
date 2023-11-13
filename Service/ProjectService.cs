@@ -23,9 +23,11 @@ namespace Service
             _userManager = userManager;
         }
 
-        public async Task<IEnumerable<ProjectDto>> GetProjectsOwnedByUserAsync(string userId, bool trackChanges)
+        public async Task<IEnumerable<ProjectDto>> GetProjectsOwnedByUserAsync(string userId, string requesterId, bool trackChanges)
         {
             await CheckIfUserExistsAsync(userId);
+
+            CheckIfRequesterIdAndRouteUserIdMatch(userId, requesterId);
 
             var projectsFromDb = await _repositoryManager.ProjectRepository.GetProjectsOwnedByUserAsync(userId, trackChanges);
             var projectsDto = _mapper.Map<IEnumerable<ProjectDto>>(projectsFromDb);
@@ -33,9 +35,11 @@ namespace Service
             return projectsDto;
         }
 
-        public async Task<ProjectDto> GetProjectOwnedByUserAsync(string userId, Guid projectId, bool trackChanges)
+        public async Task<ProjectDto> GetProjectOwnedByUserAsync(string userId, Guid projectId, string requesterId, bool trackChanges)
         {
             await CheckIfUserExistsAsync(userId);
+
+            CheckIfRequesterIdAndRouteUserIdMatch(userId, requesterId);
 
             var project = await GetProjectAndCheckIfItExistsAsync(userId, projectId, trackChanges);
 
@@ -44,9 +48,11 @@ namespace Service
             return projectDto;
         }
 
-        public async Task<ProjectDto> CreateProjectAsync(string ownerId, ProjectForCreationDto project)
+        public async Task<ProjectDto> CreateProjectAsync(string ownerId, string requesterId, ProjectForCreationDto project)
         {
             await CheckIfUserExistsAsync(ownerId);
+
+            CheckIfRequesterIdAndRouteUserIdMatch(ownerId, requesterId);
 
             var projectEntity = _mapper.Map<Project>(project);
 
@@ -56,7 +62,7 @@ namespace Service
             _repositoryManager.ProjectRoleRepository.DefaultProjectRoleCreation(projectEntity.ProjectId);
             await _repositoryManager.SaveAsync();
 
-            var adminRole = await _repositoryManager.ProjectRoleRepository.GetProjectRole(projectEntity.ProjectId, "Admin", false);
+            var adminRole = await _repositoryManager.ProjectRoleRepository.GetProjectRoleByName(projectEntity.ProjectId, "Admin", false);
 
             _repositoryManager.ProjectMemberRepository.AddProjectMember(projectEntity.ProjectId, ownerId, adminRole.RoleId);
             await _repositoryManager.SaveAsync();
@@ -66,35 +72,43 @@ namespace Service
             return projectToReturn;
         }
 
-        public async Task UpdateProject(string ownerId, Guid projectId, ProjectForUpdateDto projectForUpdate, bool trackChanges)
+        public async Task UpdateProjectAsync(string ownerId, Guid projectId, string requesterId, ProjectForUpdateDto projectForUpdate, bool trackChanges)
         {
             await CheckIfUserExistsAsync(ownerId);
 
             var projectEntity = await GetProjectAndCheckIfItExistsAsync(ownerId, projectId, trackChanges);
+
+            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin" });
 
             _mapper.Map(projectForUpdate, projectEntity);
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task ToggleArchive(string ownerId, Guid projectId, bool trackChanges)
+        public async Task ToggleArchive(string ownerId, Guid projectId, string requesterId, bool trackChanges)
         {
             await CheckIfUserExistsAsync(ownerId);
 
             var projectEntity = await GetProjectAndCheckIfItExistsAsync(ownerId, projectId, trackChanges);
+
+            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin" });
 
             projectEntity.IsActive = !projectEntity.IsActive;
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task DeleteProject(string ownerId, Guid projectId, bool trackChanges)
+        public async Task DeleteProject(string ownerId, Guid projectId, string requesterId, bool trackChanges)
         {
             await CheckIfUserExistsAsync(ownerId);
 
             var projectEntity = await GetProjectAndCheckIfItExistsAsync(ownerId, projectId, trackChanges);
 
+            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin" });
+
             _repositoryManager.ProjectRepository.DeleteProject(projectEntity);
             await _repositoryManager.SaveAsync();
         }
+
+        #region HELPER METHODS
 
         private async Task CheckIfUserExistsAsync(string userId)
         {
@@ -117,5 +131,32 @@ namespace Service
 
             return project;
         }
+
+        private async Task CheckIfRequesterIsAuthorized(Guid projectId, string requesterId, HashSet<string> allowedRoles)
+        {
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMember(projectId, requesterId, false);
+
+            if (requester is null)
+            {
+                throw new NotAProjectMemberException();
+            }
+
+            var requesterRole = await _repositoryManager.ProjectRoleRepository.GetProjectRoleById(projectId, (Guid)requester.ProjectRoleId, false);
+
+            if (!allowedRoles.Contains(requesterRole.Name))
+            {
+                throw new IncorrectRoleException();
+            }
+        }
+
+        private void CheckIfRequesterIdAndRouteUserIdMatch(string userId, string requesterId)
+        {
+            if (userId != requesterId)
+            {
+                throw new IncorrectRoleException();
+            }
+        }
+
+        #endregion
     }
 }
