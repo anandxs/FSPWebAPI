@@ -56,6 +56,11 @@ namespace Service
             _repositoryManager.ProjectRoleRepository.DefaultProjectRoleCreation(projectEntity.ProjectId);
             await _repositoryManager.SaveAsync();
 
+            var adminRole = await _repositoryManager.ProjectRoleRepository.GetProjectRole(projectEntity.ProjectId, "Admin", false);
+
+            _repositoryManager.ProjectMemberRepository.AddProjectMember(projectEntity.ProjectId, ownerId, adminRole.RoleId);
+            await _repositoryManager.SaveAsync();
+
             var projectToReturn = _mapper.Map<ProjectDto>(projectEntity);
 
             return projectToReturn;
