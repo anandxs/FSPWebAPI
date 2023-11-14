@@ -91,10 +91,10 @@ namespace FSPWebAPI.Presentation.Controllers
 
         private string GetRequesterId()
         {
-            var claimsIdentity = (ClaimsIdentity)User.Identity;
+            var claimsIdentity = (ClaimsIdentity)User.Identity!;
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
 
-            return claim.Value;
+            return claim!.Value;
         }
     }
 }
