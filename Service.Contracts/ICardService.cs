@@ -4,6 +4,7 @@ namespace Service.Contracts
 {
     public interface ICardService
     {
+        Task<IEnumerable<CardDto>> GetCardsForProjectAsync(string userId, Guid projectId, string requesterId, bool trackChanges);
         Task<IEnumerable<CardDto>> GetCardsForGroupAsync(string userId, Guid projectId, string requesterId, Guid groupId, bool trackChanges);
         Task<CardDto> GetCardByIdAsync(string userId, Guid projectId, string requesterId, Guid groupId, Guid cardId, bool trackChanges);
         Task<CardDto> CreateCardAsync(string userId, Guid projectId, string requesterId, Guid groupId, CardForCreationDto cardForCreation, bool trackChanges);

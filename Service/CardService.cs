@@ -27,17 +27,40 @@ namespace Service
             _userManager = userManager;
         }
 
+        public async Task<IEnumerable<CardDto>> GetCardsForProjectAsync(string userId, Guid projectId, string requesterId, bool trackChanges)
+        {
+            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member", "Observer" });
+            
+            await CheckIfUserAndProjectExists(userId, projectId, trackChanges);
+
+            var groups = await _repositoryManager.GroupRepository.GetGroupsForProjectAsync(projectId, trackChanges);
+
+            List<Card> cards = new List<Card>();
+
+            foreach ( var group in groups )
+            {
+                var temp = await _repositoryManager.CardRepository.GetCardsForGroupAsync(group.GroupId, trackChanges);
+
+                cards.AddRange(temp);
+            }
+
+            var cardsToReturn = _mapper.Map<IEnumerable<CardDto>>(cards);
+
+            return cardsToReturn;
+        }
+
+        
         public async Task<IEnumerable<CardDto>> GetCardsForGroupAsync(string userId, Guid projectId, string requesterId, Guid groupId, bool trackChanges)
         {
             await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member", "Observer" });
 
             await CheckIfUserProjectAndGroupExistsAsync(userId, projectId, groupId, trackChanges);
 
-            var companies = await _repositoryManager.CardRepository.GetCardsForGroupAsync(groupId, trackChanges);
+            var cards = await _repositoryManager.CardRepository.GetCardsForGroupAsync(groupId, trackChanges);
 
-            var companiesDto = _mapper.Map<IEnumerable<CardDto>>(companies);
+            var cardsDto = _mapper.Map<IEnumerable<CardDto>>(cards);
 
-            return companiesDto;
+            return cardsDto;
         }
 
         public async Task<CardDto> GetCardByIdAsync(string userId, Guid projectId, string requesterId, Guid groupId, Guid cardId, bool trackChanges)
@@ -170,6 +193,23 @@ namespace Service
             if (group is null)
             {
                 throw new GroupNotFoundException(groupId);
+            }
+        }
+
+        private async Task CheckIfUserAndProjectExists(string userId, Guid projectId, bool trackChanges)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user is null)
+            {
+                throw new UserNotFoundException(userId);
+            }
+
+            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(userId, projectId, trackChanges);
+
+            if (project is null)
+            {
+                throw new ProjectNotFoundException(projectId);
             }
         }
 

@@ -22,9 +22,10 @@ namespace FSPWebAPI.Extensions
             {
                 options.AddPolicy("CorsPolicy", builder =>
                 {
-                    builder.AllowAnyOrigin()
+                    builder.WithOrigins("http://127.0.0.1:5173")
                         .AllowAnyMethod()
-                        .AllowAnyHeader();
+                        .AllowAnyHeader()
+                        .AllowCredentials();
                 });
             });
         }

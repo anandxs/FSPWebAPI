@@ -8,7 +8,7 @@ using System.Security.Claims;
 namespace FSPWebAPI.Presentation.Controllers
 {
     [ApiController]
-    [Route("api/users/{userId}/projects/{projectId}/groups/{groupId}/cards")]
+    [Route("api/users/{userId}/projects/{projectId}")]
     [Authorize]
     public class CardController : ControllerBase
     {
@@ -19,7 +19,17 @@ namespace FSPWebAPI.Presentation.Controllers
             _service = service;
         }
 
-        [HttpGet]
+        [HttpGet("cards")]
+        public async Task<IActionResult> GetCardsForProject(string userId, Guid projectId)
+        {
+            var requesterId = GetRequesterId();
+
+            var cards = await _service.CardService.GetCardsForProjectAsync(userId, projectId, requesterId, false);
+
+            return Ok(cards);
+        }
+
+        [HttpGet("groups/{groupId:guid}/cards")]
         public async Task<IActionResult> GetCardsForGroup(string userId, Guid projectId, Guid groupId)
         {
             var requesterId = GetRequesterId();
@@ -29,7 +39,7 @@ namespace FSPWebAPI.Presentation.Controllers
             return Ok(cards);
         }
 
-        [HttpGet("{cardId:guid}", Name = "GetCardById")]
+        [HttpGet("groups/{groupId:guid}/cards/{cardId:guid}", Name = "GetCardById")]
         public async Task<IActionResult> GetCardById(string userId, Guid projectId, Guid groupId, Guid cardId) 
         {
             var requesterId = GetRequesterId();
@@ -39,7 +49,7 @@ namespace FSPWebAPI.Presentation.Controllers
             return Ok(card);
         }
 
-        [HttpPost]
+        [HttpPost("groups/{groupId:guid}/cards")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateCard(string userId, Guid projectId, Guid groupId, CardForCreationDto cardForCreation)
         {
@@ -59,7 +69,7 @@ namespace FSPWebAPI.Presentation.Controllers
                 card);
         }
 
-        [HttpPut("{cardId:guid}")]
+        [HttpPut("groups/{groupId:guid}/cards/{cardId:guid}")]
         public async Task<IActionResult> UpdateCard(string userId, Guid projectId, Guid groupId, Guid cardId, CardForUpdateDto cardForUpdate)
         {
             var requesterId = GetRequesterId();
@@ -69,7 +79,7 @@ namespace FSPWebAPI.Presentation.Controllers
             return NoContent();
         }
 
-        [HttpPut("{cardId:guid}/archive")]
+        [HttpPut("groups/{groupId:guid}/cards/{cardId:guid}/archive")]
         public async Task<IActionResult> ToggleArchiveStatus(string userId, Guid projectId, Guid groupId, Guid cardId)
         {
             var requesterId = GetRequesterId();
@@ -79,7 +89,7 @@ namespace FSPWebAPI.Presentation.Controllers
             return NoContent();
         }
 
-        [HttpDelete("{cardId:guid}")]
+        [HttpDelete("groups/{groupId:guid}/cards/{cardId:guid}")]
         public async Task<IActionResult> DeleteCard(string userId, Guid projectId, Guid groupId, Guid cardId)
         {
             var requesterId = GetRequesterId();
