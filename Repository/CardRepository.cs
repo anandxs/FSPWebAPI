@@ -26,7 +26,7 @@ namespace Repository
 
         public async Task<IEnumerable<Card>> GetCardsForGroupAsync(Guid groupId, bool trackChanges)
         {
-            return await FindByCondition(c => c.GroupId.Equals(groupId), trackChanges).ToListAsync();
+            return await FindByCondition(c => c.GroupId.Equals(groupId), trackChanges).Include(c => c.Group).ToListAsync();
         }
 
         public void DeleteCard(Card card)
