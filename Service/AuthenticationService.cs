@@ -3,10 +3,8 @@ using Contracts;
 using Entities.ConfigurationModels;
 using Entities.Exceptions;
 using Entities.Models;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using Service.Contracts;
@@ -152,7 +150,7 @@ namespace Service
                 ValidateIssuer = true,
                 ValidateIssuerSigningKey = true,
                 IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECRET"))),
-                ValidateLifetime = true,
+                ValidateLifetime = false,
                 ValidIssuer = _jwtConfiguration.ValidIssuer,
                 ValidAudience = _jwtConfiguration.ValidAudience
             };

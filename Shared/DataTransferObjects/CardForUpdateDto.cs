@@ -10,5 +10,6 @@ namespace Shared.DataTransferObjects
         [MaxLength(1000, ErrorMessage = "Maximum length of description is 1000 characters.")]
         public string? Description { get; set; }
         public DateTime? DueDate { get; set; }
+        public Guid GroupId { get; set; }
     }
 }

@@ -1,7 +1,6 @@
 ﻿using Contracts;
 using Entities.Models;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.ChangeTracking.Internal;
 
 namespace Repository
 {
@@ -21,7 +20,7 @@ namespace Repository
 
         public async Task<Card> GetCardByIdAsync(Guid groupId, Guid cardId, bool trackChanges)
         {
-            return await FindByCondition(c => c.CardId.Equals(cardId), trackChanges).SingleOrDefaultAsync();
+            return await FindByCondition(c => c.CardId.Equals(cardId), trackChanges).Include(c => c.Group).SingleOrDefaultAsync();
         }
 
         public async Task<IEnumerable<Card>> GetCardsForGroupAsync(Guid groupId, bool trackChanges)

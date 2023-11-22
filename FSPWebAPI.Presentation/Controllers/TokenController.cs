@@ -1,4 +1,5 @@
 ﻿using FSPWebAPI.Presentation.ActionFilters;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared.DataTransferObjects;
@@ -15,11 +16,26 @@ namespace FSPWebAPI.Presentation.Controllers
             _service = service;
         }
 
-        [HttpPost("refresh")]
-        [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> Refresh([FromBody] TokenDto tokenDto)
+        [HttpGet("refresh")]
+        public async Task<IActionResult> Refresh()
         {
-            var tokenDtoToReturn = await _service.AuthenticationService.RefreshToken(tokenDto);
+            if (!(Request.Cookies.TryGetValue("X-Access-Token", out var accessToken) && Request.Cookies.TryGetValue("X-Refresh-Token", out var refreshToken)))
+            {
+                return BadRequest();
+            }
+
+            var tokenDtoToReturn = await _service.AuthenticationService.RefreshToken(new TokenDto(accessToken, refreshToken));
+            
+            var options = new CookieOptions
+            {
+                HttpOnly = true,
+                SameSite = SameSiteMode.None,
+                MaxAge = TimeSpan.FromDays(30),
+                Secure = true
+            };
+
+            HttpContext.Response.Cookies.Append("X-Access-Token", tokenDtoToReturn.AccessToken, options);
+            HttpContext.Response.Cookies.Append("X-Refresh-Token", tokenDtoToReturn.RefreshToken, options);
 
             return Ok(tokenDtoToReturn);
         }

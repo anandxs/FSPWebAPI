@@ -22,7 +22,7 @@ namespace FSPWebAPI.Extensions
             {
                 options.AddPolicy("CorsPolicy", builder =>
                 {
-                    builder.WithOrigins("http://127.0.0.1:5173")
+                    builder.WithOrigins("http://127.0.0.1:5173", "http://localhost:5173")
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials();
@@ -97,8 +97,21 @@ namespace FSPWebAPI.Extensions
                         ValidIssuer = jwtConfiguration.ValidIssuer,
                         ValidAudience = jwtConfiguration.ValidAudience,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
-                        ClockSkew = TimeSpan.FromHours(8)
                     };
+
+                    options.Events = new JwtBearerEvents()
+                    { 
+                        OnMessageReceived = context =>
+                        {
+                            if (context.Request.Cookies.ContainsKey("X-Access-Token"))
+                            {
+                                context.Token = context.Request.Cookies["X-Access-Token"];
+                            }
+
+                            return Task.CompletedTask;
+                        }
+                    };
+                    
                 });
         }
 

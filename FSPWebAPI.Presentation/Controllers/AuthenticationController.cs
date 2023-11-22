@@ -1,5 +1,4 @@
-﻿using Entities.ErrorModel;
-using FSPWebAPI.Presentation.ActionFilters;
+﻿using FSPWebAPI.Presentation.ActionFilters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
@@ -54,6 +53,16 @@ namespace FSPWebAPI.Presentation.Controllers
             }
 
             var tokenDto = await _service.AuthenticationService.CreateToken(true);
+            var options = new CookieOptions
+            {
+                HttpOnly = true,
+                SameSite = SameSiteMode.None,
+                MaxAge = TimeSpan.FromDays(30),
+                Secure = true,
+            };
+
+            HttpContext.Response.Cookies.Append("X-Access-Token", tokenDto.AccessToken, options);
+            HttpContext.Response.Cookies.Append("X-Refresh-Token", tokenDto.RefreshToken, options);
 
             return Ok(tokenDto);
         }
