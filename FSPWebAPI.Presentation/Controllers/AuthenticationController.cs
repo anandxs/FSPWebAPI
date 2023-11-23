@@ -1,4 +1,5 @@
 ﻿using FSPWebAPI.Presentation.ActionFilters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
@@ -65,6 +66,20 @@ namespace FSPWebAPI.Presentation.Controllers
             HttpContext.Response.Cookies.Append("X-Refresh-Token", tokenDto.RefreshToken, options);
 
             return Ok(tokenDto);
+        }
+
+        [Authorize]
+        [HttpDelete]
+        public async Task<IActionResult> Logout()
+        {
+            if (!(Request.Cookies.TryGetValue("X-Access-Token", out var accessToken) && Request.Cookies.TryGetValue("X-Refresh-Token", out var refreshToken)))
+            {
+                return BadRequest();
+            }
+
+            await _service.AuthenticationService.RevokeRefresh(new TokenDto(accessToken, refreshToken));
+
+            return NoContent();
         }
     }
 }

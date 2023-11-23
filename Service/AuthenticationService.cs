@@ -99,6 +99,20 @@ namespace Service
             return await CreateToken(false);
         }
 
+        public async Task RevokeRefresh(TokenDto tokenDto)
+        {
+            var principal = GetPrincipalFromExpiredToken(tokenDto.AccessToken);
+            var user = await _userManager.FindByEmailAsync(principal.FindFirst(ClaimTypes.Email).Value);
+
+            if (user == null || user.RefreshToken != tokenDto.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
+            {
+                throw new RefreshTokenBadRequest();
+            }
+
+            user.RefreshToken = null;
+            await _userManager.UpdateAsync(user);
+        }
+
         private SigningCredentials GetSigningCredentials()
         {
             var key = Encoding.UTF8.GetBytes(Environment.GetEnvironmentVariable("SECRET"));
