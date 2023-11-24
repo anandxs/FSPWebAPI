@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
+using Shared.DataTransferObjects;
 using System.Security.Claims;
 
 namespace FSPWebAPI.Presentation.Controllers
@@ -25,6 +26,16 @@ namespace FSPWebAPI.Presentation.Controllers
             var user = await _services.UserService.GetUser(requesterId);
 
             return Ok(user);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> UpdateUserInfo([FromBody] UserForUpdateDto userDto)
+        {
+            var requesterId = GetRequesterId();
+
+            await _services.UserService.UpdateUser(requesterId, userDto);
+
+            return NoContent();
         }
 
         private string GetRequesterId()

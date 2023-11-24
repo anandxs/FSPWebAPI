@@ -23,6 +23,24 @@ namespace Service
 
         public async Task<UserDto> GetUser(string userId)
         {
+            var user = await GetUserAndCheckIfTheyExistAsync(userId);
+
+            var userDto = _mapper.Map<UserDto>(user);
+
+            return userDto;
+        }
+
+        public async Task UpdateUser(string userId, UserForUpdateDto userDto)
+        {
+            var user = await GetUserAndCheckIfTheyExistAsync(userId);
+
+            _mapper.Map(userDto, user);
+
+            await _userManager.UpdateAsync(user);
+        }
+
+        private async Task<User> GetUserAndCheckIfTheyExistAsync(string userId)
+        {
             var user = await _userManager.FindByIdAsync(userId);
 
             if (user == null)
@@ -30,9 +48,7 @@ namespace Service
                 throw new UserNotFoundException(userId);
             }
 
-            var userDto = _mapper.Map<UserDto>(user);
-
-            return userDto;
+            return user;
         }
     }
 }
