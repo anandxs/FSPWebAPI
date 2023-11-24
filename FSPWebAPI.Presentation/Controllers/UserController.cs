@@ -23,7 +23,7 @@ namespace FSPWebAPI.Presentation.Controllers
         {
             var requesterId = GetRequesterId();
 
-            var user = await _services.UserService.GetUser(requesterId);
+            var user = await _services.UserService.GetUserAsync(requesterId);
 
             return Ok(user);
         }
@@ -33,7 +33,17 @@ namespace FSPWebAPI.Presentation.Controllers
         {
             var requesterId = GetRequesterId();
 
-            await _services.UserService.UpdateUser(requesterId, userDto);
+            await _services.UserService.UpdateUserAsync(requesterId, userDto);
+
+            return NoContent();
+        }
+
+        [HttpPost("password")]
+        public async Task<IActionResult> UpdatePassword([FromBody] UserForPasswordUpdate userDto)
+        {
+            var requesterId = GetRequesterId();
+
+            await _services.UserService.UpdatePasswordAsync(requesterId, userDto);
 
             return NoContent();
         }

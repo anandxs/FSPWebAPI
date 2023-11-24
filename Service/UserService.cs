@@ -21,7 +21,7 @@ namespace Service
             _mapper = mapper;
         }
 
-        public async Task<UserDto> GetUser(string userId)
+        public async Task<UserDto> GetUserAsync(string userId)
         {
             var user = await GetUserAndCheckIfTheyExistAsync(userId);
 
@@ -30,13 +30,19 @@ namespace Service
             return userDto;
         }
 
-        public async Task UpdateUser(string userId, UserForUpdateDto userDto)
+        public async Task UpdateUserAsync(string userId, UserForUpdateDto userDto)
         {
             var user = await GetUserAndCheckIfTheyExistAsync(userId);
 
             _mapper.Map(userDto, user);
 
             await _userManager.UpdateAsync(user);
+        }
+        public async Task UpdatePasswordAsync(string userId, UserForPasswordUpdate userDto)
+        {
+            var user = await GetUserAndCheckIfTheyExistAsync(userId);
+
+            await _userManager.ChangePasswordAsync(user, userDto.CurrentPassword, userDto.NewPassword);
         }
 
         private async Task<User> GetUserAndCheckIfTheyExistAsync(string userId)
