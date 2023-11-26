@@ -7,10 +7,13 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using NETCore.MailKit.Extensions;
+using NETCore.MailKit.Infrastructure.Internal;
 using Repository;
 using Service;
 using Service.Contracts;
 using System.Text;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace FSPWebAPI.Extensions
 {
@@ -159,6 +162,14 @@ namespace FSPWebAPI.Extensions
                         new List<string>()
                     }
                 });
+            });
+        }
+
+        public static void ConfigureEmail(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.AddMailKit(config =>
+            {
+                config.UseMailKit(configuration.GetSection("Email").Get<MailKitOptions>());
             });
         }
     }

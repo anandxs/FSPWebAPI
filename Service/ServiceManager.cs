@@ -4,6 +4,7 @@ using Entities.ConfigurationModels;
 using Entities.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
+using NETCore.MailKit.Core;
 using Service.Contracts;
 
 namespace Service
@@ -21,10 +22,11 @@ namespace Service
             ILoggerManager logger,
             IMapper mapper,
             UserManager<User> userManager,
-            IOptions<JwtConfiguration> configuration)
+            IOptions<JwtConfiguration> configuration,
+            IEmailService emailService)
         {
             _projectService = new Lazy<IProjectService>(() => new ProjectService(repositoryManager, logger, mapper, userManager));
-            _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(logger, mapper, userManager, configuration));
+            _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(logger, mapper, userManager, configuration, emailService));
             _groupService = new Lazy<IGroupService>(() => new GroupService(repositoryManager, logger, mapper, userManager));
             _cardService = new Lazy<ICardService>(() => new CardService(repositoryManager, logger, mapper, userManager));
             _userService = new Lazy<IUserService>(() => new UserService(logger, mapper, userManager));

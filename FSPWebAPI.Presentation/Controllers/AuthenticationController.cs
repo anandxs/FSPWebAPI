@@ -81,5 +81,18 @@ namespace FSPWebAPI.Presentation.Controllers
 
             return NoContent();
         }
+
+        [HttpGet("verifyemail")]
+        public async Task<IActionResult> ConfirmEmail([FromQuery]VerifyEmailDto emailDto)
+        {
+            var result = await _service.AuthenticationService.VerifyEmailAsync(emailDto);
+
+            if (result.Succeeded)
+            {
+                return NoContent();
+            }
+
+            return BadRequest();
+        }
     }
 }

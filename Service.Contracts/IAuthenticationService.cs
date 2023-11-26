@@ -10,5 +10,6 @@ namespace Service.Contracts
         Task<TokenDto> CreateToken(bool populateExp);
         Task<TokenDto> RefreshToken(TokenDto tokenDto);
         Task RevokeRefresh(TokenDto tokenDto);
+        Task<IdentityResult> VerifyEmailAsync(VerifyEmailDto emailDto);
     }
 }

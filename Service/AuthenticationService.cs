@@ -5,8 +5,10 @@ using Entities.Exceptions;
 using Entities.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.WebUtilities;
 using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
+using NETCore.MailKit.Core;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 using System.IdentityModel.Tokens.Jwt;
@@ -23,6 +25,7 @@ namespace Service
         private readonly UserManager<User> _userManager;
         private readonly IOptions<JwtConfiguration> _configuration;
         private readonly JwtConfiguration _jwtConfiguration;
+        private readonly IEmailService _emailService;
 
         private User? _user;
 
@@ -30,13 +33,15 @@ namespace Service
             ILoggerManager logger,
             IMapper mapper,
             UserManager<User> userManager,
-            IOptions<JwtConfiguration> configuration)
+            IOptions<JwtConfiguration> configuration,
+            IEmailService emailService)
         {
             _logger = logger;
             _mapper = mapper;
             _userManager = userManager;
             _configuration = configuration;
             _jwtConfiguration = _configuration.Value;
+            _emailService = emailService;
         }
 
         public async Task<IdentityResult> RegisterUser([FromBody] UserForRegistrationDto userForRegistration)
@@ -45,6 +50,16 @@ namespace Service
             user.UserName = user.Email;
 
             var result = await _userManager.CreateAsync(user, userForRegistration.Password);
+
+            if(result.Succeeded)
+            {
+                var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
+                code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+                var link = $"https://localhost:5001/api/authentication/verifyemail?code={code}&userid={user.Id}";
+
+                await _emailService.SendAsync(user.Email, "Verify Your Email To Login", $"<h1>Email Verification Pending</h1><p>Click <a href=\"{link}\">here</a> to verify your email and continue logging in.</p>", true);
+            }
 
             return result;
         }
@@ -116,6 +131,17 @@ namespace Service
 
             user.RefreshToken = null;
             await _userManager.UpdateAsync(user);
+        }
+
+        public async Task<IdentityResult> VerifyEmailAsync(VerifyEmailDto emailDto)
+        {
+            var user = await _userManager.FindByIdAsync(emailDto.UserId);
+
+            var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(emailDto.Code));
+
+            var result = await _userManager.ConfirmEmailAsync(user, code);
+
+            return result;
         }
 
         private SigningCredentials GetSigningCredentials()
