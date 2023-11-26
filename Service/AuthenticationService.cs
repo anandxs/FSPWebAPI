@@ -56,7 +56,7 @@ namespace Service
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
-                var link = $"https://localhost:5001/api/authentication/verifyemail?code={code}&userid={user.Id}";
+                var link = $"http://localhost:5173/verifyemail?code={code}&userid={user.Id}";
 
                 await _emailService.SendAsync(user.Email, "Verify Your Email To Login", $"<h1>Email Verification Pending</h1><p>Click <a href=\"{link}\">here</a> to verify your email and continue logging in.</p>", true);
             }
@@ -137,9 +137,50 @@ namespace Service
         {
             var user = await _userManager.FindByIdAsync(emailDto.UserId);
 
+            if (user == null)
+            {
+                _logger.LogWarn($"User with id : {emailDto.UserId} does not exist.");
+                throw new Exception();
+            }
+
             var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(emailDto.Code));
 
             var result = await _userManager.ConfirmEmailAsync(user, code);
+
+            return result;
+        }
+
+        public async Task ForgotPasswordAsync(string email)
+        {
+            var user = await _userManager.FindByEmailAsync(email);
+
+            if (user == null)
+            {
+                _logger.LogWarn($"User with email : {email} does not exist.");
+                throw new Exception();
+            }
+
+            var code = await _userManager.GeneratePasswordResetTokenAsync(user);
+            code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
+
+            var link = $"http://localhost:5173/resetpassword?code={code}&userid={user.Id}";
+
+            await _emailService.SendAsync(user.Email, "Reset Password", $"<h1>Reset Password</h1><p>Click <a href=\"{link}\">here</a> to reset your password.</p>", true);
+        }
+
+        public async Task<IdentityResult> ResetPasswordAsync(ResetPasswordDto resetDto)
+        {
+            var user = await _userManager.FindByIdAsync(resetDto.UserId);
+
+            if (user == null)
+            {
+                _logger.LogWarn($"User with id : {resetDto.UserId} does not exist.");
+                throw new Exception();
+            }
+
+            var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(resetDto.Code));
+
+            var result = await _userManager.ResetPasswordAsync(user, code, resetDto.NewPassword);
 
             return result;
         }

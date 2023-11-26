@@ -82,8 +82,8 @@ namespace FSPWebAPI.Presentation.Controllers
             return NoContent();
         }
 
-        [HttpGet("verifyemail")]
-        public async Task<IActionResult> ConfirmEmail([FromQuery]VerifyEmailDto emailDto)
+        [HttpPost("verifyemail")]
+        public async Task<IActionResult> ConfirmEmail([FromBody]VerifyEmailDto emailDto)
         {
             var result = await _service.AuthenticationService.VerifyEmailAsync(emailDto);
 
@@ -93,6 +93,32 @@ namespace FSPWebAPI.Presentation.Controllers
             }
 
             return BadRequest();
+        }
+
+        [HttpPost("forgotpassword")]
+        public async Task<IActionResult> ForgotPassword([FromBody] string email)
+        {
+            await _service.AuthenticationService.ForgotPasswordAsync(email);
+
+            return NoContent();
+        }
+
+        [HttpPost("resetpassword")]
+        public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetDto)
+        {
+            var result = await _service.AuthenticationService.ResetPasswordAsync(resetDto);
+
+            if (result.Succeeded)
+            {
+                return NoContent();
+            }
+
+            foreach(var error in result.Errors)
+            {
+                ModelState.AddModelError(error.Code, error.Description);
+            }
+
+            return BadRequest(ModelState);
         }
     }
 }

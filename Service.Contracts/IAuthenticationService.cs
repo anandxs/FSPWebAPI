@@ -11,5 +11,7 @@ namespace Service.Contracts
         Task<TokenDto> RefreshToken(TokenDto tokenDto);
         Task RevokeRefresh(TokenDto tokenDto);
         Task<IdentityResult> VerifyEmailAsync(VerifyEmailDto emailDto);
+        Task ForgotPasswordAsync(string email);
+        Task<IdentityResult> ResetPasswordAsync(ResetPasswordDto resetDto);
     }
 }
