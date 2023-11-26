@@ -107,14 +107,14 @@ namespace Service
 
             if (requester is null)
             {
-                throw new NotAProjectMemberException();
+                throw new NotAProjectMemberForbiddenRequestException();
             }
 
             var requesterRole = await _repositoryManager.ProjectRoleRepository.GetProjectRoleById(projectId, (Guid)requester.ProjectRoleId, false);
 
             if (!allowedRoles.Contains(requesterRole.Name))
             {
-                throw new IncorrectRoleException();
+                throw new IncorrectRoleForbiddenRequestException();
             }
         }
 
