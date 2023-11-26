@@ -42,7 +42,12 @@ namespace Service
         {
             var user = await GetUserAndCheckIfTheyExistAsync(userId);
 
-            await _userManager.ChangePasswordAsync(user, userDto.CurrentPassword, userDto.NewPassword);
+            var result = await _userManager.ChangePasswordAsync(user, userDto.CurrentPassword, userDto.NewPassword);
+
+            if (result.Errors.Count() != 0)
+            {
+                throw new IncorrectPasswordBadRequestException();
+            }
         }
 
         private async Task<User> GetUserAndCheckIfTheyExistAsync(string userId)

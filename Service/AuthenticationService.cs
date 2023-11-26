@@ -91,7 +91,7 @@ namespace Service
 
             if (user == null || user.RefreshToken != tokenDto.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
             {
-                throw new RefreshTokenBadRequest();
+                throw new RefreshTokenBadRequestException();
             }
 
             _user = user;
@@ -106,7 +106,7 @@ namespace Service
 
             if (user == null || user.RefreshToken != tokenDto.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
             {
-                throw new RefreshTokenBadRequest();
+                throw new RefreshTokenBadRequestException();
             }
 
             user.RefreshToken = null;
