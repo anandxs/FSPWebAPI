@@ -182,6 +182,11 @@ namespace Service
 
             var result = await _userManager.ResetPasswordAsync(user, code, resetDto.NewPassword);
 
+            if (result.Succeeded)
+            {
+                await _emailService.SendAsync(user.Email, "Password Reset Complete", $"<p>Your password has been reset successfully.</p>", true);
+            }
+
             return result;
         }
 

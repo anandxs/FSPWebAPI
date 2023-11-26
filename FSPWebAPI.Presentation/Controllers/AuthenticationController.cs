@@ -96,9 +96,9 @@ namespace FSPWebAPI.Presentation.Controllers
         }
 
         [HttpPost("forgotpassword")]
-        public async Task<IActionResult> ForgotPassword([FromBody] string email)
+        public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordDto forgotPassword)
         {
-            await _service.AuthenticationService.ForgotPasswordAsync(email);
+            await _service.AuthenticationService.ForgotPasswordAsync(forgotPassword.Email);
 
             return NoContent();
         }
