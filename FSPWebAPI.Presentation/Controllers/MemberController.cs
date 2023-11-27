@@ -19,7 +19,9 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMembersForProject(string userId, Guid projectId)
         {
-            return Ok();
+            var members = await _service.MemberService.GetProjectMembersAsync(userId, projectId, false);
+
+            return Ok(members);
         }
     }
 }

@@ -124,7 +124,7 @@ namespace Service
 
         private async Task CheckIfRequesterIsAuthorized(Guid projectId, string requesterId, HashSet<string> allowedRoles)
         {
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMember(projectId, requesterId, false);
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
 
             if (requester is null)
             {

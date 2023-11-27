@@ -22,6 +22,8 @@ namespace FSPWebAPI
             CreateMap<Card, CardDto>();
             CreateMap<CardForCreationDto, Card>();
             CreateMap<CardForUpdateDto, Card>();
+            CreateMap<ProjectMember, ProjectMemberDto>();
+            CreateMap<ProjectRole, ProjectRoleDto>();
         }
     }
 }

@@ -20,10 +20,18 @@ namespace Repository
             });
         }
 
-        public async Task<ProjectMember> GetProjectMember(Guid projectId, string memberId, bool trackChanges)
+        public async Task<ProjectMember> GetProjectMemberAsync(Guid projectId, string memberId, bool trackChanges)
         {
             return await FindByCondition(m => m.ProjectId.Equals(projectId) && m.MemberId.Equals(memberId), trackChanges)
                     .SingleOrDefaultAsync();
+        }
+
+        public async Task<IEnumerable<ProjectMember>> GetProjectMembersAsync(Guid projectId, bool trackChanges)
+        {
+            return await FindByCondition(m => m.ProjectId.Equals(projectId), trackChanges)
+                    .Include(m => m.User)
+                    .Include(m => m.ProjectRole)
+                    .ToListAsync();
         }
     }
 }
