@@ -7,5 +7,6 @@
         ICardService CardService { get; }
         IAuthenticationService AuthenticationService { get; }
         IUserService UserService { get; }
+        IMemberService MemberService { get; }
     }
 }

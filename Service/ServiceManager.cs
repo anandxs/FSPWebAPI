@@ -16,6 +16,7 @@ namespace Service
         private readonly Lazy<IGroupService> _groupService;
         private readonly Lazy<ICardService> _cardService;
         private readonly Lazy<IUserService> _userService;
+        private readonly Lazy<IMemberService> _memberService;
 
         public ServiceManager(
             IRepositoryManager repositoryManager, 
@@ -30,6 +31,7 @@ namespace Service
             _groupService = new Lazy<IGroupService>(() => new GroupService(repositoryManager, logger, mapper, userManager));
             _cardService = new Lazy<ICardService>(() => new CardService(repositoryManager, logger, mapper, userManager));
             _userService = new Lazy<IUserService>(() => new UserService(logger, mapper, userManager));
+            _memberService = new Lazy<IMemberService>(() => new MemberService(repositoryManager, logger, mapper, userManager));
         }
 
         public IProjectService ProjectService => _projectService.Value;
@@ -37,5 +39,6 @@ namespace Service
         public IAuthenticationService AuthenticationService => _authenticationService.Value;
         public ICardService CardService => _cardService.Value;
         public IUserService UserService => _userService.Value;
+        public IMemberService MemberService => _memberService.Value;
     }
 }
