@@ -8,8 +8,8 @@ using System.Security.Claims;
 namespace FSPWebAPI.Presentation.Controllers
 {
     [ApiController]
-    [Route("api/users/{userId}/projects")]
     [Authorize]
+    [Route("api/users/{userId}/projects")]
     public class ProjectController : ControllerBase
     {
         private readonly IServiceManager _service;
@@ -20,21 +20,21 @@ namespace FSPWebAPI.Presentation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetProjectsOwnedByUser(string userId)
+        public async Task<IActionResult> GetProjectsUserIsPartOf()
         {
             var requesterId = GetRequesterId();
 
-            var projects = await _service.ProjectService.GetProjectsOwnedByUserAsync(userId, requesterId, false);
+            var projects = await _service.ProjectService.GetProjectsUserIsPartOfAsync(requesterId, false);
 
             return Ok(projects);
         }
 
         [HttpGet("{projectId:guid}", Name = "GetProjectById")]
-        public async Task<IActionResult> GetProjectOwnedByUser(string userId, Guid projectId)
+        public async Task<IActionResult> GetProjectUserIsPartOf(string userId, Guid projectId)
         {
             var requesterId = GetRequesterId();
 
-            var project = await _service.ProjectService.GetProjectOwnedByUserAsync(userId, projectId, requesterId, false);
+            var project = await _service.ProjectService.GetProjectUserIsPartOfAsync(userId, projectId, requesterId, false);
 
             return Ok(project);
         }

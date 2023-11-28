@@ -33,5 +33,19 @@ namespace Repository
                     .Include(m => m.ProjectRole)
                     .ToListAsync();
         }
+
+        public async Task<IEnumerable<ProjectMember>> GetProjectsForMemberAsync(string requesterdId, bool trackChanges)
+        {
+            return await FindByCondition(m => m.MemberId.Equals(requesterdId), trackChanges)
+                    .Include(m => m.Project)
+                    .ToListAsync();
+        }
+
+        public async Task<ProjectMember> GetProjectForMemberAsync(string requesterdId, Guid projectId,bool trackChanges)
+        {
+            return await FindByCondition(m => m.MemberId.Equals(requesterdId) && m.ProjectId.Equals(projectId), trackChanges)
+                    .Include(m => m.Project)
+                    .SingleOrDefaultAsync();
+        }
     }
 }

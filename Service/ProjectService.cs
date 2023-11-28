@@ -23,25 +23,21 @@ namespace Service
             _userManager = userManager;
         }
 
-        public async Task<IEnumerable<ProjectDto>> GetProjectsOwnedByUserAsync(string userId, string requesterId, bool trackChanges)
+        public async Task<IEnumerable<ProjectDto>> GetProjectsUserIsPartOfAsync(string requesterId, bool trackChanges)
         {
-            await CheckIfUserExistsAsync(userId);
+            var entities = await _repositoryManager.ProjectMemberRepository.GetProjectsForMemberAsync(requesterId, trackChanges);
 
-            CheckIfRequesterIdAndRouteUserIdMatch(userId, requesterId);
-
-            var projectsFromDb = await _repositoryManager.ProjectRepository.GetProjectsOwnedByUserAsync(userId, trackChanges);
-            var projectsDto = _mapper.Map<IEnumerable<ProjectDto>>(projectsFromDb);
+            var x = entities.Select(m => m.Project);
+            var projectsDto = _mapper.Map<IEnumerable<ProjectDto>>(x);
 
             return projectsDto;
         }
 
-        public async Task<ProjectDto> GetProjectOwnedByUserAsync(string userId, Guid projectId, string requesterId, bool trackChanges)
+        public async Task<ProjectDto> GetProjectUserIsPartOfAsync(string userId, Guid projectId, string requesterId, bool trackChanges)
         {
             await CheckIfUserExistsAsync(userId);
 
-            CheckIfRequesterIdAndRouteUserIdMatch(userId, requesterId);
-
-            var project = await GetProjectAndCheckIfItExistsAsync(userId, projectId, trackChanges);
+            var project = await GetProjectAndCheckIfItExistsAsync(requesterId, projectId, trackChanges);
 
             var projectDto = _mapper.Map<ProjectDto>(project);
 
@@ -120,11 +116,13 @@ namespace Service
             }
         }
 
-        private async Task<Project> GetProjectAndCheckIfItExistsAsync(string userId, Guid projectId, bool trackChanges)
+        private async Task<Project> GetProjectAndCheckIfItExistsAsync(string requesterId, Guid projectId, bool trackChanges)
         {
-            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(userId, projectId, trackChanges);
+            var entity = await _repositoryManager.ProjectMemberRepository.GetProjectForMemberAsync(requesterId, projectId, trackChanges);
 
-            if (project is null)
+            var project = entity.Project;
+
+            if (entity is null || project is null)
             {
                 throw new ProjectNotFoundException(projectId);
             }
