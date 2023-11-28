@@ -8,5 +8,6 @@
         IAuthenticationService AuthenticationService { get; }
         IUserService UserService { get; }
         IMemberService MemberService { get; }
+        IRoleService RoleService { get; }
     }
 }
