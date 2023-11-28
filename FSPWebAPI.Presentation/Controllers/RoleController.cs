@@ -15,5 +15,13 @@ namespace FSPWebAPI.Presentation.Controllers
         {
             _service = service;
         }
+
+        [HttpGet]
+        public async Task<IActionResult> GetProjectRoles(string userId, Guid projectId)
+        {
+            var roles = await _service.RoleService.GetProjectRolesAsync(userId, projectId, false);
+
+            return Ok(roles);
+        }
     }
 }
