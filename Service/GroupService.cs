@@ -91,7 +91,7 @@ namespace Service
         {
             await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
 
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin" });
+            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member" });
 
             var groupEntity = await GetGroupAndCheckIfItExistsAsync(projectId, groupId, trackChanges);
 
