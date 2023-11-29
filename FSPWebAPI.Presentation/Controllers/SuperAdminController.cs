@@ -1,5 +1,7 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using FSPWebAPI.Presentation.ActionFilters;
+using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
+using Shared.DataTransferObjects;
 
 namespace FSPWebAPI.Presentation.Controllers
 {
@@ -17,26 +19,35 @@ namespace FSPWebAPI.Presentation.Controllers
         #region DEFAULT PROJECT ROLE MANAGEMENT
 
         [HttpGet("roles")]
-        public IActionResult GetProjectRoles()
+        public async Task<IActionResult> GetProjectRoles()
         {
-            return Ok();
+            var roles = await _service.DefaultProjectRoleService.GetRolesAsync(false);
+
+            return Ok(roles);
         }
 
         [HttpPost("roles")]
-        public IActionResult CreateProjectRole()
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
+        public async Task<IActionResult> CreateProjectRole([FromBody] DefaultProjectRoleForCreationDto roleDto)
         {
-            return NoContent();
+            await _service.DefaultProjectRoleService.CreateRole(roleDto);
+
+            return StatusCode(201);
         }
 
         [HttpPut("roles/{roleId:guid}")]
-        public IActionResult UpdateProjectRole(Guid roleId)
+        public async Task<IActionResult> UpdateProjectRole(Guid roleId, [FromBody] DefaultProjectRoleForUpdateDto roleDto)
         {
+            await _service.DefaultProjectRoleService.UpdateRole(roleId, roleDto, true);
+
             return NoContent();
         }
 
         [HttpDelete("roles/{roleId:guid}")]
-        public IActionResult DeleteProjectRole(Guid roleId)
+        public async Task<IActionResult> DeleteProjectRole(Guid roleId)
         {
+            await _service.DefaultProjectRoleService.DeleteRole(roleId, false);
+
             return NoContent();
         }
 
