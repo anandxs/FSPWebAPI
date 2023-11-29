@@ -21,5 +21,6 @@ namespace Repository
         public DbSet<ProjectRole>? ProjectRoles { get; set; }
         public DbSet<ProjectMember>? ProjectMembers { get; set; }
         public DbSet<Card>? Cards { get; set; }
+        public DbSet<DefaultProjectRoleRepository> DefaultProjectRoles { get; set; }
     }
 }

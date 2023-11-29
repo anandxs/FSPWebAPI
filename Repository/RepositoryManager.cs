@@ -10,6 +10,7 @@ namespace Repository
         private readonly Lazy<IProjectRoleRepository> _projectRoleRepository;
         private readonly Lazy<IProjectMemberRepository> _projectMemberRepository;
         private readonly Lazy<ICardRepository> _cardRepository;
+        private readonly Lazy<IDefaultProjectRoleRepository> _defaultProjectRoleRepository;
 
         public RepositoryManager(RepositoryContext repositoryContext)
         {
@@ -19,6 +20,7 @@ namespace Repository
             _projectRoleRepository = new Lazy<IProjectRoleRepository>(() => new ProjectRoleRepository(repositoryContext));
             _projectMemberRepository = new Lazy<IProjectMemberRepository>(() => new ProjectMemberRepository(repositoryContext));
             _cardRepository = new Lazy<ICardRepository>(() => new CardRepository(repositoryContext));
+            _defaultProjectRoleRepository = new Lazy<IDefaultProjectRoleRepository>(() => new DefaultProjectRoleRepository(repositoryContext));
         }
 
         public IProjectRepository ProjectRepository => _projectRepository.Value;
@@ -26,6 +28,7 @@ namespace Repository
         public IProjectRoleRepository ProjectRoleRepository => _projectRoleRepository.Value;
         public IProjectMemberRepository ProjectMemberRepository => _projectMemberRepository.Value;
         public ICardRepository CardRepository => _cardRepository.Value;
+        public IDefaultProjectRoleRepository DefaultProjectRoleRepository => _defaultProjectRoleRepository.Value;
 
         public async Task SaveAsync() => await _repositoryContext.SaveChangesAsync();
     }
