@@ -9,5 +9,6 @@
         IUserService UserService { get; }
         IMemberService MemberService { get; }
         IRoleService RoleService { get; }
+        IDefaultProjectRoleService DefaultProjectRoleService { get; }
     }
 }
