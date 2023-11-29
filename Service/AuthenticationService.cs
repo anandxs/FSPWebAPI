@@ -61,7 +61,7 @@ namespace Service
                 var code = await _userManager.GenerateEmailConfirmationTokenAsync(user);
                 code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
-                var link = $"http://localhost:5173/verifyemail?code={code}&userid={user.Id}";
+                var link = $"{_clientConfiguration.Url}/verifyemail?code={code}&userid={user.Id}";
 
                 await _emailService.SendAsync(user.Email, "Verify Your Email To Login", $"<h1>Email Verification Pending</h1><p>Click <a href=\"{link}\">here</a> to verify your email and continue logging in.</p>", true);
             }
@@ -168,7 +168,7 @@ namespace Service
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
             code = WebEncoders.Base64UrlEncode(Encoding.UTF8.GetBytes(code));
 
-            var link = $"http://localhost:5173/resetpassword?code={code}&userid={user.Id}";
+            var link = $"{_clientConfiguration.Url}/resetpassword?code={code}&userid={user.Id}";
 
             await _emailService.SendAsync(user.Email, "Reset Password", $"<h1>Reset Password</h1><p>Click <a href=\"{link}\">here</a> to reset your password.</p>", true);
         }
