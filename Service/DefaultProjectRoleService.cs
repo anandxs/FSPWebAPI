@@ -20,8 +20,15 @@ namespace Service
             _logger = logger;
         }
 
-        public async Task CreateRole(DefaultProjectRoleForCreationDto role)
+        public async Task CreateRole(DefaultProjectRoleForCreationDto role, bool trackChanges)
         {
+            var existingRole = await _repositoryManager.DefaultProjectRoleRepository.GetRoleByNameAsync(role.Name, trackChanges);
+
+            if (existingRole != null)
+            {
+                throw new DuplicateEntryBadRequest();
+            }
+
             var roleEntity = _mapper.Map<DefaultProjectRole>(role);
 
             _repositoryManager.DefaultProjectRoleRepository.CreateRole(roleEntity);

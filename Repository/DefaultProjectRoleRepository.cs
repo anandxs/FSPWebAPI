@@ -26,6 +26,12 @@ namespace Repository
                         .SingleOrDefaultAsync();
         }
 
+        public async Task<DefaultProjectRole> GetRoleByNameAsync(string role, bool trackChanges)
+        {
+            return await FindByCondition(r => r.Name.Equals(role), trackChanges)
+                        .SingleOrDefaultAsync();
+        }
+
         public async Task<IEnumerable<DefaultProjectRole>> GetRolesAsync(bool trackChanges)
         {
             return await FindAll(trackChanges)

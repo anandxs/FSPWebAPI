@@ -14,6 +14,10 @@ namespace Repository
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<DefaultProjectRole>()
+                .HasIndex(r => r.Name)
+                .IsUnique();
         }
 
         public DbSet<Project>? Projects { get; set; }

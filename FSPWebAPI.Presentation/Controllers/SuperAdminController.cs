@@ -30,7 +30,7 @@ namespace FSPWebAPI.Presentation.Controllers
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateProjectRole([FromBody] DefaultProjectRoleForCreationDto roleDto)
         {
-            await _service.DefaultProjectRoleService.CreateRole(roleDto);
+            await _service.DefaultProjectRoleService.CreateRole(roleDto, false);
 
             return StatusCode(201);
         }
