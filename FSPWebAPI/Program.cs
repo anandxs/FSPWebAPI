@@ -30,6 +30,7 @@ builder.Services.ConfigureJWT(builder.Configuration);
 builder.Services.AddJwtConfiguration(builder.Configuration);
 builder.Services.ConfigureSwagger();
 builder.Services.ConfigureEmail(builder.Configuration);
+builder.Services.AddClientConfiguration(builder.Configuration);
 
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(FSPWebAPI.Presentation.AssemblyReference).Assembly);

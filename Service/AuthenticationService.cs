@@ -23,9 +23,11 @@ namespace Service
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
-        private readonly IOptions<JwtConfiguration> _configuration;
+        private readonly IOptions<JwtConfiguration> _jwtOptions;
         private readonly JwtConfiguration _jwtConfiguration;
         private readonly IEmailService _emailService;
+        private readonly IOptions<ClientConfiguration> _clientOptions;
+        private readonly ClientConfiguration _clientConfiguration;
 
         private User? _user;
 
@@ -33,15 +35,18 @@ namespace Service
             ILoggerManager logger,
             IMapper mapper,
             UserManager<User> userManager,
-            IOptions<JwtConfiguration> configuration,
-            IEmailService emailService)
+            IOptions<JwtConfiguration> jwtOptions,
+            IEmailService emailService,
+            IOptions<ClientConfiguration> clientOptions)
         {
             _logger = logger;
             _mapper = mapper;
             _userManager = userManager;
-            _configuration = configuration;
-            _jwtConfiguration = _configuration.Value;
+            _jwtOptions = jwtOptions;
+            _jwtConfiguration = _jwtOptions.Value;
             _emailService = emailService;
+            _clientOptions = clientOptions;
+            _clientConfiguration = _clientOptions.Value;
         }
 
         public async Task<IdentityResult> RegisterUser([FromBody] UserForRegistrationDto userForRegistration)

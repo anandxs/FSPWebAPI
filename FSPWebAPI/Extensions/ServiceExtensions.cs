@@ -123,6 +123,11 @@ namespace FSPWebAPI.Extensions
             services.Configure<JwtConfiguration>(configuration.GetSection("JwtSettings"));
         }
 
+        public static void AddClientConfiguration(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.Configure<ClientConfiguration>(configuration.GetSection("Client"));
+        }
+
         public static void ConfigureSwagger(this IServiceCollection services)
         {
             services.AddSwaggerGen(s =>
