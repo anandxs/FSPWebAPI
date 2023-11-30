@@ -54,6 +54,7 @@ namespace FSPWebAPI.Presentation.Controllers
             }
 
             var tokenDto = await _service.AuthenticationService.CreateToken(true);
+
             var options = new CookieOptions
             {
                 HttpOnly = true,
