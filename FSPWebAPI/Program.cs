@@ -30,6 +30,7 @@ builder.Services.AddJwtConfiguration(builder.Configuration);
 builder.Services.ConfigureSwagger();
 builder.Services.ConfigureEmail(builder.Configuration);
 builder.Services.AddClientConfiguration(builder.Configuration);
+builder.Services.AddSuperAdminConfiguration(builder.Configuration);
 builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 
 builder.Services.AddControllers()

@@ -128,6 +128,11 @@ namespace FSPWebAPI.Extensions
             services.Configure<ClientConfiguration>(configuration.GetSection("Client"));
         }
 
+        public static void AddSuperAdminConfiguration(this IServiceCollection services, IConfiguration configuration)
+        {
+            services.Configure<SuperAdminConfiguration>(configuration.GetSection("SuperAdmin"));
+        }
+
         public static void ConfigureSwagger(this IServiceCollection services)
         {
             services.AddSwaggerGen(s =>

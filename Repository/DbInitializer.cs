@@ -1,6 +1,9 @@
 ﻿using Contracts;
+using Entities.ConfigurationModels;
 using Entities.Models;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.Extensions.Options;
+using Shared.Constants;
 
 namespace Repository
 {
@@ -9,15 +12,20 @@ namespace Repository
         private readonly UserManager<User> _userManager;
         private readonly RoleManager<IdentityRole> _roleManager;
         private readonly ILoggerManager _logger;
+        private readonly IOptions<SuperAdminConfiguration> _options;
+        private readonly SuperAdminConfiguration _superAdminConfiguration;
 
         public DbInitializer(
             UserManager<User> userManager, 
             RoleManager<IdentityRole> roleManager,
-            ILoggerManager logger)
+            ILoggerManager logger,
+            IOptions<SuperAdminConfiguration> options)
         {
             _userManager = userManager;
             _roleManager = roleManager;
             _logger = logger;
+            _options = options;
+            _superAdminConfiguration = _options.Value;
         }
 
         public void Initialize()
@@ -26,26 +34,28 @@ namespace Repository
             {
                 if (!_roleManager.Roles.Any())
                 {
-                    _roleManager.CreateAsync(new IdentityRole { Name = "SUPERADMIN" }).GetAwaiter().GetResult();
+                    _roleManager.CreateAsync(new IdentityRole { Name = Constants.SUPERADMIN_ROLE }).GetAwaiter().GetResult();
 
                     var superAdmin = new User
                     {
-                        FirstName = "Super",
-                        LastName = "Admin",
-                        Email = "admin@mail.com",
+                        FirstName = _superAdminConfiguration.FirstName,
+                        LastName = _superAdminConfiguration.LastName,
+                        Email = _superAdminConfiguration.Email,
                         EmailConfirmed = true,
-                        UserName = "admin@mail.com"
+                        UserName = _superAdminConfiguration.Email
                     };
 
-                    _userManager.CreateAsync(superAdmin, "Password1").GetAwaiter().GetResult();
+                    var password = Environment.GetEnvironmentVariable("SADMINPWD");
 
-                    _userManager.AddToRoleAsync(superAdmin, "SUPERADMIN").GetAwaiter().GetResult();
+                    _userManager.CreateAsync(superAdmin, password).GetAwaiter().GetResult();
+
+                    _userManager.AddToRoleAsync(superAdmin, Constants.SUPERADMIN_ROLE).GetAwaiter().GetResult();
                 }
             }
             catch (Exception ex)
             {
-                _logger.LogError("Superadmin creation failed.");
-                _logger.LogError($"{ex.ToString()}");
+                _logger.LogError("Could not create super admin");
+                _logger.LogError(ex.Message);
             }
         }
     }

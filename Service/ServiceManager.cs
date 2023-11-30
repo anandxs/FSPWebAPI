@@ -27,13 +27,14 @@ namespace Service
             UserManager<User> userManager,
             IOptions<JwtConfiguration> jwtConfiguration,
             IOptions<ClientConfiguration> clientConfiguration,
+            IOptions<SuperAdminConfiguration> adminConfiguration,
             IEmailService emailService)
         {
             _projectService = new Lazy<IProjectService>(() => new ProjectService(repositoryManager, logger, mapper, userManager));
-            _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(logger, mapper, userManager, jwtConfiguration, emailService, clientConfiguration));
+            _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(logger, mapper, userManager, jwtConfiguration, emailService, clientConfiguration, adminConfiguration));
             _groupService = new Lazy<IGroupService>(() => new GroupService(repositoryManager, logger, mapper, userManager));
             _cardService = new Lazy<ICardService>(() => new CardService(repositoryManager, logger, mapper, userManager));
-            _userService = new Lazy<IUserService>(() => new UserService(logger, mapper, userManager));
+            _userService = new Lazy<IUserService>(() => new UserService(logger, mapper, userManager, emailService));
             _memberService = new Lazy<IMemberService>(() => new MemberService(repositoryManager, logger, mapper, userManager, emailService));
             _roleService = new Lazy<IRoleService>(() => new RoleService(repositoryManager, logger, mapper, userManager));
             _defaultProjectRoleService = new Lazy<IDefaultProjectRoleService>(() => new DefaultProjectRoleService(repositoryManager, logger, mapper));

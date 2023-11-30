@@ -2,13 +2,14 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
+using Shared.Constants;
 using Shared.DataTransferObjects;
 
 namespace FSPWebAPI.Presentation.Controllers
 {
     [Route("api/superadmin")]
     [ApiController]
-    [Authorize(Roles = "SUPERADMIN")]
+    [Authorize(Roles = Constants.SUPERADMIN_ROLE)]
     public class SuperAdminController : ControllerBase
     {
         private readonly IServiceManager _service;

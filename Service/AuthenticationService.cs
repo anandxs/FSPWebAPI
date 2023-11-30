@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NETCore.MailKit.Core;
 using Service.Contracts;
+using Shared.Constants;
 using Shared.DataTransferObjects;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -28,6 +29,8 @@ namespace Service
         private readonly IEmailService _emailService;
         private readonly IOptions<ClientConfiguration> _clientOptions;
         private readonly ClientConfiguration _clientConfiguration;
+        private readonly IOptions<SuperAdminConfiguration> _adminOptions;
+        private readonly SuperAdminConfiguration _adminConfiguration;
 
         private User? _user;
 
@@ -37,7 +40,8 @@ namespace Service
             UserManager<User> userManager,
             IOptions<JwtConfiguration> jwtOptions,
             IEmailService emailService,
-            IOptions<ClientConfiguration> clientOptions)
+            IOptions<ClientConfiguration> clientOptions,
+            IOptions<SuperAdminConfiguration> adminOptions)
         {
             _logger = logger;
             _mapper = mapper;
@@ -47,6 +51,8 @@ namespace Service
             _emailService = emailService;
             _clientOptions = clientOptions;
             _clientConfiguration = _clientOptions.Value;
+            _adminOptions = adminOptions;
+            _adminConfiguration = _adminOptions.Value;
         }
 
         public async Task<IdentityResult> RegisterUser([FromBody] UserForRegistrationDto userForRegistration)
@@ -205,7 +211,7 @@ namespace Service
 
         private async Task<List<Claim>> GetClaims()
         {
-            var role = _user.Email == "admin@mail.com" ? "SUPERADMIN" : "USER";
+            var role = _user!.Email == _adminConfiguration.Email ? Constants.SUPERADMIN_ROLE : Constants.USER_ROLE;
 
             var claims = new List<Claim>
             {
