@@ -3,6 +3,7 @@ using Contracts;
 using Entities.Exceptions;
 using Entities.Models;
 using Microsoft.AspNetCore.Identity;
+using NETCore.MailKit.Core;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -13,12 +14,18 @@ namespace Service
         private readonly UserManager<User> _userManager;
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
+        private readonly IEmailService _emailService;
 
-        public UserService(ILoggerManager logger, IMapper mapper, UserManager<User> userManager)
+        public UserService(
+            ILoggerManager logger,
+            IMapper mapper, 
+            UserManager<User> userManager,
+            IEmailService emailService)
         {
             _userManager = userManager;
             _logger = logger;
             _mapper = mapper;
+            _emailService = emailService;
         }
 
         public async Task<UserDto> GetUserAsync(string userId)
@@ -46,8 +53,11 @@ namespace Service
 
             if (result.Errors.Count() != 0)
             {
+                _logger.LogWarn("User gave incorrect password");
                 throw new IncorrectPasswordBadRequestException();
             }
+
+            await _emailService.SendAsync(user.Email, "Password Changed", $"<p>Your password has been changed successfully.</p>", true);
         }
 
         private async Task<User> GetUserAndCheckIfTheyExistAsync(string userId)
