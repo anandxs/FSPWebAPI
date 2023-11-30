@@ -205,11 +205,14 @@ namespace Service
 
         private async Task<List<Claim>> GetClaims()
         {
+            var role = _user.Email == "admin@mail.com" ? "SUPERADMIN" : "USER";
+
             var claims = new List<Claim>
             {
                 new Claim(ClaimTypes.Email, _user.Email),
                 new Claim(ClaimTypes.Name, $"{_user.FirstName} {_user.LastName}"),
-                new Claim(ClaimTypes.NameIdentifier, _user.Id)
+                new Claim(ClaimTypes.NameIdentifier, _user.Id),
+                new Claim(ClaimTypes.Role, role)
             };
 
             return claims;
