@@ -55,7 +55,17 @@ namespace Service
             _repositoryManager.ProjectRepository.CreateProject(projectEntity, ownerId);
             await _repositoryManager.SaveAsync();
 
-            _repositoryManager.ProjectRoleRepository.DefaultProjectRoleCreation(projectEntity.ProjectId);
+            var defaultRoles = await _repositoryManager.DefaultProjectRoleRepository.GetRolesAsync(false);
+
+            foreach (var defaultRole in defaultRoles)
+            {
+                var role = new ProjectRole
+                {
+                    Name = defaultRole.Name,
+                    ProjectId = projectEntity.ProjectId
+                };
+                _repositoryManager.ProjectRoleRepository.CreateRole(role);  
+            }
             await _repositoryManager.SaveAsync();
 
             var adminRole = await _repositoryManager.ProjectRoleRepository.GetProjectRoleByName(projectEntity.ProjectId, "Admin", false);

@@ -10,27 +10,6 @@ namespace Repository
         {
         }
 
-        public void DefaultProjectRoleCreation(Guid projectId)
-        {
-            Create(new ProjectRole
-            {
-                Name = "Admin",
-                ProjectId = projectId
-            });
-
-            Create(new ProjectRole
-            {
-                Name = "Member",
-                ProjectId = projectId
-            });
-
-            Create(new ProjectRole
-            {
-                Name = "Observer",
-                ProjectId = projectId
-            });
-        }
-
         public async Task<ProjectRole> GetProjectRoleByName(Guid projectId, string role, bool trackChanges)
         {
             return await FindByCondition(r => r.ProjectId.Equals(projectId) && r.Name.Equals(role), trackChanges)
@@ -47,6 +26,11 @@ namespace Repository
         {
             return await FindByCondition(r => r.ProjectId.Equals(projectId), trackChanges)
                     .ToListAsync();
+        }
+
+        public void CreateRole(ProjectRole role)
+        {
+            Create(role);
         }
     }
 }

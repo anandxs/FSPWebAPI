@@ -5,6 +5,7 @@ using Entities.Models;
 using Microsoft.AspNetCore.Identity;
 using NETCore.MailKit.Core;
 using Service.Contracts;
+using Shared.Constants;
 using Shared.DataTransferObjects;
 
 namespace Service
@@ -33,6 +34,10 @@ namespace Service
             var user = await GetUserAndCheckIfTheyExistAsync(userId);
 
             var userDto = _mapper.Map<UserDto>(user);
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            userDto.role = roles.Count != 0 ? roles[0] : Constants.USER_ROLE;
 
             return userDto;
         }
