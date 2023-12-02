@@ -8,7 +8,7 @@ using System.Security.Claims;
 namespace FSPWebAPI.Presentation.Controllers
 {
     [ApiController]
-    [Route("api/users/{userId}/projects/{projectId}/members")]
+    [Route("api/owner/{ownerId}/projects/{projectId}/members")]
     [Authorize(Roles = Constants.USER_ROLE)]
     public class MemberController : ControllerBase
     {
@@ -20,34 +20,34 @@ namespace FSPWebAPI.Presentation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetMembersForProject(string userId, Guid projectId)
+        public async Task<IActionResult> GetMembersForProject(string ownerId, Guid projectId)
         {
-            var members = await _service.MemberService.GetProjectMembersAsync(userId, projectId, false);
+            var members = await _service.MemberService.GetProjectMembersAsync(ownerId, projectId, false);
 
             return Ok(members);
         }
 
         [HttpPost]
-        public async Task<IActionResult> InviteUser(string userId, Guid projectId, [FromBody] MemberForCreationDto memberDto)
+        public async Task<IActionResult> InviteUser(string ownerId, Guid projectId, [FromBody] MemberForCreationDto memberDto)
         {
             var requesterId = GetRequesterId();
 
-            await _service.MemberService.InviteUserAsync(requesterId, userId, projectId, memberDto, false);
+            await _service.MemberService.InviteUserAsync(requesterId, ownerId, projectId, memberDto, false);
 
             return NoContent();
         }
 
         [HttpDelete("{memberId}")]
-        public async Task<IActionResult> RemoveMember(string userId, Guid projectId, string memberId)
+        public async Task<IActionResult> RemoveMember(string ownerId, Guid projectId, string memberId)
         {
             var requesterId = GetRequesterId();
 
-            if (userId == memberId)
+            if (ownerId == memberId)
             {
                 return BadRequest("Invalid action.");
             }
 
-            await _service.MemberService.RemoveMemberAsync(requesterId, userId, projectId, memberId, false);
+            await _service.MemberService.RemoveMemberAsync(requesterId, ownerId, projectId, memberId, false);
 
             return NoContent();
         }

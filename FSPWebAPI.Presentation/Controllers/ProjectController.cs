@@ -9,7 +9,7 @@ using System.Security.Claims;
 namespace FSPWebAPI.Presentation.Controllers
 {
     [ApiController]
-    [Route("api/users/{userId}/projects")]
+    [Route("api/owner/{ownerId}/projects")]
     [Authorize(Roles = Constants.USER_ROLE)]
     public class ProjectController : ControllerBase
     {
@@ -31,53 +31,53 @@ namespace FSPWebAPI.Presentation.Controllers
         }
 
         [HttpGet("{projectId:guid}", Name = "GetProjectById")]
-        public async Task<IActionResult> GetProjectUserIsPartOf(string userId, Guid projectId)
+        public async Task<IActionResult> GetProjectUserIsPartOf(string ownerId, Guid projectId)
         {
             var requesterId = GetRequesterId();
 
-            var project = await _service.ProjectService.GetProjectUserIsPartOfAsync(userId, projectId, requesterId, false);
+            var project = await _service.ProjectService.GetProjectUserIsPartOfAsync(ownerId, projectId, requesterId, false);
 
             return Ok(project);
         }
 
         [HttpPost]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> CreateProject(string userId, [FromBody] ProjectForCreationDto projectDto)
+        public async Task<IActionResult> CreateProject(string ownerId, [FromBody] ProjectForCreationDto projectDto)
         {
             var requesterId = GetRequesterId();
 
-            var project = await _service.ProjectService.CreateProjectAsync(userId, requesterId, projectDto);
+            var project = await _service.ProjectService.CreateProjectAsync(ownerId, requesterId, projectDto);
 
-            return CreatedAtRoute("GetProjectById", new { userId = userId, projectId = project.ProjectId }, project);
+            return CreatedAtRoute("GetProjectById", new { ownerId = ownerId, projectId = project.ProjectId }, project);
         }
 
         [HttpPut("{projectId:guid}")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> UpdateProject(string userId, Guid projectId, [FromBody] ProjectForUpdateDto projectDto)
+        public async Task<IActionResult> UpdateProject(string ownerId, Guid projectId, [FromBody] ProjectForUpdateDto projectDto)
         {
             var requesterId = GetRequesterId();
 
-            await _service.ProjectService.UpdateProjectAsync(userId, projectId, requesterId, projectDto, true);
+            await _service.ProjectService.UpdateProjectAsync(ownerId, projectId, requesterId, projectDto, true);
 
             return NoContent();
         }
 
         [HttpPut("{projectId:guid}/archive")]
-        public async Task<IActionResult> ToggleArchiveStatus(string userId, Guid projectId)
+        public async Task<IActionResult> ToggleArchiveStatus(string ownerId, Guid projectId)
         {
             var requesterId = GetRequesterId();
 
-            await _service.ProjectService.ToggleArchive(userId, projectId, requesterId, true);
+            await _service.ProjectService.ToggleArchive(ownerId, projectId, requesterId, true);
 
             return NoContent();
         }
 
         [HttpDelete("{projectId:guid}")]
-        public async Task<IActionResult> DeleteProject(string userId, Guid projectId)
+        public async Task<IActionResult> DeleteProject(string ownerId, Guid projectId)
         {
             var requesterId = GetRequesterId();
 
-            await _service.ProjectService.DeleteProject(userId, projectId, requesterId, false);
+            await _service.ProjectService.DeleteProject(ownerId, projectId, requesterId, false);
 
             return NoContent();
         }

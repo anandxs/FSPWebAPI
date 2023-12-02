@@ -6,7 +6,7 @@ using Shared.Constants;
 namespace FSPWebAPI.Presentation.Controllers
 {
     [ApiController]
-    [Route("api/users/{userId}/projects/{projectId}/roles")]
+    [Route("api/owner/{ownerId}/projects/{projectId}/roles")]
     [Authorize(Roles = Constants.USER_ROLE)]
     public class RoleController : ControllerBase
     {
@@ -18,9 +18,9 @@ namespace FSPWebAPI.Presentation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetProjectRoles(string userId, Guid projectId)
+        public async Task<IActionResult> GetProjectRoles(string ownerId, Guid projectId)
         {
-            var roles = await _service.RoleService.GetProjectRolesAsync(userId, projectId, false);
+            var roles = await _service.RoleService.GetProjectRolesAsync(ownerId, projectId, false);
 
             return Ok(roles);
         }

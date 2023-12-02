@@ -130,7 +130,7 @@ namespace Service
         {
             var entity = await _repositoryManager.ProjectMemberRepository.GetProjectForMemberAsync(requesterId, projectId, trackChanges);
 
-            var project = entity.Project;
+            var project = entity?.Project;
 
             if (entity is null || project is null)
             {
