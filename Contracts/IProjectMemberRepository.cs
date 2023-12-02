@@ -9,5 +9,6 @@ namespace Contracts
         Task<IEnumerable<ProjectMember>> GetProjectMembersAsync(Guid projectId, bool trackChanges);
         Task<IEnumerable<ProjectMember>> GetProjectsForMemberAsync(string requesterdId, bool trackChanges);
         Task<ProjectMember> GetProjectForMemberAsync(string requesterdId, Guid projectId, bool trackChanges);
+        void RemoveMember(ProjectMember projectMember);
     }
 }

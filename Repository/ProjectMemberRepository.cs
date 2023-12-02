@@ -47,5 +47,10 @@ namespace Repository
                     .Include(m => m.Project)
                     .SingleOrDefaultAsync();
         }
+
+        public void RemoveMember(ProjectMember projectMember)
+        {
+            Delete(projectMember);
+        }
     }
 }

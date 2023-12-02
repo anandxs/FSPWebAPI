@@ -37,6 +37,21 @@ namespace FSPWebAPI.Presentation.Controllers
             return NoContent();
         }
 
+        [HttpDelete("{memberId}")]
+        public async Task<IActionResult> RemoveMember(string userId, Guid projectId, string memberId)
+        {
+            var requesterId = GetRequesterId();
+
+            if (userId == memberId)
+            {
+                return BadRequest("Invalid action.");
+            }
+
+            await _service.MemberService.RemoveMemberAsync(requesterId, userId, projectId, memberId, false);
+
+            return NoContent();
+        }
+
         private string GetRequesterId()
         {
             var claimsIdentity = (ClaimsIdentity)User.Identity!;

@@ -69,6 +69,23 @@ namespace Service
             await _repositoryManager.SaveAsync();
         }
 
+        public async Task RemoveMemberAsync(string requesterId, string userId, Guid projectId, string memberId, bool trackChanges)
+        {
+            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
+            
+            await CheckIfRequesterIsAuthorizedAsync(projectId, requesterId, new HashSet<string> { "Admin" });
+
+            var member = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, memberId, false);
+
+            if (member == null)
+            {
+                throw new MemberNotFoundException(memberId);
+            }
+
+            _repositoryManager.ProjectMemberRepository.RemoveMember(member);
+            await _repositoryManager.SaveAsync();
+        }
+
         #region HELPER METHODS
         private async Task CheckIfRequesterIsAuthorizedAsync(Guid projectId, string requesterId, HashSet<string> allowedRoles)
         {
@@ -113,6 +130,7 @@ namespace Service
                 throw new RoleNotFoundException(roleId);
             }
         }
-        #endregion 
+
+        #endregion
     }
 }
