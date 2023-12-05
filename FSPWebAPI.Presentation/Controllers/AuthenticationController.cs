@@ -104,6 +104,7 @@ namespace FSPWebAPI.Presentation.Controllers
             return NoContent();
         }
 
+        [Authorize]
         [HttpPost("resetpassword")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetDto)
         {
