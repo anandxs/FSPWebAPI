@@ -59,7 +59,7 @@ namespace FSPWebAPI.Presentation.Controllers
             {
                 HttpOnly = true,
                 SameSite = SameSiteMode.None,
-                MaxAge = TimeSpan.FromDays(30),
+                Expires = DateTimeOffset.Now.AddDays(1),
                 Secure = true,
             };
 
@@ -77,6 +77,9 @@ namespace FSPWebAPI.Presentation.Controllers
             {
                 return BadRequest();
             }
+
+            HttpContext.Response.Cookies.Delete("X-Access-Token");
+            HttpContext.Response.Cookies.Delete("X-Refresh-Token");
 
             await _service.AuthenticationService.RevokeRefresh(new TokenDto(accessToken, refreshToken));
 
@@ -104,7 +107,6 @@ namespace FSPWebAPI.Presentation.Controllers
             return NoContent();
         }
 
-        [Authorize]
         [HttpPost("resetpassword")]
         public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDto resetDto)
         {

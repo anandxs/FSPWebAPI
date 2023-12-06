@@ -79,7 +79,7 @@ namespace Service
         {
             _user = await _userManager.FindByEmailAsync(userForAuth.Email);
 
-            if (!(await _userManager.IsEmailConfirmedAsync(_user)))
+            if (_user != null && !(await _userManager.IsEmailConfirmedAsync(_user)))
             {
                 throw new EmailNotConfirmedUnauthorizedException(_user.Email);
             }
