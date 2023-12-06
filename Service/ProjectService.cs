@@ -27,32 +27,40 @@ namespace Service
         {
             var entities = await _repositoryManager.ProjectMemberRepository.GetProjectsForMemberAsync(requesterId, trackChanges);
 
-            var x = entities.Select(m => m.Project);
-            var projectsDto = _mapper.Map<IEnumerable<ProjectDto>>(x);
+            var projects = entities.Select(m => m.Project);
+            var projectsDto = _mapper.Map<IEnumerable<ProjectDto>>(projects);
 
             return projectsDto;
         }
 
-        public async Task<ProjectDto> GetProjectUserIsPartOfAsync(string userId, Guid projectId, string requesterId, bool trackChanges)
+        public async Task<ProjectDto> GetProjectUserIsPartOfAsync(string requesterId, Guid projectId, bool trackChanges)
         {
-            await CheckIfUserExistsAsync(userId);
+            var entity = await _repositoryManager.ProjectMemberRepository.GetProjectForMemberAsync(requesterId, projectId, trackChanges);
 
-            var project = await GetProjectAndCheckIfItExistsAsync(requesterId, projectId, trackChanges);
+            var project = entity?.Project;
+
+            if (entity is null || project is null)
+            {
+                throw new ProjectNotFoundException(projectId);
+            }
 
             var projectDto = _mapper.Map<ProjectDto>(project);
 
             return projectDto;
         }
 
-        public async Task<ProjectDto> CreateProjectAsync(string ownerId, string requesterId, ProjectForCreationDto project)
+        public async Task<ProjectDto> CreateProjectAsync(string requesterId, ProjectForCreationDto project)
         {
-            await CheckIfUserExistsAsync(ownerId);
+            var user = await _userManager.FindByIdAsync(requesterId);
 
-            CheckIfRequesterIdAndRouteUserIdMatch(ownerId, requesterId);
+            if (user is null)
+            {
+                throw new UserNotFoundException(requesterId);
+            }
 
             var projectEntity = _mapper.Map<Project>(project);
 
-            _repositoryManager.ProjectRepository.CreateProject(projectEntity, ownerId);
+            _repositoryManager.ProjectRepository.CreateProject(projectEntity, requesterId);
             await _repositoryManager.SaveAsync();
 
             var defaultRoles = await _repositoryManager.DefaultProjectRoleRepository.GetRolesAsync(false);
@@ -70,7 +78,7 @@ namespace Service
 
             var adminRole = await _repositoryManager.ProjectRoleRepository.GetProjectRoleByName(projectEntity.ProjectId, "Admin", false);
 
-            _repositoryManager.ProjectMemberRepository.AddProjectMember(projectEntity.ProjectId, ownerId, adminRole.RoleId);
+            _repositoryManager.ProjectMemberRepository.AddProjectMember(projectEntity.ProjectId, requesterId, adminRole.RoleId);
             await _repositoryManager.SaveAsync();
 
             var projectToReturn = _mapper.Map<ProjectDto>(projectEntity);
@@ -78,92 +86,68 @@ namespace Service
             return projectToReturn;
         }
 
-        public async Task UpdateProjectAsync(string ownerId, Guid projectId, string requesterId, ProjectForUpdateDto projectForUpdate, bool trackChanges)
+        public async Task UpdateProjectAsync(string requesterId, Guid projectId, ProjectForUpdateDto projectForUpdateDto, bool trackChanges)
         {
-            await CheckIfUserExistsAsync(ownerId);
+            var requester = await _userManager.FindByIdAsync(requesterId);
 
-            var projectEntity = await GetProjectAndCheckIfItExistsAsync(ownerId, projectId, trackChanges);
+            if (requester == null)
+            {
+                throw new UserNotFoundException(requesterId);
+            }
 
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin" });
+            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(requesterId, projectId, trackChanges);
 
-            _mapper.Map(projectForUpdate, projectEntity);
+            if (project == null)
+            {
+                throw new ProjectNotFoundException(projectId);
+            }
+
+            _mapper.Map(projectForUpdateDto, project);
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task ToggleArchive(string ownerId, Guid projectId, string requesterId, bool trackChanges)
+        public async Task ToggleArchive(string requesterId, Guid projectId, bool trackChanges)
         {
-            await CheckIfUserExistsAsync(ownerId);
+            var requester = await _userManager.FindByIdAsync(requesterId);
 
-            var projectEntity = await GetProjectAndCheckIfItExistsAsync(ownerId, projectId, trackChanges);
+            if (requester == null)
+            {
+                throw new UserNotFoundException(requesterId);
+            }
 
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin" });
+            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(requesterId, projectId, trackChanges);
 
-            projectEntity.IsActive = !projectEntity.IsActive;
+            if (project == null)
+            {
+                throw new ProjectNotFoundException(projectId);
+            }
+
+            project.IsActive = !project.IsActive;
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task DeleteProject(string ownerId, Guid projectId, string requesterId, bool trackChanges)
+        public async Task DeleteProject(string requesterId, Guid projectId, bool trackChanges)
         {
-            await CheckIfUserExistsAsync(ownerId);
+            var requester = await _userManager.FindByIdAsync(requesterId);
 
-            var projectEntity = await GetProjectAndCheckIfItExistsAsync(ownerId, projectId, trackChanges);
+            if (requester == null)
+            {
+                throw new UserNotFoundException(requesterId);
+            }
 
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin" });
+            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(requesterId, projectId, trackChanges);
 
-            _repositoryManager.ProjectRepository.DeleteProject(projectEntity);
+            if (project == null)
+            {
+                throw new ProjectNotFoundException(projectId);
+            }
+
+            _repositoryManager.ProjectRepository.DeleteProject(project);
             await _repositoryManager.SaveAsync();
         }
 
         #region HELPER METHODS
 
-        private async Task CheckIfUserExistsAsync(string userId)
-        {
-            var user = await _userManager.FindByIdAsync(userId);
-
-            if (user is null)
-            {
-                throw new UserNotFoundException(userId);
-            }
-        }
-
-        private async Task<Project> GetProjectAndCheckIfItExistsAsync(string requesterId, Guid projectId, bool trackChanges)
-        {
-            var entity = await _repositoryManager.ProjectMemberRepository.GetProjectForMemberAsync(requesterId, projectId, trackChanges);
-
-            var project = entity?.Project;
-
-            if (entity is null || project is null)
-            {
-                throw new ProjectNotFoundException(projectId);
-            }
-
-            return project;
-        }
-
-        private async Task CheckIfRequesterIsAuthorized(Guid projectId, string requesterId, HashSet<string> allowedRoles)
-        {
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
-
-            if (requester is null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-
-            var requesterRole = await _repositoryManager.ProjectRoleRepository.GetProjectRoleById(projectId, (Guid)requester.ProjectRoleId, false);
-
-            if (!allowedRoles.Contains(requesterRole.Name))
-            {
-                throw new IncorrectRoleForbiddenRequestException();
-            }
-        }
-
-        private void CheckIfRequesterIdAndRouteUserIdMatch(string userId, string requesterId)
-        {
-            if (userId != requesterId)
-            {
-                throw new IncorrectRoleForbiddenRequestException();
-            }
-        }
 
         #endregion
     }
