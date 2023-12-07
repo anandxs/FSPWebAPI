@@ -33,7 +33,7 @@ namespace Service
             
             await CheckIfUserAndProjectExists(userId, projectId, trackChanges);
 
-            var groups = await _repositoryManager.GroupRepository.GetGroupsForProjectAsync(projectId, trackChanges);
+            var groups = await _repositoryManager.GroupRepository.GetAllGroupsForProjectAsync(projectId, trackChanges);
 
             List<Card> cards = new List<Card>();
 

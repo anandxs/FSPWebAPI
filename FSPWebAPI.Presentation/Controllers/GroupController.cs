@@ -9,7 +9,7 @@ using System.Security.Claims;
 namespace FSPWebAPI.Presentation.Controllers
 {
     [ApiController]
-    [Route("api/owner/{ownerId}/projects/{projectId}/groups")]
+    [Route("api")]
     [Authorize(Roles = Constants.USER_ROLE)]
     public class GroupController : ControllerBase
     {
@@ -20,72 +20,70 @@ namespace FSPWebAPI.Presentation.Controllers
             _service = service;
         }
 
-        [HttpGet]
-        public async Task<IActionResult> GetGroupsForProject(string ownerId, Guid projectId)
+        [HttpGet("project/{projectId:guid}/groups")]
+        public async Task<IActionResult> GetGroupsForProject(Guid projectId)
         {
             var requesterId = GetRequesterId();
 
-            var groups = await _service.GroupService.GetGroupsForProjectAsync(ownerId, projectId, requesterId, false);
+            var groups = await _service.GroupService.GetAllGroupsForProjectAsync(projectId, requesterId, false);
 
             return Ok(groups);
         }
 
-        [HttpGet("{groupId:guid}", Name = "GetGroupById")]
-        public async Task<IActionResult> GetGroupById(string ownerId, Guid projectId, Guid groupId)
+        [HttpGet("groups/{groupId:guid}", Name = "GetGroupById")]
+        public async Task<IActionResult> GetGroupById(Guid groupId)
         {
             var requesterId = GetRequesterId();
 
-            var group = await _service.GroupService.GetGroupByIdAsync(ownerId, projectId, requesterId, groupId, false);
+            var group = await _service.GroupService.GetGroupByIdAsync(requesterId, groupId, requesterId, groupId, false);
 
             return Ok(group);
         }
 
-        [HttpPost]
+        [HttpPost("project/{projectId:guid}/groups")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> CreateGroup(string ownerId, Guid projectId, [FromBody] GroupForCreationDto groupForCreation)
+        public async Task<IActionResult> CreateGroup(Guid projectId, [FromBody] GroupForCreationDto groupForCreation)
         {
             var requesterId = GetRequesterId();
 
-            var group = await _service.GroupService.CreateGroupAsync(ownerId, projectId, requesterId, groupForCreation, false);
+            var group = await _service.GroupService.CreateGroupAsync(requesterId, projectId, requesterId, groupForCreation, false);
 
             return CreatedAtRoute(
                 "GetGroupById", 
                 new 
                 { 
-                    ownerId = ownerId,
-                    projectId = projectId,
                     groupId = group.GroupId
                 }, 
                 group);
         }
 
-        [HttpPut("{groupId:guid}")]
+        [HttpPut("groups/{groupId:guid}")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> UpdateGroup(string ownerId, Guid projectId, Guid groupId, [FromBody] GroupForUpdateDto groupForUpdate)
+        public async Task<IActionResult> UpdateGroup(Guid groupId, [FromBody] GroupForUpdateDto groupForUpdate)
         {
             var requesterId = GetRequesterId();
 
-            await _service.GroupService.UpdateGroupAsync(ownerId, projectId, requesterId, groupId, groupForUpdate, true);
+            await _service.GroupService.UpdateGroupAsync(requesterId, groupId, requesterId, groupId, groupForUpdate, true);
 
             return NoContent();
         }
 
-        [HttpPut("{groupId:guid}/archive")]
-        public async Task<IActionResult> ToggleGroupArchiveStatus(string ownerId, Guid projectId, Guid groupId)
+        [HttpPut("groups/{groupId:guid}/archive")]
+        public async Task<IActionResult> ToggleGroupArchiveStatus(Guid groupId)
         {
             var requesterId = GetRequesterId();
 
-            await _service.GroupService.ToggleArchive(ownerId, projectId, requesterId, groupId, true);
+            await _service.GroupService.ToggleArchive(requesterId, groupId, requesterId, groupId, true);
 
             return NoContent();
         }
 
-        [HttpDelete("{groupId:guid}")]
-        public async Task<IActionResult> DeleteGroup(string ownerId, Guid projectId, Guid groupId)
+        [HttpDelete("groups/{groupId:guid}")]
+        public async Task<IActionResult> DeleteGroup(Guid groupId)
         {
             var requesterId = GetRequesterId();
 
-            await _service.GroupService.DeleteGroup(ownerId, projectId, requesterId, groupId, false);
+            await _service.GroupService.DeleteGroup(requesterId, groupId, requesterId, groupId, false);
 
             return NoContent();
         }

@@ -23,13 +23,16 @@ namespace Service
             _userManager = userManager;
         }
 
-        public async Task<IEnumerable<GroupDto>> GetGroupsForProjectAsync(string userId, Guid projectId, string requesterId, bool trackChanges)
+        public async Task<IEnumerable<GroupDto>> GetAllGroupsForProjectAsync(Guid projectId, string requesterId, bool trackChanges)
         {
-            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
 
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member", "Observer" });
+            if (requester is null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
 
-            var groups = await _repositoryManager.GroupRepository.GetGroupsForProjectAsync(projectId, trackChanges);
+            var groups = await _repositoryManager.GroupRepository.GetAllGroupsForProjectAsync(projectId, trackChanges);
             var groupsDto = _mapper.Map<IEnumerable<GroupDto>>(groups);
 
             return groupsDto;
