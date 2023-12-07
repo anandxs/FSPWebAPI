@@ -16,9 +16,10 @@ namespace Repository
                     .ToListAsync();
         }
 
-        public async Task<Group> GetGroupByIdAsync(Guid projectId, Guid groupId, bool trackChanges)
+        public async Task<Group> GetGroupByIdAsync(Guid groupId, bool trackChanges)
         {
-            return await FindByCondition(g => g.ProjectId.Equals(projectId) && g.GroupId.Equals(groupId), trackChanges).SingleOrDefaultAsync();
+            return await FindByCondition(g.GroupId.Equals(groupId), trackChanges)
+                    .SingleOrDefaultAsync();
         }
 
         public void CreateGroup(Group group, Guid projectId)
