@@ -68,12 +68,12 @@ namespace FSPWebAPI.Presentation.Controllers
             return NoContent();
         }
 
-        [HttpPut("cards/{cardId:guid}/archive")]
-        public async Task<IActionResult> ToggleArchiveStatus(string ownerId, Guid projectId, Guid groupId, Guid cardId)
+        [HttpPut("projects/{projectId}/cards/{cardId:guid}/archive")]
+        public async Task<IActionResult> ToggleArchiveStatus(Guid projectId, Guid cardId)
         {
             var requesterId = GetRequesterId();
 
-            await _service.CardService.ToggleArchiveStatusAsync(ownerId, projectId, requesterId, groupId, cardId, true);
+            await _service.CardService.ToggleArchiveStatusAsync(projectId, cardId, requesterId, true);
 
             return NoContent();
         }

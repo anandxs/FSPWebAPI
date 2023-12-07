@@ -120,13 +120,23 @@ namespace Service
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task ToggleArchiveStatusAsync(string userId, Guid projectId, string requesterId, Guid groupId, Guid cardId, bool trackChanges)
+        public async Task ToggleArchiveStatusAsync(Guid projectId, Guid cardId, string requesterId, bool trackChanges)
         {
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member", });
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
 
-            var card = await GetCardAndCheckIfItExists(userId, projectId, groupId, cardId, trackChanges);
+            if (requester is null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
 
-            card.IsActive = !card.IsActive;
+            var card = await _repositoryManager.CardRepository.GetCardByIdAsync(cardId, trackChanges);
+
+            if (card == null)
+            {
+                throw new CardNotFoundException(cardId);
+            }
+
+            card.IsActive = !card.IsActive; // maybe move to repository layer
             await _repositoryManager.SaveAsync();
         }
 
