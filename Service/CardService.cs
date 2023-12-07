@@ -43,20 +43,6 @@ namespace Service
             return cardsDto;
         }
 
-        
-        public async Task<IEnumerable<CardDto>> GetCardsForGroupAsync(string userId, Guid projectId, string requesterId, Guid groupId, bool trackChanges)
-        {
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member", "Observer" });
-
-            await CheckIfUserProjectAndGroupExistsAsync(userId, projectId, groupId, trackChanges);
-
-            var cards = await _repositoryManager.CardRepository.GetCardsForGroupAsync(groupId, trackChanges);
-
-            var cardsDto = _mapper.Map<IEnumerable<CardDto>>(cards);
-
-            return cardsDto;
-        }
-
         public async Task<CardDto> GetCardByIdAsync(Guid projectId, Guid cardId, string requesterId, bool trackChanges)
         {
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
@@ -104,46 +90,6 @@ namespace Service
             return (cardDto, group.ProjectId);
         }
 
-        public async Task DeleteCardAsync(Guid projectId, Guid cardId, string requesterId, bool trackChanges)
-        {
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
-
-            if (requester is null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-
-            var card = await _repositoryManager.CardRepository.GetCardByIdAsync(cardId, trackChanges);
-
-            if (card == null)
-            {
-                throw new CardNotFoundException(cardId);
-            }
-
-            _repositoryManager.CardRepository.DeleteCard(card);
-            await _repositoryManager.SaveAsync();
-        }
-
-        public async Task ToggleArchiveStatusAsync(Guid projectId, Guid cardId, string requesterId, bool trackChanges)
-        {
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
-
-            if (requester is null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-
-            var card = await _repositoryManager.CardRepository.GetCardByIdAsync(cardId, trackChanges);
-
-            if (card == null)
-            {
-                throw new CardNotFoundException(cardId);
-            }
-
-            card.IsActive = !card.IsActive; // maybe move to repository layer
-            await _repositoryManager.SaveAsync();
-        }
-
         public async Task UpdateCardAsync(Guid cardId, string requesterId, CardForUpdateDto cardForUpdate, bool trackChanges)
         {
             var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(cardForUpdate.GroupId, trackChanges);
@@ -171,9 +117,7 @@ namespace Service
             await _repositoryManager.SaveAsync();
         }
 
-        #region HELPER METHODS
-
-        private async Task CheckIfRequesterIsAuthorized(Guid projectId, string requesterId, HashSet<string> allowedRoles)
+        public async Task ToggleArchiveStatusAsync(Guid projectId, Guid cardId, string requesterId, bool trackChanges)
         {
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
 
@@ -182,87 +126,38 @@ namespace Service
                 throw new NotAProjectMemberForbiddenRequestException();
             }
 
-            var requesterRole = await _repositoryManager.ProjectRoleRepository.GetProjectRoleById(projectId, (Guid)requester.ProjectRoleId, false);
-
-            if (!allowedRoles.Contains(requesterRole.Name))
-            {
-                throw new IncorrectRoleForbiddenRequestException();
-            }
-        }
-
-        private async Task<Card> GetCardAndCheckIfItExists(string userId, Guid projectId, Guid groupId, Guid cardId, bool trackChanges)
-        {
-            var user = await _userManager.FindByIdAsync(userId);
-
-            if (user is null)
-            {
-                throw new UserNotFoundException(userId);
-            }
-
-            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(userId, projectId, trackChanges);
-
-            if (project is null)
-            {
-                throw new ProjectNotFoundException(projectId);
-            }
-
-            //var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(projectId, groupId, trackChanges);
-
-            //if (group is null)
-            //{
-            //    throw new GroupNotFoundException(groupId);
-            //}
-
             var card = await _repositoryManager.CardRepository.GetCardByIdAsync(cardId, trackChanges);
 
-            if (card is null)
+            if (card == null)
             {
                 throw new CardNotFoundException(cardId);
             }
 
-            return card;
+            card.IsActive = !card.IsActive; // maybe move to repository layer
+            await _repositoryManager.SaveAsync();
         }
 
-        private async Task CheckIfUserProjectAndGroupExistsAsync(string userId, Guid projectId, Guid groupId, bool trackChanges)
+        public async Task DeleteCardAsync(Guid projectId, Guid cardId, string requesterId, bool trackChanges)
         {
-            var user = await _userManager.FindByIdAsync(userId);
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
 
-            if (user is null)
+            if (requester is null)
             {
-                throw new UserNotFoundException(userId);
+                throw new NotAProjectMemberForbiddenRequestException();
             }
 
-            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(userId, projectId, trackChanges);
+            var card = await _repositoryManager.CardRepository.GetCardByIdAsync(cardId, trackChanges);
 
-            if (project is null)
+            if (card == null)
             {
-                throw new ProjectNotFoundException(projectId);
+                throw new CardNotFoundException(cardId);
             }
 
-            var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(groupId, trackChanges);
-
-            if (group is null)
-            {
-                throw new GroupNotFoundException(groupId);
-            }
+            _repositoryManager.CardRepository.DeleteCard(card);
+            await _repositoryManager.SaveAsync();
         }
 
-        private async Task CheckIfUserAndProjectExists(string userId, Guid projectId, bool trackChanges)
-        {
-            var user = await _userManager.FindByIdAsync(userId);
-
-            if (user is null)
-            {
-                throw new UserNotFoundException(userId);
-            }
-
-            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(userId, projectId, trackChanges);
-
-            if (project is null)
-            {
-                throw new ProjectNotFoundException(projectId);
-            }
-        }
+        #region HELPER METHODS
 
         #endregion
     }

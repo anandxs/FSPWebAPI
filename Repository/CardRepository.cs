@@ -10,21 +10,6 @@ namespace Repository
         {
         }
 
-        public void CreateCard(Guid groupId, string creatorId, Card card)
-        {
-            card.GroupId = groupId;
-            card.CreatorId = creatorId;
-            card.CreatedAt = DateTime.Now;
-            Create(card);
-        }
-
-        public async Task<Card> GetCardByIdAsync(Guid cardId, bool trackChanges)
-        {
-            return await FindByCondition(c => c.CardId.Equals(cardId), trackChanges)
-                    .Include(c => c.Group)
-                    .SingleOrDefaultAsync();
-        }
-
         public async Task<IEnumerable<Card>> GetAllCardForProjectAsync(Guid projectId, bool trackChanges)
         {
             return await FindAll(trackChanges)
@@ -35,7 +20,24 @@ namespace Repository
 
         public async Task<IEnumerable<Card>> GetCardsForGroupAsync(Guid groupId, bool trackChanges)
         {
-            return await FindByCondition(c => c.GroupId.Equals(groupId), trackChanges).Include(c => c.Group).ToListAsync();
+            return await FindByCondition(c => c.GroupId.Equals(groupId), trackChanges)
+                    .Include(c => c.Group)
+                    .ToListAsync();
+        }
+
+        public async Task<Card> GetCardByIdAsync(Guid cardId, bool trackChanges)
+        {
+            return await FindByCondition(c => c.CardId.Equals(cardId), trackChanges)
+                    .Include(c => c.Group)
+                    .SingleOrDefaultAsync();
+        }
+
+        public void CreateCard(Guid groupId, string creatorId, Card card)
+        {
+            card.GroupId = groupId;
+            card.CreatorId = creatorId;
+            card.CreatedAt = DateTime.Now;
+            Create(card);
         }
 
         public void DeleteCard(Card card)
