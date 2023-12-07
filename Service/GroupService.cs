@@ -124,15 +124,23 @@ namespace Service
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task DeleteGroup(string userId, Guid projectId, string requesterId, Guid groupId, bool trackChanges)
+        public async Task DeleteGroupAsync(Guid groupId, string requesterId, bool trackChanges)
         {
-            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
+            var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(groupId, trackChanges);
 
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member" });
+            if (group == null)
+            {
+                throw new GroupNotFoundException(groupId);
+            }
 
-            var groupEntity = await GetGroupAndCheckIfItExistsAsync(groupId, trackChanges);
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(group.ProjectId, requesterId, false);
 
-            _repositoryManager.GroupRepository.DeleteGroup(groupEntity);
+            if (requester is null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+
+            _repositoryManager.GroupRepository.DeleteGroup(group);
             await _repositoryManager.SaveAsync();
         }
 

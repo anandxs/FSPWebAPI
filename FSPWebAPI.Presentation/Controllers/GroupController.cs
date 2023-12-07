@@ -83,7 +83,7 @@ namespace FSPWebAPI.Presentation.Controllers
         {
             var requesterId = GetRequesterId();
 
-            await _service.GroupService.DeleteGroup(requesterId, groupId, requesterId, groupId, false);
+            await _service.GroupService.DeleteGroupAsync(groupId, requesterId, false);
 
             return NoContent();
         }
