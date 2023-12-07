@@ -10,17 +10,13 @@ namespace Repository
         {
         }
 
-        public void CreateRole(DefaultProjectRole role)
+        public async Task<IEnumerable<DefaultProjectRole>> GetAllRolesAsync(bool trackChanges)
         {
-            Create(role);
+            return await FindAll(trackChanges)
+                        .ToListAsync();
         }
 
-        public void DeleteRole(DefaultProjectRole role)
-        {
-            Delete(role);
-        }
-
-        public async Task<DefaultProjectRole> GetRoleAsync(Guid roleId, bool trackChanges)
+        public async Task<DefaultProjectRole> GetRoleByIdAsync(Guid roleId, bool trackChanges)
         {
             return await FindByCondition(r => r.RoleId.Equals(roleId), trackChanges)
                         .SingleOrDefaultAsync();
@@ -32,10 +28,14 @@ namespace Repository
                         .SingleOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<DefaultProjectRole>> GetRolesAsync(bool trackChanges)
+        public void CreateRole(DefaultProjectRole role)
         {
-            return await FindAll(trackChanges)
-                        .ToListAsync();
+            Create(role);
+        }
+
+        public void DeleteRole(DefaultProjectRole role)
+        {
+            Delete(role);
         }
     }
 }

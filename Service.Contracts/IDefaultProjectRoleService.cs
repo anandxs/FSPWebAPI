@@ -4,9 +4,9 @@ namespace Service.Contracts
 {
     public interface IDefaultProjectRoleService
     {
-        Task<IEnumerable<DefaultProjectRoleDto>> GetRolesAsync(bool trackChanges);
-        Task CreateRole(DefaultProjectRoleForCreationDto role, bool trackChanges);
-        Task DeleteRole(Guid roleId, bool trackChanges);
-        Task UpdateRole(Guid roleId, DefaultProjectRoleForUpdateDto role, bool trackChanges);
+        Task<IEnumerable<DefaultProjectRoleDto>> GetAllRolesAsync(bool trackChanges);
+        Task CreateRoleAsync(DefaultProjectRoleForCreationDto role, bool trackChanges);
+        Task UpdateRoleAsync(Guid roleId, DefaultProjectRoleForUpdateDto role, bool trackChanges);
+        Task DeleteRoleAsync(Guid roleId, bool trackChanges);
     }
 }

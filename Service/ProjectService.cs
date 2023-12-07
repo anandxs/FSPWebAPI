@@ -63,7 +63,7 @@ namespace Service
             _repositoryManager.ProjectRepository.CreateProject(projectEntity, requesterId);
             await _repositoryManager.SaveAsync();
 
-            var defaultRoles = await _repositoryManager.DefaultProjectRoleRepository.GetRolesAsync(false);
+            var defaultRoles = await _repositoryManager.DefaultProjectRoleRepository.GetAllRolesAsync(false);
 
             foreach (var defaultRole in defaultRoles)
             {

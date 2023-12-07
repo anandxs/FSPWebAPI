@@ -24,7 +24,7 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpGet("roles")]
         public async Task<IActionResult> GetProjectRoles()
         {
-            var roles = await _service.DefaultProjectRoleService.GetRolesAsync(false);
+            var roles = await _service.DefaultProjectRoleService.GetAllRolesAsync(false);
 
             return Ok(roles);
         }
@@ -33,7 +33,7 @@ namespace FSPWebAPI.Presentation.Controllers
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateProjectRole([FromBody] DefaultProjectRoleForCreationDto roleDto)
         {
-            await _service.DefaultProjectRoleService.CreateRole(roleDto, false);
+            await _service.DefaultProjectRoleService.CreateRoleAsync(roleDto, false);
 
             return StatusCode(201);
         }
@@ -41,7 +41,7 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpPut("roles/{roleId:guid}")]
         public async Task<IActionResult> UpdateProjectRole(Guid roleId, [FromBody] DefaultProjectRoleForUpdateDto roleDto)
         {
-            await _service.DefaultProjectRoleService.UpdateRole(roleId, roleDto, true);
+            await _service.DefaultProjectRoleService.UpdateRoleAsync(roleId, roleDto, true);
 
             return NoContent();
         }
@@ -49,7 +49,7 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpDelete("roles/{roleId:guid}")]
         public async Task<IActionResult> DeleteProjectRole(Guid roleId)
         {
-            await _service.DefaultProjectRoleService.DeleteRole(roleId, false);
+            await _service.DefaultProjectRoleService.DeleteRoleAsync(roleId, false);
 
             return NoContent();
         }
