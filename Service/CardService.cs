@@ -63,18 +63,28 @@ namespace Service
             return cardsDto;
         }
 
-        public async Task<CardDto> GetCardByIdAsync(string userId, Guid projectId, string requesterId, Guid groupId, Guid cardId, bool trackChanges)
+        public async Task<CardDto> GetCardByIdAsync(Guid projectId, Guid cardId, string requesterId, bool trackChanges)
         {
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member", "Observer" });
-            
-            var card = await GetCardAndCheckIfItExists(userId, projectId, groupId, cardId, trackChanges);
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
+
+            if (requester is null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+
+            var card = await _repositoryManager.CardRepository.GetCardByIdAsync(cardId, trackChanges);
+
+            if (card == null)
+            {
+                throw new CardNotFoundException(cardId);
+            }
 
             var cardDto = _mapper.Map<CardDto>(card);
 
             return cardDto;
         }
 
-        public async Task<CardDto> CreateCardAsync(Guid groupId, string requesterId, CardForCreationDto cardForCreation, bool trackChanges)
+        public async Task<(CardDto cardDto, Guid projectId)> CreateCardAsync(Guid groupId, string requesterId, CardForCreationDto cardForCreation, bool trackChanges)
         {
             var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(groupId, trackChanges);
 
@@ -95,9 +105,9 @@ namespace Service
             _repositoryManager.CardRepository.CreateCard(groupId, requesterId, card);
             await _repositoryManager.SaveAsync();
 
-            var cardForReturn = _mapper.Map<CardDto>(card);
+            var cardDto = _mapper.Map<CardDto>(card);
 
-            return cardForReturn;
+            return (cardDto, group.ProjectId);
         }
 
         public async Task DeleteCardAsync(string userId, Guid projectId, string requesterId, Guid groupId, Guid cardId, bool trackChanges)
@@ -172,7 +182,7 @@ namespace Service
             //    throw new GroupNotFoundException(groupId);
             //}
 
-            var card = await _repositoryManager.CardRepository.GetCardByIdAsync(groupId, cardId, trackChanges);
+            var card = await _repositoryManager.CardRepository.GetCardByIdAsync(cardId, trackChanges);
 
             if (card is null)
             {

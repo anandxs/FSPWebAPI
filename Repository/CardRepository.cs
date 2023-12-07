@@ -18,9 +18,11 @@ namespace Repository
             Create(card);
         }
 
-        public async Task<Card> GetCardByIdAsync(Guid groupId, Guid cardId, bool trackChanges)
+        public async Task<Card> GetCardByIdAsync(Guid cardId, bool trackChanges)
         {
-            return await FindByCondition(c => c.CardId.Equals(cardId), trackChanges).Include(c => c.Group).SingleOrDefaultAsync();
+            return await FindByCondition(c => c.CardId.Equals(cardId), trackChanges)
+                    .Include(c => c.Group)
+                    .SingleOrDefaultAsync();
         }
 
         public async Task<IEnumerable<Card>> GetCardsForGroupAsync(Guid groupId, bool trackChanges)

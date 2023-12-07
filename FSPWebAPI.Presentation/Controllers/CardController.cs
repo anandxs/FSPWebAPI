@@ -30,12 +30,12 @@ namespace FSPWebAPI.Presentation.Controllers
             return Ok(cards);
         }
 
-        [HttpGet("cards/{cardId:guid}", Name = "GetCardById")]
-        public async Task<IActionResult> GetCardById(string ownerId, Guid projectId, Guid groupId, Guid cardId) 
+        [HttpGet("projects/{projectId}/cards/{cardId:guid}", Name = "GetCardById")]
+        public async Task<IActionResult> GetCardById(Guid projectId, Guid cardId) 
         {
             var requesterId = GetRequesterId();
 
-            var card = await _service.CardService.GetCardByIdAsync(ownerId, projectId, requesterId, groupId, cardId, false);
+            var card = await _service.CardService.GetCardByIdAsync(projectId, cardId, requesterId, false);
 
             return Ok(card);
         }
@@ -46,18 +46,16 @@ namespace FSPWebAPI.Presentation.Controllers
         {
             var requesterId = GetRequesterId();
 
-            var card = await _service.CardService.CreateCardAsync(groupId, requesterId, cardForCreation, false);
+            var result = await _service.CardService.CreateCardAsync(groupId, requesterId, cardForCreation, false);
 
             return CreatedAtRoute(
                 "GetCardById", 
                 new 
                 {
-                    ownerId = "temp",
-                    projectId = Guid.NewGuid(),
-                    groupId,
-                    cardId = card.CardId,
+                    projectId = result.projectId,
+                    cardId = result.cardDto.CardId,
                 },
-                card);
+                result);
         }
 
         [HttpPut("cards/{cardId:guid}")]
