@@ -146,52 +146,6 @@ namespace Service
 
         #region HELPER METHODS
 
-        private async Task CheckIfRequesterIsAuthorized(Guid projectId, string requesterId, HashSet<string> allowedRoles)
-        {
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
-
-            if (requester is null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-
-            var requesterRole = await _repositoryManager.ProjectRoleRepository.GetProjectRoleById(projectId, (Guid)requester.ProjectRoleId, false);
-
-            if (!allowedRoles.Contains(requesterRole.Name))
-            {
-                throw new IncorrectRoleForbiddenRequestException();
-            }
-        }
-
-        private async Task<Group> GetGroupAndCheckIfItExistsAsync(Guid groupId, bool trackChanges)
-        {
-            var groupEntity = await _repositoryManager.GroupRepository.GetGroupByIdAsync(groupId, trackChanges);
-
-            if (groupEntity is null)
-            {
-                throw new GroupNotFoundException(groupId);
-            }
-
-            return groupEntity;
-        }
-
-        private async Task CheckIfUserAndProjectExistsAsync(string userId, Guid projectId, bool trackChanges)
-        {
-            var user = await _userManager.FindByIdAsync(userId);
-
-            if (user is null)
-            {
-                throw new UserNotFoundException(userId);
-            }
-
-            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(userId, projectId, trackChanges);
-
-            if (project is null)
-            {
-                throw new ProjectNotFoundException(projectId);
-            }
-        }
-
         #endregion
     }
 }
