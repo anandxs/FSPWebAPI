@@ -30,23 +30,23 @@ namespace Service
         public async Task<IEnumerable<CardDto>> GetCardsForProjectAsync(string userId, Guid projectId, string requesterId, bool trackChanges)
         {
             await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member", "Observer" });
-            
+
             await CheckIfUserAndProjectExists(userId, projectId, trackChanges);
 
             var groups = await _repositoryManager.GroupRepository.GetAllGroupsForProjectAsync(projectId, trackChanges);
 
             List<Card> cards = new List<Card>();
 
-            foreach ( var group in groups )
+            foreach (var group in groups)
             {
                 var temp = await _repositoryManager.CardRepository.GetCardsForGroupAsync(group.GroupId, trackChanges);
 
                 cards.AddRange(temp);
             }
 
-            var cardsToReturn = _mapper.Map<IEnumerable<CardDto>>(cards);
+            var cardsDto = _mapper.Map<IEnumerable<CardDto>>(cards);
 
-            return cardsToReturn;
+            return cardsDto;
         }
 
         
@@ -74,11 +74,21 @@ namespace Service
             return cardDto;
         }
 
-        public async Task<CardDto> CreateCardAsync(string userId, Guid projectId, string requesterId, Guid groupId, CardForCreationDto cardForCreation, bool trackChanges)
+        public async Task<CardDto> CreateCardAsync(Guid groupId, string requesterId, CardForCreationDto cardForCreation, bool trackChanges)
         {
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member" });
+            var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(groupId, trackChanges);
 
-            await CheckIfUserProjectAndGroupExistsAsync(userId, projectId, groupId, trackChanges);
+            if (group  == null)
+            {
+                throw new GroupNotFoundException(groupId);
+            }
+
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(group.ProjectId, requesterId, false);
+
+            if (requester is null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
 
             var card = _mapper.Map<Card>(cardForCreation);
 
