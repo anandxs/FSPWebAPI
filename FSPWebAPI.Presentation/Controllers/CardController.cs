@@ -78,12 +78,12 @@ namespace FSPWebAPI.Presentation.Controllers
             return NoContent();
         }
 
-        [HttpDelete("cards/{cardId:guid}")]
-        public async Task<IActionResult> DeleteCard(string ownerId, Guid projectId, Guid groupId, Guid cardId)
+        [HttpDelete("projects/{projectId}/cards/{cardId:guid}")]
+        public async Task<IActionResult> DeleteCard(Guid projectId, Guid cardId)
         {
             var requesterId = GetRequesterId();
 
-            await _service.CardService.DeleteCardAsync(ownerId, projectId, requesterId, groupId, cardId, false);
+            await _service.CardService.DeleteCardAsync(projectId, cardId, requesterId, false);
 
             return NoContent();
         }

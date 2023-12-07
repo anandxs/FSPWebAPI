@@ -110,11 +110,21 @@ namespace Service
             return (cardDto, group.ProjectId);
         }
 
-        public async Task DeleteCardAsync(string userId, Guid projectId, string requesterId, Guid groupId, Guid cardId, bool trackChanges)
+        public async Task DeleteCardAsync(Guid projectId, Guid cardId, string requesterId, bool trackChanges)
         {
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member" });
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
 
-            var card = await GetCardAndCheckIfItExists(userId, projectId, groupId, cardId, trackChanges);
+            if (requester is null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+
+            var card = await _repositoryManager.CardRepository.GetCardByIdAsync(cardId, trackChanges);
+
+            if (card == null)
+            {
+                throw new CardNotFoundException(cardId);
+            }
 
             _repositoryManager.CardRepository.DeleteCard(card);
             await _repositoryManager.SaveAsync();
