@@ -59,20 +59,30 @@ namespace Service
             return groupDto;
         }
 
-        public async Task<GroupDto> CreateGroupAsync(string userId, Guid projectId, string requesterId, GroupForCreationDto groupForCreation, bool trackChanges)
+        public async Task<GroupDto> CreateGroupAsync(Guid projectId, string requesterId, GroupForCreationDto groupForCreation, bool trackChanges)
         {
-            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
 
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member" });
+            if (requester is null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
 
-            var groupEntity = _mapper.Map<Group>(groupForCreation);
+            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(requesterId, projectId, trackChanges);
 
-            _repositoryManager.GroupRepository.CreateGroup(groupEntity, projectId);
+            if (project is null)
+            {
+                throw new ProjectNotFoundException(projectId);
+            }
+
+            var group = _mapper.Map<Group>(groupForCreation);
+
+            _repositoryManager.GroupRepository.CreateGroup(group, projectId);
             await _repositoryManager.SaveAsync();
 
-            var groupToReturn = _mapper.Map<GroupDto>(groupEntity);
+            var groupDto = _mapper.Map<GroupDto>(group);
 
-            return groupToReturn;
+            return groupDto;
         }
         public async Task UpdateGroupAsync(string userId, Guid projectId, string requesterId, Guid groupId, GroupForUpdateDto groupForUpdate, bool trackChanges)
         {

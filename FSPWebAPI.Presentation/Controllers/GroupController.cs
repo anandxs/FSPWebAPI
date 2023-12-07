@@ -46,7 +46,7 @@ namespace FSPWebAPI.Presentation.Controllers
         {
             var requesterId = GetRequesterId();
 
-            var group = await _service.GroupService.CreateGroupAsync(requesterId, projectId, requesterId, groupForCreation, false);
+            var group = await _service.GroupService.CreateGroupAsync(projectId, requesterId, groupForCreation, false);
 
             return CreatedAtRoute(
                 "GetGroupById", 
