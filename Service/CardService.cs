@@ -130,13 +130,30 @@ namespace Service
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task UpdateCardAsync(string userId, Guid projectId, string requesterId, Guid groupId, Guid cardId, CardForUpdateDto cardForUpdate, bool trackChanges)
+        public async Task UpdateCardAsync(Guid cardId, string requesterId, CardForUpdateDto cardForUpdate, bool trackChanges)
         {
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member", });
+            var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(cardForUpdate.GroupId, trackChanges);
 
-            var cardFromDb = await GetCardAndCheckIfItExists(userId, projectId, groupId, cardId, trackChanges);
+            if (group == null)
+            {
+                throw new GroupNotFoundException(cardForUpdate.GroupId);
+            }
 
-            _mapper.Map(cardForUpdate, cardFromDb);
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(group.ProjectId, requesterId, false);
+
+            if (requester is null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+
+            var card = await _repositoryManager.CardRepository.GetCardByIdAsync(cardId, trackChanges);
+
+            if (card is null)
+            {
+                throw new CardNotFoundException(cardId);
+            }
+
+            _mapper.Map(cardForUpdate, card);
             await _repositoryManager.SaveAsync();
         }
 

@@ -59,11 +59,11 @@ namespace FSPWebAPI.Presentation.Controllers
         }
 
         [HttpPut("cards/{cardId:guid}")]
-        public async Task<IActionResult> UpdateCard(string ownerId, Guid projectId, Guid groupId, Guid cardId, CardForUpdateDto cardForUpdate)
+        public async Task<IActionResult> UpdateCard(Guid cardId, CardForUpdateDto cardForUpdate)
         {
             var requesterId = GetRequesterId();
 
-            await _service.CardService.UpdateCardAsync(ownerId, projectId, requesterId, groupId, cardId, cardForUpdate, true);
+            await _service.CardService.UpdateCardAsync(cardId, requesterId, cardForUpdate, true);
 
             return NoContent();
         }

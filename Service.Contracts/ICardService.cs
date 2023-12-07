@@ -10,6 +10,6 @@ namespace Service.Contracts
         Task<(CardDto cardDto, Guid projectId)> CreateCardAsync(Guid groupId, string requesterId, CardForCreationDto cardForCreation, bool trackChanges);
         Task DeleteCardAsync(string userId, Guid projectId, string requesterId, Guid groupId, Guid cardId, bool trackChanges);
         Task ToggleArchiveStatusAsync(string userId, Guid projectId, string requesterId, Guid groupId, Guid cardId, bool trackChanges);
-        Task UpdateCardAsync(string userId, Guid projectId, string requesterId, Guid groupId, Guid cardId, CardForUpdateDto cardForUpdate, bool trackChanges);
+        Task UpdateCardAsync(Guid cardId, string requesterId, CardForUpdateDto cardForUpdate, bool trackChanges);
     }
 }
