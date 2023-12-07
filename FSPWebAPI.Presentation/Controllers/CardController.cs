@@ -21,11 +21,11 @@ namespace FSPWebAPI.Presentation.Controllers
         }
 
         [HttpGet("projects/{projectId:guid}/cards")]
-        public async Task<IActionResult> GetCardsForProject(string ownerId, Guid projectId)
+        public async Task<IActionResult> GetAllCardForProject(Guid projectId)
         {
             var requesterId = GetRequesterId();
 
-            var cards = await _service.CardService.GetCardsForProjectAsync(ownerId, projectId, requesterId, false);
+            var cards = await _service.CardService.GetAllCardsForProjectAsync(projectId, requesterId, false);
 
             return Ok(cards);
         }

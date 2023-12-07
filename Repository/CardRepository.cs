@@ -25,6 +25,14 @@ namespace Repository
                     .SingleOrDefaultAsync();
         }
 
+        public async Task<IEnumerable<Card>> GetAllCardForProjectAsync(Guid projectId, bool trackChanges)
+        {
+            return await FindAll(trackChanges)
+                    .Include(c => c.Group)
+                    .Where(c => c.Group.ProjectId.Equals(projectId))
+                    .ToListAsync();
+        }
+
         public async Task<IEnumerable<Card>> GetCardsForGroupAsync(Guid groupId, bool trackChanges)
         {
             return await FindByCondition(c => c.GroupId.Equals(groupId), trackChanges).Include(c => c.Group).ToListAsync();

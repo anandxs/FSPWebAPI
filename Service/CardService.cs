@@ -27,22 +27,16 @@ namespace Service
             _userManager = userManager;
         }
 
-        public async Task<IEnumerable<CardDto>> GetCardsForProjectAsync(string userId, Guid projectId, string requesterId, bool trackChanges)
+        public async Task<IEnumerable<CardDto>> GetAllCardsForProjectAsync(Guid projectId, string requesterId, bool trackChanges)
         {
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member", "Observer" });
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
 
-            await CheckIfUserAndProjectExists(userId, projectId, trackChanges);
-
-            var groups = await _repositoryManager.GroupRepository.GetAllGroupsForProjectAsync(projectId, trackChanges);
-
-            List<Card> cards = new List<Card>();
-
-            foreach (var group in groups)
+            if (requester is null)
             {
-                var temp = await _repositoryManager.CardRepository.GetCardsForGroupAsync(group.GroupId, trackChanges);
-
-                cards.AddRange(temp);
+                throw new NotAProjectMemberForbiddenRequestException();
             }
+
+            var cards = await _repositoryManager.CardRepository.GetAllCardForProjectAsync(projectId, trackChanges);
 
             var cardsDto = _mapper.Map<IEnumerable<CardDto>>(cards);
 
