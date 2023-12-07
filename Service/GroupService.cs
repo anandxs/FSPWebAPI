@@ -84,15 +84,23 @@ namespace Service
 
             return groupDto;
         }
-        public async Task UpdateGroupAsync(string userId, Guid projectId, string requesterId, Guid groupId, GroupForUpdateDto groupForUpdate, bool trackChanges)
+        public async Task UpdateGroupAsync(Guid groupId, string requesterId, GroupForUpdateDto groupForUpdate, bool trackChanges)
         {
-            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
+            var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(groupId, trackChanges);
 
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member" });
+            if (group == null)
+            {
+                throw new GroupNotFoundException(groupId);
+            }
 
-            var groupEntity = await GetGroupAndCheckIfItExistsAsync(groupId, trackChanges);
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(group.ProjectId, requesterId, false);
 
-            _mapper.Map(groupForUpdate, groupEntity);
+            if (requester is null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+
+            _mapper.Map(groupForUpdate, group);
             await _repositoryManager.SaveAsync();
         }
 

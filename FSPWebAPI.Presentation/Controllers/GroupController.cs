@@ -63,7 +63,7 @@ namespace FSPWebAPI.Presentation.Controllers
         {
             var requesterId = GetRequesterId();
 
-            await _service.GroupService.UpdateGroupAsync(requesterId, groupId, requesterId, groupId, groupForUpdate, true);
+            await _service.GroupService.UpdateGroupAsync(groupId, requesterId, groupForUpdate, true);
 
             return NoContent();
         }
