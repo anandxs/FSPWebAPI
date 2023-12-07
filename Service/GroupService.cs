@@ -23,85 +23,7 @@ namespace Service
             _userManager = userManager;
         }
 
-        public async Task<IEnumerable<GroupDto>> GetGroupsForProjectAsync(string userId, Guid projectId, string requesterId, bool trackChanges)
-        {
-            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
-
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member", "Observer" });
-
-            var groups = await _repositoryManager.GroupRepository.GetGroupsForProjectAsync(projectId, trackChanges);
-            var groupsDto = _mapper.Map<IEnumerable<GroupDto>>(groups);
-
-            return groupsDto;
-        }
-
-        public async Task<GroupDto> GetGroupByIdAsync(string userId, Guid projectId, string requesterId, Guid groupId, bool trackChanges)
-        {
-            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
-
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member", "Observer" });
-
-            var group = await GetGroupAndCheckIfItExistsAsync(projectId, groupId, trackChanges);
-
-            var groupDto = _mapper.Map<GroupDto>(group);
-
-            return groupDto;
-        }
-
-        public async Task<GroupDto> CreateGroupAsync(string userId, Guid projectId, string requesterId, GroupForCreationDto groupForCreation, bool trackChanges)
-        {
-            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
-
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member" });
-
-            var groupEntity = _mapper.Map<Group>(groupForCreation);
-
-            _repositoryManager.GroupRepository.CreateGroup(groupEntity, projectId);
-            await _repositoryManager.SaveAsync();
-
-            var groupToReturn = _mapper.Map<GroupDto>(groupEntity);
-
-            return groupToReturn;
-        }
-        public async Task UpdateGroupAsync(string userId, Guid projectId, string requesterId, Guid groupId, GroupForUpdateDto groupForUpdate, bool trackChanges)
-        {
-            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
-
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member" });
-
-            var groupEntity = await GetGroupAndCheckIfItExistsAsync(projectId, groupId, trackChanges);
-
-            _mapper.Map(groupForUpdate, groupEntity);
-            await _repositoryManager.SaveAsync();
-        }
-
-        public async Task ToggleArchive(string userId, Guid projectId, string requesterId, Guid groupId, bool trackChanges)
-        {
-            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
-
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member" });
-
-            var groupEntity = await GetGroupAndCheckIfItExistsAsync(projectId, groupId, trackChanges);
-
-            groupEntity.IsActive = !groupEntity.IsActive;
-            await _repositoryManager.SaveAsync();
-        }
-
-        public async Task DeleteGroup(string userId, Guid projectId, string requesterId, Guid groupId, bool trackChanges)
-        {
-            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
-
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member" });
-
-            var groupEntity = await GetGroupAndCheckIfItExistsAsync(projectId, groupId, trackChanges);
-
-            _repositoryManager.GroupRepository.DeleteGroup(groupEntity);
-            await _repositoryManager.SaveAsync();
-        }
-
-        #region HELPER METHODS
-
-        private async Task CheckIfRequesterIsAuthorized(Guid projectId, string requesterId, HashSet<string> allowedRoles)
+        public async Task<IEnumerable<GroupDto>> GetAllGroupsForProjectAsync(Guid projectId, string requesterId, bool trackChanges)
         {
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
 
@@ -110,42 +32,119 @@ namespace Service
                 throw new NotAProjectMemberForbiddenRequestException();
             }
 
-            var requesterRole = await _repositoryManager.ProjectRoleRepository.GetProjectRoleById(projectId, (Guid)requester.ProjectRoleId, false);
+            var groups = await _repositoryManager.GroupRepository.GetAllGroupsForProjectAsync(projectId, trackChanges);
+            var groupsDto = _mapper.Map<IEnumerable<GroupDto>>(groups);
 
-            if (!allowedRoles.Contains(requesterRole.Name))
-            {
-                throw new IncorrectRoleForbiddenRequestException();
-            }
+            return groupsDto;
         }
 
-        private async Task<Group> GetGroupAndCheckIfItExistsAsync(Guid projectId, Guid groupId, bool trackChanges)
+        public async Task<GroupDto> GetGroupByIdAsync(Guid groupId, string requesterId, bool trackChanges)
         {
-            var groupEntity = await _repositoryManager.GroupRepository.GetGroupByIdAsync(projectId, groupId, trackChanges);
+            var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(groupId, trackChanges);
 
-            if (groupEntity is null)
+            if (group is null)
             {
                 throw new GroupNotFoundException(groupId);
             }
 
-            return groupEntity;
-        }
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(group.ProjectId, requesterId, false);
 
-        private async Task CheckIfUserAndProjectExistsAsync(string userId, Guid projectId, bool trackChanges)
-        {
-            var user = await _userManager.FindByIdAsync(userId);
-
-            if (user is null)
+            if (requester is null)
             {
-                throw new UserNotFoundException(userId);
+                throw new NotAProjectMemberForbiddenRequestException();
             }
 
-            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(userId, projectId, trackChanges);
+            var groupDto = _mapper.Map<GroupDto>(group);
+
+            return groupDto;
+        }
+
+        public async Task<GroupDto> CreateGroupAsync(Guid projectId, string requesterId, GroupForCreationDto groupForCreation, bool trackChanges)
+        {
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
+
+            if (requester is null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+
+            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(requesterId, projectId, trackChanges);
 
             if (project is null)
             {
                 throw new ProjectNotFoundException(projectId);
             }
+
+            var group = _mapper.Map<Group>(groupForCreation);
+
+            _repositoryManager.GroupRepository.CreateGroup(group, projectId);
+            await _repositoryManager.SaveAsync();
+
+            var groupDto = _mapper.Map<GroupDto>(group);
+
+            return groupDto;
         }
+        public async Task UpdateGroupAsync(Guid groupId, string requesterId, GroupForUpdateDto groupForUpdate, bool trackChanges)
+        {
+            var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(groupId, trackChanges);
+
+            if (group == null)
+            {
+                throw new GroupNotFoundException(groupId);
+            }
+
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(group.ProjectId, requesterId, false);
+
+            if (requester is null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+
+            _mapper.Map(groupForUpdate, group);
+            await _repositoryManager.SaveAsync();
+        }
+
+        public async Task ToggleArchiveAsync(Guid groupId, string requesterId, bool trackChanges)
+        {
+            var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(groupId, trackChanges);
+
+            if (group == null)
+            {
+                throw new GroupNotFoundException(groupId);
+            }
+
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(group.ProjectId, requesterId, false);
+
+            if (requester is null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+
+            group.IsActive = !group.IsActive; // maybe move to repository layer
+            await _repositoryManager.SaveAsync();
+        }
+
+        public async Task DeleteGroupAsync(Guid groupId, string requesterId, bool trackChanges)
+        {
+            var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(groupId, trackChanges);
+
+            if (group == null)
+            {
+                throw new GroupNotFoundException(groupId);
+            }
+
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(group.ProjectId, requesterId, false);
+
+            if (requester is null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+
+            _repositoryManager.GroupRepository.DeleteGroup(group);
+            await _repositoryManager.SaveAsync();
+        }
+
+        #region HELPER METHODS
 
         #endregion
     }

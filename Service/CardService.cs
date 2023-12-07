@@ -33,7 +33,7 @@ namespace Service
             
             await CheckIfUserAndProjectExists(userId, projectId, trackChanges);
 
-            var groups = await _repositoryManager.GroupRepository.GetGroupsForProjectAsync(projectId, trackChanges);
+            var groups = await _repositoryManager.GroupRepository.GetAllGroupsForProjectAsync(projectId, trackChanges);
 
             List<Card> cards = new List<Card>();
 
@@ -155,12 +155,12 @@ namespace Service
                 throw new ProjectNotFoundException(projectId);
             }
 
-            var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(projectId, groupId, trackChanges);
+            //var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(projectId, groupId, trackChanges);
 
-            if (group is null)
-            {
-                throw new GroupNotFoundException(groupId);
-            }
+            //if (group is null)
+            //{
+            //    throw new GroupNotFoundException(groupId);
+            //}
 
             var card = await _repositoryManager.CardRepository.GetCardByIdAsync(groupId, cardId, trackChanges);
 
@@ -188,7 +188,7 @@ namespace Service
                 throw new ProjectNotFoundException(projectId);
             }
 
-            var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(projectId, groupId, trackChanges);
+            var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(groupId, trackChanges);
 
             if (group is null)
             {
