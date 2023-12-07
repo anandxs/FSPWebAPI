@@ -155,12 +155,12 @@ namespace Service
                 throw new ProjectNotFoundException(projectId);
             }
 
-            var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(projectId, groupId, trackChanges);
+            //var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(projectId, groupId, trackChanges);
 
-            if (group is null)
-            {
-                throw new GroupNotFoundException(groupId);
-            }
+            //if (group is null)
+            //{
+            //    throw new GroupNotFoundException(groupId);
+            //}
 
             var card = await _repositoryManager.CardRepository.GetCardByIdAsync(groupId, cardId, trackChanges);
 
@@ -188,7 +188,7 @@ namespace Service
                 throw new ProjectNotFoundException(projectId);
             }
 
-            var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(projectId, groupId, trackChanges);
+            var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(groupId, trackChanges);
 
             if (group is null)
             {

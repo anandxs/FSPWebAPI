@@ -18,7 +18,7 @@ namespace Repository
 
         public async Task<Group> GetGroupByIdAsync(Guid groupId, bool trackChanges)
         {
-            return await FindByCondition(g.GroupId.Equals(groupId), trackChanges)
+            return await FindByCondition(g => g.GroupId.Equals(groupId), trackChanges)
                     .SingleOrDefaultAsync();
         }
 

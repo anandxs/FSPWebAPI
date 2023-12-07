@@ -38,13 +38,21 @@ namespace Service
             return groupsDto;
         }
 
-        public async Task<GroupDto> GetGroupByIdAsync(string userId, Guid projectId, string requesterId, Guid groupId, bool trackChanges)
+        public async Task<GroupDto> GetGroupByIdAsync(Guid groupId, string requesterId, bool trackChanges)
         {
-            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
+            var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(groupId, trackChanges);
 
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member", "Observer" });
+            if (group is null)
+            {
+                throw new GroupNotFoundException(groupId);
+            }
 
-            var group = await GetGroupAndCheckIfItExistsAsync(projectId, groupId, trackChanges);
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(group.ProjectId, requesterId, false);
+
+            if (requester is null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
 
             var groupDto = _mapper.Map<GroupDto>(group);
 
@@ -72,7 +80,7 @@ namespace Service
 
             await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member" });
 
-            var groupEntity = await GetGroupAndCheckIfItExistsAsync(projectId, groupId, trackChanges);
+            var groupEntity = await GetGroupAndCheckIfItExistsAsync(groupId, trackChanges);
 
             _mapper.Map(groupForUpdate, groupEntity);
             await _repositoryManager.SaveAsync();
@@ -84,7 +92,7 @@ namespace Service
 
             await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member" });
 
-            var groupEntity = await GetGroupAndCheckIfItExistsAsync(projectId, groupId, trackChanges);
+            var groupEntity = await GetGroupAndCheckIfItExistsAsync(groupId, trackChanges);
 
             groupEntity.IsActive = !groupEntity.IsActive;
             await _repositoryManager.SaveAsync();
@@ -96,7 +104,7 @@ namespace Service
 
             await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member" });
 
-            var groupEntity = await GetGroupAndCheckIfItExistsAsync(projectId, groupId, trackChanges);
+            var groupEntity = await GetGroupAndCheckIfItExistsAsync(groupId, trackChanges);
 
             _repositoryManager.GroupRepository.DeleteGroup(groupEntity);
             await _repositoryManager.SaveAsync();
@@ -121,9 +129,9 @@ namespace Service
             }
         }
 
-        private async Task<Group> GetGroupAndCheckIfItExistsAsync(Guid projectId, Guid groupId, bool trackChanges)
+        private async Task<Group> GetGroupAndCheckIfItExistsAsync(Guid groupId, bool trackChanges)
         {
-            var groupEntity = await _repositoryManager.GroupRepository.GetGroupByIdAsync(projectId, groupId, trackChanges);
+            var groupEntity = await _repositoryManager.GroupRepository.GetGroupByIdAsync(groupId, trackChanges);
 
             if (groupEntity is null)
             {

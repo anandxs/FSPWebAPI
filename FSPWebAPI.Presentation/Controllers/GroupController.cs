@@ -35,7 +35,7 @@ namespace FSPWebAPI.Presentation.Controllers
         {
             var requesterId = GetRequesterId();
 
-            var group = await _service.GroupService.GetGroupByIdAsync(requesterId, groupId, requesterId, groupId, false);
+            var group = await _service.GroupService.GetGroupByIdAsync(groupId, requesterId, false);
 
             return Ok(group);
         }
