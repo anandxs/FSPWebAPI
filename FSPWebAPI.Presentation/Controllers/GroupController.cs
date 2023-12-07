@@ -73,7 +73,7 @@ namespace FSPWebAPI.Presentation.Controllers
         {
             var requesterId = GetRequesterId();
 
-            await _service.GroupService.ToggleArchive(requesterId, groupId, requesterId, groupId, true);
+            await _service.GroupService.ToggleArchiveAsync(groupId, requesterId, true);
 
             return NoContent();
         }

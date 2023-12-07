@@ -104,15 +104,23 @@ namespace Service
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task ToggleArchive(string userId, Guid projectId, string requesterId, Guid groupId, bool trackChanges)
+        public async Task ToggleArchiveAsync(Guid groupId, string requesterId, bool trackChanges)
         {
-            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
+            var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(groupId, trackChanges);
 
-            await CheckIfRequesterIsAuthorized(projectId, requesterId, new HashSet<string> { "Admin", "Member" });
+            if (group == null)
+            {
+                throw new GroupNotFoundException(groupId);
+            }
 
-            var groupEntity = await GetGroupAndCheckIfItExistsAsync(groupId, trackChanges);
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(group.ProjectId, requesterId, false);
 
-            groupEntity.IsActive = !groupEntity.IsActive;
+            if (requester is null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+
+            group.IsActive = !group.IsActive; // maybe move to repository layer
             await _repositoryManager.SaveAsync();
         }
 
