@@ -9,7 +9,7 @@ using System.Security.Claims;
 namespace FSPWebAPI.Presentation.Controllers
 {
     [ApiController]
-    [Route("api/owner/{ownerId}/projects/{projectId}")]
+    [Route("api")]
     [Authorize(Roles = Constants.USER_ROLE)]
     public class CardController : ControllerBase
     {
@@ -20,82 +20,70 @@ namespace FSPWebAPI.Presentation.Controllers
             _service = service;
         }
 
-        [HttpGet("cards")]
-        public async Task<IActionResult> GetCardsForProject(string ownerId, Guid projectId)
+        [HttpGet("projects/{projectId:guid}/cards")]
+        public async Task<IActionResult> GetAllCardForProject(Guid projectId)
         {
             var requesterId = GetRequesterId();
 
-            var cards = await _service.CardService.GetCardsForProjectAsync(ownerId, projectId, requesterId, false);
+            var cards = await _service.CardService.GetAllCardsForProjectAsync(projectId, requesterId, false);
 
             return Ok(cards);
         }
 
-        [HttpGet("groups/{groupId:guid}/cards")]
-        public async Task<IActionResult> GetCardsForGroup(string ownerId, Guid projectId, Guid groupId)
+        [HttpGet("projects/{projectId}/cards/{cardId:guid}", Name = "GetCardById")]
+        public async Task<IActionResult> GetCardById(Guid projectId, Guid cardId) 
         {
             var requesterId = GetRequesterId();
 
-            var cards = await _service.CardService.GetCardsForGroupAsync(ownerId, projectId, requesterId, groupId, false);
-
-            return Ok(cards);
-        }
-
-        [HttpGet("groups/{groupId:guid}/cards/{cardId:guid}", Name = "GetCardById")]
-        public async Task<IActionResult> GetCardById(string ownerId, Guid projectId, Guid groupId, Guid cardId) 
-        {
-            var requesterId = GetRequesterId();
-
-            var card = await _service.CardService.GetCardByIdAsync(ownerId, projectId, requesterId, groupId, cardId, false);
+            var card = await _service.CardService.GetCardByIdAsync(projectId, cardId, requesterId, false);
 
             return Ok(card);
         }
 
         [HttpPost("groups/{groupId:guid}/cards")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> CreateCard(string ownerId, Guid projectId, Guid groupId, CardForCreationDto cardForCreation)
+        public async Task<IActionResult> CreateCard(Guid groupId, CardForCreationDto cardForCreation)
         {
             var requesterId = GetRequesterId();
 
-            var card = await _service.CardService.CreateCardAsync(ownerId, projectId, requesterId, groupId, cardForCreation, false);
+            var result = await _service.CardService.CreateCardAsync(groupId, requesterId, cardForCreation, false);
 
             return CreatedAtRoute(
                 "GetCardById", 
                 new 
                 {
-                    ownerId,
-                    projectId,
-                    groupId,
-                    cardId = card.CardId,
+                    projectId = result.projectId,
+                    cardId = result.cardDto.CardId,
                 },
-                card);
+                result);
         }
 
-        [HttpPut("groups/{groupId:guid}/cards/{cardId:guid}")]
-        public async Task<IActionResult> UpdateCard(string ownerId, Guid projectId, Guid groupId, Guid cardId, CardForUpdateDto cardForUpdate)
+        [HttpPut("cards/{cardId:guid}")]
+        public async Task<IActionResult> UpdateCard(Guid cardId, CardForUpdateDto cardForUpdate)
         {
             var requesterId = GetRequesterId();
 
-            await _service.CardService.UpdateCardAsync(ownerId, projectId, requesterId, groupId, cardId, cardForUpdate, true);
+            await _service.CardService.UpdateCardAsync(cardId, requesterId, cardForUpdate, true);
 
             return NoContent();
         }
 
-        [HttpPut("groups/{groupId:guid}/cards/{cardId:guid}/archive")]
-        public async Task<IActionResult> ToggleArchiveStatus(string ownerId, Guid projectId, Guid groupId, Guid cardId)
+        [HttpPut("projects/{projectId}/cards/{cardId:guid}/archive")]
+        public async Task<IActionResult> ToggleArchiveStatus(Guid projectId, Guid cardId)
         {
             var requesterId = GetRequesterId();
 
-            await _service.CardService.ToggleArchiveStatusAsync(ownerId, projectId, requesterId, groupId, cardId, true);
+            await _service.CardService.ToggleArchiveStatusAsync(projectId, cardId, requesterId, true);
 
             return NoContent();
         }
 
-        [HttpDelete("groups/{groupId:guid}/cards/{cardId:guid}")]
-        public async Task<IActionResult> DeleteCard(string ownerId, Guid projectId, Guid groupId, Guid cardId)
+        [HttpDelete("projects/{projectId}/cards/{cardId:guid}")]
+        public async Task<IActionResult> DeleteCard(Guid projectId, Guid cardId)
         {
             var requesterId = GetRequesterId();
 
-            await _service.CardService.DeleteCardAsync(ownerId, projectId, requesterId, groupId, cardId, false);
+            await _service.CardService.DeleteCardAsync(projectId, cardId, requesterId, false);
 
             return NoContent();
         }
