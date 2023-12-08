@@ -80,39 +80,35 @@ namespace Service
 
         public async Task UpdateProjectAsync(string requesterId, Guid projectId, ProjectForUpdateDto projectForUpdateDto, bool trackChanges)
         {
-            var requester = await _userManager.FindByIdAsync(requesterId);
+            var entity = await _repositoryManager.ProjectMemberRepository.GetProjectForMemberAsync(requesterId, projectId, trackChanges);
 
-            if (requester == null)
+            if (entity == null)
             {
-                throw new UserNotFoundException(requesterId);
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+            else if (entity.Role != Constants.PROJECT_ROLE_ADMIN)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
             }
 
-            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(requesterId, projectId, trackChanges);
-
-            if (project == null)
-            {
-                throw new ProjectNotFoundException(projectId);
-            }
-
-            _mapper.Map(projectForUpdateDto, project);
+            _mapper.Map(projectForUpdateDto, entity.Project);
             await _repositoryManager.SaveAsync();
         }
 
         public async Task ToggleArchive(string requesterId, Guid projectId, bool trackChanges)
         {
-            var requester = await _userManager.FindByIdAsync(requesterId);
+            var entity = await _repositoryManager.ProjectMemberRepository.GetProjectForMemberAsync(requesterId, projectId, trackChanges);
 
-            if (requester == null)
+            if (entity == null)
             {
-                throw new UserNotFoundException(requesterId);
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+            else if (entity.Role != Constants.PROJECT_ROLE_ADMIN)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
             }
 
-            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(requesterId, projectId, trackChanges);
-
-            if (project == null)
-            {
-                throw new ProjectNotFoundException(projectId);
-            }
+            var project = entity.Project;
 
             project.IsActive = !project.IsActive;
             await _repositoryManager.SaveAsync();
@@ -120,27 +116,19 @@ namespace Service
 
         public async Task DeleteProject(string requesterId, Guid projectId, bool trackChanges)
         {
-            var requester = await _userManager.FindByIdAsync(requesterId);
+            var entity = await _repositoryManager.ProjectMemberRepository.GetProjectForMemberAsync(requesterId, projectId, trackChanges);
 
-            if (requester == null)
+            if (entity == null)
             {
-                throw new UserNotFoundException(requesterId);
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+            else if (entity.Role != Constants.PROJECT_ROLE_ADMIN)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
             }
 
-            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(requesterId, projectId, trackChanges);
-
-            if (project == null)
-            {
-                throw new ProjectNotFoundException(projectId);
-            }
-
-            _repositoryManager.ProjectRepository.DeleteProject(project);
+            _repositoryManager.ProjectRepository.DeleteProject(entity.Project);
             await _repositoryManager.SaveAsync();
         }
-
-        #region HELPER METHODS
-
-
-        #endregion
     }
 }

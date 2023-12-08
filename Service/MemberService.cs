@@ -5,6 +5,7 @@ using Entities.Models;
 using Microsoft.AspNetCore.Identity;
 using NETCore.MailKit.Core;
 using Service.Contracts;
+using Shared;
 using Shared.DataTransferObjects;
 
 namespace Service
@@ -52,8 +53,23 @@ namespace Service
                 throw new MemberAlreadyExistsBadRequest(memberDto.Email);
             }
 
-            //_repositoryManager.ProjectMemberRepository.AddProjectMember(projectId, newMember.Id, memberDto.RoleId);
-            //await _repositoryManager.SaveAsync();
+            string role;
+            if (memberDto.Role == Constants.PROJECT_ROLE_ADMIN || memberDto.Role == Constants.PROJECT_ROLE_MEMBER)
+            {
+                role = memberDto.Role;
+            }
+            else
+            {
+                role = Constants.PROJECT_ROLE_OBSERVER;
+            }
+
+            _repositoryManager.ProjectMemberRepository.AddProjectMember(new ProjectMember
+            {
+                MemberId = newMember.Id,
+                ProjectId = projectId,
+                Role = role,
+            });
+            await _repositoryManager.SaveAsync();
         }
 
         public async Task RemoveMemberAsync(string requesterId, string userId, Guid projectId, string memberId, bool trackChanges)
@@ -74,6 +90,7 @@ namespace Service
         }
 
         #region HELPER METHODS
+
         private async Task CheckIfRequesterIsAuthorizedAsync(Guid projectId, string requesterId, HashSet<string> allowedRoles)
         {
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
