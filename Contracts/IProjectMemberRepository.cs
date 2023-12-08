@@ -4,6 +4,7 @@ namespace Contracts
 {
     public interface IProjectMemberRepository
     {
+        Task<IEnumerable<ProjectMember>> GetAllProjectMembersAsync(Guid projectId, bool trackChanges);
         void AddProjectMember(ProjectMember member);
         Task<ProjectMember> GetProjectMemberAsync(Guid projectId, string memberId, bool trackChanges);
         Task<IEnumerable<ProjectMember>> GetProjectsForMemberAsync(string requesterdId, bool trackChanges);

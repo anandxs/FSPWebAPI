@@ -10,6 +10,13 @@ namespace Repository
         {
         }
 
+        public async Task<IEnumerable<ProjectMember>> GetAllProjectMembersAsync(Guid projectId, bool trackChanges)
+        {
+            return await FindByCondition(m => m.ProjectId.Equals(projectId), trackChanges)
+                    .Include(m => m.User)
+                    .ToListAsync();
+        }
+
         public void AddProjectMember(ProjectMember member)
         {
             Create(member);

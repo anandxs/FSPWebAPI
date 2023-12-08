@@ -2,7 +2,7 @@
 {
     public record ProjectMemberDto
     {
-        public Guid Id { get; set; }
         public UserDto User { get; set; }
+        public string Role { get; set; }
     }
 }

@@ -22,7 +22,11 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMembersForProject(Guid projectId)
         {
-            return Ok();
+            var requesterId = GetRequesterId();
+
+            var members = await _service.MemberService.GetAllProjectMembersAsync(projectId, requesterId, false);
+
+            return Ok(members);
         }
 
         [HttpPost]
