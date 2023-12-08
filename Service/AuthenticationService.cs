@@ -10,7 +10,7 @@ using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
 using NETCore.MailKit.Core;
 using Service.Contracts;
-using Shared.Constants;
+using Shared;
 using Shared.DataTransferObjects;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -211,7 +211,7 @@ namespace Service
 
         private async Task<List<Claim>> GetClaims()
         {
-            var role = _user!.Email == _adminConfiguration.Email ? Constants.SUPERADMIN_ROLE : Constants.USER_ROLE;
+            var role = _user!.Email == _adminConfiguration.Email ? Constants.GLOBAL_ROLE_SUPERADMIN : Constants.GLOBAL_ROLE_USER;
 
             var claims = new List<Claim>
             {

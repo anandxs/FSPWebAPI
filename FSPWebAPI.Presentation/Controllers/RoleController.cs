@@ -1,13 +1,13 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
-using Shared.Constants;
+using Shared;
 
 namespace FSPWebAPI.Presentation.Controllers
 {
     [ApiController]
     [Route("api/owner/{ownerId}/projects/{projectId}/roles")]
-    [Authorize(Roles = Constants.USER_ROLE)]
+    [Authorize(Roles = Constants.GLOBAL_ROLE_USER)]
     public class RoleController : ControllerBase
     {
         private readonly IServiceManager _service;

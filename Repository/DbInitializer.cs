@@ -3,7 +3,7 @@ using Entities.ConfigurationModels;
 using Entities.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
-using Shared.Constants;
+using Shared;
 
 namespace Repository
 {
@@ -34,7 +34,7 @@ namespace Repository
             {
                 if (!_roleManager.Roles.Any())
                 {
-                    _roleManager.CreateAsync(new IdentityRole { Name = Constants.SUPERADMIN_ROLE }).GetAwaiter().GetResult();
+                    _roleManager.CreateAsync(new IdentityRole { Name = Constants.GLOBAL_ROLE_SUPERADMIN }).GetAwaiter().GetResult();
 
                     var superAdmin = new User
                     {
@@ -49,7 +49,7 @@ namespace Repository
 
                     _userManager.CreateAsync(superAdmin, password).GetAwaiter().GetResult();
 
-                    _userManager.AddToRoleAsync(superAdmin, Constants.SUPERADMIN_ROLE).GetAwaiter().GetResult();
+                    _userManager.AddToRoleAsync(superAdmin, Constants.GLOBAL_ROLE_SUPERADMIN).GetAwaiter().GetResult();
                 }
             }
             catch (Exception ex)

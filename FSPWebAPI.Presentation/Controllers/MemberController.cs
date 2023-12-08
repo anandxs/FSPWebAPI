@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
-using Shared.Constants;
+using Shared;
 using Shared.DataTransferObjects;
 using System.Security.Claims;
 
@@ -9,7 +9,7 @@ namespace FSPWebAPI.Presentation.Controllers
 {
     [ApiController]
     [Route("api/owner/{ownerId}/projects/{projectId}/members")]
-    [Authorize(Roles = Constants.USER_ROLE)]
+    [Authorize(Roles = Constants.GLOBAL_ROLE_USER)]
     public class MemberController : ControllerBase
     {
         private readonly IServiceManager _service;

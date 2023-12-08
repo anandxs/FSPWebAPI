@@ -5,7 +5,7 @@ using Entities.Models;
 using Microsoft.AspNetCore.Identity;
 using NETCore.MailKit.Core;
 using Service.Contracts;
-using Shared.Constants;
+using Shared;
 using Shared.DataTransferObjects;
 
 namespace Service
@@ -37,7 +37,7 @@ namespace Service
 
             var roles = await _userManager.GetRolesAsync(user);
 
-            userDto.role = roles.Count != 0 ? roles[0] : Constants.USER_ROLE;
+            userDto.role = roles.Count != 0 ? roles[0] : Constants.GLOBAL_ROLE_USER;
 
             return userDto;
         }
