@@ -5,6 +5,6 @@ namespace Service.Contracts
     public interface IMemberService
     {
         Task AddMemberAsync(Guid projectId, string requesterId, MemberForCreationDto memberDto, bool trackChanges);
-        Task RemoveMemberAsync(string requesterId, string userId, Guid projectId, string memberId, bool trackChanges);
+        Task RemoveMemberAsync(Guid projectId, string memberId, string requesterId, bool trackChanges);
     }
 }

@@ -40,7 +40,12 @@ namespace FSPWebAPI.Presentation.Controllers
         {
             var requesterId = GetRequesterId();
 
-            await _service.MemberService.RemoveMemberAsync(requesterId, requesterId, projectId, memberId, false);
+            if (requesterId == memberId)
+            {
+                return BadRequest("You cannot remove yourself.");
+            }
+
+            await _service.MemberService.RemoveMemberAsync(projectId, memberId, requesterId, false);
 
             return NoContent();
         }
