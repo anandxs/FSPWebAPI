@@ -4,6 +4,7 @@ using Entities.Exceptions;
 using Entities.Models;
 using Microsoft.AspNetCore.Identity;
 using Service.Contracts;
+using Shared;
 using Shared.DataTransferObjects;
 
 namespace Service
@@ -67,8 +68,12 @@ namespace Service
             {
                 throw new NotAProjectMemberForbiddenRequestException();
             }
+            else if (requester.Role == Constants.PROJECT_ROLE_OBSERVER)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
+            }
 
-            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(requesterId, projectId, trackChanges);
+            var project = requester.Project;
 
             if (project is null)
             {
@@ -99,6 +104,10 @@ namespace Service
             {
                 throw new NotAProjectMemberForbiddenRequestException();
             }
+            else if (requester.Role == Constants.PROJECT_ROLE_OBSERVER)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
+            }
 
             _mapper.Map(groupForUpdate, group);
             await _repositoryManager.SaveAsync();
@@ -118,6 +127,10 @@ namespace Service
             if (requester is null)
             {
                 throw new NotAProjectMemberForbiddenRequestException();
+            }
+            else if (requester.Role == Constants.PROJECT_ROLE_OBSERVER)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
             }
 
             group.IsActive = !group.IsActive; // maybe move to repository layer
@@ -139,13 +152,13 @@ namespace Service
             {
                 throw new NotAProjectMemberForbiddenRequestException();
             }
+            else if (requester.Role != Constants.PROJECT_ROLE_ADMIN)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
+            }
 
             _repositoryManager.GroupRepository.DeleteGroup(group);
             await _repositoryManager.SaveAsync();
         }
-
-        #region HELPER METHODS
-
-        #endregion
     }
 }
