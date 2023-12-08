@@ -31,16 +31,16 @@ namespace Service
             _emailService = emailService;
         }
 
-        public async Task<IEnumerable<ProjectMemberDto>> GetProjectMembersAsync(string userId, Guid projectId, bool trackChanges)
-        {
-            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
+        //public async Task<IEnumerable<ProjectMemberDto>> GetProjectMembersAsync(string userId, Guid projectId, bool trackChanges)
+        //{
+        //    await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
 
-            var members = await _repositoryManager.ProjectMemberRepository.GetProjectMembersAsync(projectId, trackChanges);
+        //    var members = await _repositoryManager.ProjectMemberRepository.GetProjectMembersAsync(projectId, trackChanges);
 
-            var membersDto = _mapper.Map<IEnumerable<ProjectMemberDto>>(members);
+        //    var membersDto = _mapper.Map<IEnumerable<ProjectMemberDto>>(members);
 
-            return membersDto;
-        }
+        //    return membersDto;
+        //}
 
         public async Task InviteUserAsync(string requesterId, string userId, Guid projectId, MemberForCreationDto memberDto, bool trackChanges)
         {
@@ -65,8 +65,8 @@ namespace Service
                 throw new MemberAlreadyExistsBadRequest(memberDto.Email);
             }
 
-            _repositoryManager.ProjectMemberRepository.AddProjectMember(projectId, newMember.Id, memberDto.RoleId);
-            await _repositoryManager.SaveAsync();
+            //_repositoryManager.ProjectMemberRepository.AddProjectMember(projectId, newMember.Id, memberDto.RoleId);
+            //await _repositoryManager.SaveAsync();
         }
 
         public async Task RemoveMemberAsync(string requesterId, string userId, Guid projectId, string memberId, bool trackChanges)
@@ -96,12 +96,12 @@ namespace Service
                 throw new NotAProjectMemberForbiddenRequestException();
             }
 
-            var requesterRole = await _repositoryManager.ProjectRoleRepository.GetProjectRoleById(projectId, (Guid)requester.ProjectRoleId, false);
+            //var requesterRole = await _repositoryManager.ProjectRoleRepository.GetProjectRoleById(projectId, (Guid)requester.ProjectRoleId, false);
 
-            if (!allowedRoles.Contains(requesterRole.Name))
-            {
-                throw new IncorrectRoleForbiddenRequestException();
-            }
+            //if (!allowedRoles.Contains(requesterRole.Name))
+            //{
+            //    throw new IncorrectRoleForbiddenRequestException();
+            //}
         }
 
         private async Task CheckIfUserAndProjectExistsAsync(string userId, Guid projectId, bool trackChanges)
@@ -123,12 +123,12 @@ namespace Service
 
         private async Task CheckIfRoleExistsAsync(Guid projectId, Guid roleId, bool trackChanges)
         {
-            var role = await _repositoryManager.ProjectRoleRepository.GetProjectRoleById(projectId, roleId, trackChanges);
+            //var role = await _repositoryManager.ProjectRoleRepository.GetProjectRoleById(projectId, roleId, trackChanges);
 
-            if (role == null)
-            {
-                throw new RoleNotFoundException(roleId);
-            }
+            //if (role == null)
+            //{
+            //    throw new RoleNotFoundException(roleId);
+            //}
         }
 
         #endregion

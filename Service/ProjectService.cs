@@ -63,23 +63,23 @@ namespace Service
             _repositoryManager.ProjectRepository.CreateProject(projectEntity, requesterId);
             await _repositoryManager.SaveAsync();
 
-            var defaultRoles = await _repositoryManager.DefaultProjectRoleRepository.GetAllRolesAsync(false);
+            //var defaultRoles = await _repositoryManager.DefaultProjectRoleRepository.GetAllRolesAsync(false);
 
-            foreach (var defaultRole in defaultRoles)
-            {
-                var role = new ProjectRole
-                {
-                    Name = defaultRole.Name,
-                    ProjectId = projectEntity.ProjectId
-                };
-                _repositoryManager.ProjectRoleRepository.CreateRole(role);  
-            }
-            await _repositoryManager.SaveAsync();
+            //foreach (var defaultRole in defaultRoles)
+            //{
+            //    var role = new ProjectRole
+            //    {
+            //        Name = defaultRole.Name,
+            //        ProjectId = projectEntity.ProjectId
+            //    };
+            //    _repositoryManager.ProjectRoleRepository.CreateRole(role);  
+            //}
+            //await _repositoryManager.SaveAsync();
 
-            var adminRole = await _repositoryManager.ProjectRoleRepository.GetProjectRoleByName(projectEntity.ProjectId, "Admin", false);
+            //var adminRole = await _repositoryManager.ProjectRoleRepository.GetProjectRoleByName(projectEntity.ProjectId, "Admin", false);
 
-            _repositoryManager.ProjectMemberRepository.AddProjectMember(projectEntity.ProjectId, requesterId, adminRole.RoleId);
-            await _repositoryManager.SaveAsync();
+            //_repositoryManager.ProjectMemberRepository.AddProjectMember(projectEntity.ProjectId, requesterId, adminRole.RoleId);
+            //await _repositoryManager.SaveAsync();
 
             var projectToReturn = _mapper.Map<ProjectDto>(projectEntity);
 

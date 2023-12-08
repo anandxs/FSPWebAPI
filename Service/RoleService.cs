@@ -31,11 +31,13 @@ namespace Service
         {
             await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
 
-            var roles = await _repositoryManager.ProjectRoleRepository.GetAllProjectRoles(projectId, trackChanges);
+            //var roles = await _repositoryManager.ProjectRoleRepository.GetAllProjectRoles(projectId, trackChanges);
 
-            var rolesDto = _mapper.Map<IEnumerable<ProjectRoleDto>>(roles);
+            //var rolesDto = _mapper.Map<IEnumerable<ProjectRoleDto>>(roles);
 
-            return rolesDto;
+            //return rolesDto;
+
+            return null;
         }
 
         private async Task CheckIfUserAndProjectExistsAsync(string userId, Guid projectId, bool trackChanges)

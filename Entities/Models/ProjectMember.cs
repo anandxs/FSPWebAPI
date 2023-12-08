@@ -13,8 +13,8 @@ namespace Entities.Models
         [ForeignKey(nameof(Project))]
         public Guid ProjectId { get; set; }
         public Project Project { get; set; }
-        [ForeignKey(nameof(ProjectRole))]
-        public Guid? ProjectRoleId { get; set; }
-        public ProjectRole ProjectRole { get; set; }
+        //[ForeignKey(nameof(ProjectRole))]
+        //public Guid? ProjectRoleId { get; set; }
+        //public ProjectRole ProjectRole { get; set; }
     }
 }

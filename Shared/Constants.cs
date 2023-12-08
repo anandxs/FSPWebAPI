@@ -4,5 +4,9 @@
     {
         public const string GLOBAL_ROLE_SUPERADMIN = "SUPERADMIN";
         public const string GLOBAL_ROLE_USER = "USER";
+
+        public const string PROJECT_ROLE_ADMIN = "ADMIN";
+        public const string PROJECT_ROLE_MEMBER = "MEMBER";
+        public const string PROJECT_ROLE_OBSERVER = "OBSERVER";
     }
 }

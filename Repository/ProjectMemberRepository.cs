@@ -10,13 +10,12 @@ namespace Repository
         {
         }
 
-        public void AddProjectMember(Guid projectId, string memberId, Guid roleId)
+        public void AddProjectMember(Guid projectId, string memberId)
         {
             Create(new ProjectMember
             {
                 ProjectId = projectId,
-                MemberId = memberId,
-                ProjectRoleId = roleId
+                MemberId = memberId
             });
         }
 
@@ -26,13 +25,13 @@ namespace Repository
                     .SingleOrDefaultAsync();
         }
 
-        public async Task<IEnumerable<ProjectMember>> GetProjectMembersAsync(Guid projectId, bool trackChanges)
-        {
-            return await FindByCondition(m => m.ProjectId.Equals(projectId), trackChanges)
-                    .Include(m => m.User)
-                    .Include(m => m.ProjectRole)
-                    .ToListAsync();
-        }
+        //public async Task<IEnumerable<ProjectMember>> GetProjectMembersAsync(Guid projectId, bool trackChanges)
+        //{
+        //    return await FindByCondition(m => m.ProjectId.Equals(projectId), trackChanges)
+        //            .Include(m => m.User)
+        //            .Include(m => m.ProjectRole)
+        //            .ToListAsync();
+        //}
 
         public async Task<IEnumerable<ProjectMember>> GetProjectsForMemberAsync(string requesterdId, bool trackChanges)
         {
