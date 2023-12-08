@@ -119,6 +119,42 @@ namespace Service
             await _repositoryManager.SaveAsync();
         }
 
+        public async Task ExitProjectAsync(Guid projectId, string requesterId, bool trackChanges)
+        {
+            var members = await _repositoryManager.ProjectMemberRepository.GetAllProjectMembersAsync(projectId, trackChanges);
+
+            var requester = members.Where(m => m.MemberId.Equals(requesterId)).SingleOrDefault();
+
+            if (requester == null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+
+            var entity = await _repositoryManager.ProjectMemberRepository.GetProjectForMemberAsync(requesterId, projectId, trackChanges);
+
+            if (entity == null || entity.Project == null)
+            {
+                throw new ProjectNotFoundException(projectId);
+            }
+
+            if (entity.Project.OwnerId == requesterId)
+            {
+                throw new Exception("Owner cannot exit group.");
+            }
+
+            var adminCount = members.Where(m => m.Role == Constants.PROJECT_ROLE_ADMIN).Count();
+
+            if (requester.Role == Constants.PROJECT_ROLE_ADMIN && adminCount == 1) 
+            {
+                throw new Exception("Project needs to have atleast one admin.");
+            }
+            else
+            {
+                _repositoryManager.ProjectMemberRepository.RemoveMember(requester);
+                await _repositoryManager.SaveAsync();
+            }
+        }
+
         #region HELPER METHODS
 
         private async Task CheckIfRequesterIsAuthorizedAsync(Guid projectId, string requesterId, HashSet<string> allowedRoles)

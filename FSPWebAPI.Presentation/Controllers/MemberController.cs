@@ -30,7 +30,7 @@ namespace FSPWebAPI.Presentation.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> InviteUser(Guid projectId, [FromBody] MemberForCreationDto memberDto)
+        public async Task<IActionResult> AddMember(Guid projectId, [FromBody] MemberForCreationDto memberDto)
         {
             var requesterId = GetRequesterId();
 
@@ -50,6 +50,16 @@ namespace FSPWebAPI.Presentation.Controllers
             }
 
             await _service.MemberService.RemoveMemberAsync(projectId, memberId, requesterId, false);
+
+            return NoContent();
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> ExitProject(Guid projectId)
+        {
+            var requesterId = GetRequesterId();
+
+            await _service.MemberService.ExitProjectAsync(projectId, requesterId, false);
 
             return NoContent();
         }
