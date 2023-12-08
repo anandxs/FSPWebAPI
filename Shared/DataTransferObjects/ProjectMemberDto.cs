@@ -4,7 +4,5 @@
     {
         public Guid Id { get; set; }
         public UserDto User { get; set; }
-        public ProjectRoleDto ProjectRole { get; set; }
-
     }
 }

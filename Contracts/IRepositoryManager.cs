@@ -4,7 +4,6 @@
     {
         IProjectRepository ProjectRepository { get; }
         IGroupRepository GroupRepository { get; }
-        IProjectRoleRepository ProjectRoleRepository { get; }
         IProjectMemberRepository ProjectMemberRepository { get; }
         ICardRepository CardRepository { get; }
         IDefaultProjectRoleRepository DefaultProjectRoleRepository { get; }

@@ -5,6 +5,7 @@ using Entities.Models;
 using Microsoft.AspNetCore.Identity;
 using NETCore.MailKit.Core;
 using Service.Contracts;
+using Shared;
 using Shared.DataTransferObjects;
 
 namespace Service
@@ -31,24 +32,11 @@ namespace Service
             _emailService = emailService;
         }
 
-        public async Task<IEnumerable<ProjectMemberDto>> GetProjectMembersAsync(string userId, Guid projectId, bool trackChanges)
-        {
-            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
-
-            var members = await _repositoryManager.ProjectMemberRepository.GetProjectMembersAsync(projectId, trackChanges);
-
-            var membersDto = _mapper.Map<IEnumerable<ProjectMemberDto>>(members);
-
-            return membersDto;
-        }
-
         public async Task InviteUserAsync(string requesterId, string userId, Guid projectId, MemberForCreationDto memberDto, bool trackChanges)
         {
             await CheckIfRequesterIsAuthorizedAsync(projectId, requesterId, new HashSet<string> { "Admin" });
 
             await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
-
-            await CheckIfRoleExistsAsync(projectId, memberDto.RoleId, trackChanges);
 
             var newMember = await _userManager.FindByEmailAsync(memberDto.Email);
 
@@ -65,7 +53,22 @@ namespace Service
                 throw new MemberAlreadyExistsBadRequest(memberDto.Email);
             }
 
-            _repositoryManager.ProjectMemberRepository.AddProjectMember(projectId, newMember.Id, memberDto.RoleId);
+            string role;
+            if (memberDto.Role == Constants.PROJECT_ROLE_ADMIN || memberDto.Role == Constants.PROJECT_ROLE_MEMBER)
+            {
+                role = memberDto.Role;
+            }
+            else
+            {
+                role = Constants.PROJECT_ROLE_OBSERVER;
+            }
+
+            _repositoryManager.ProjectMemberRepository.AddProjectMember(new ProjectMember
+            {
+                MemberId = newMember.Id,
+                ProjectId = projectId,
+                Role = role,
+            });
             await _repositoryManager.SaveAsync();
         }
 
@@ -87,6 +90,7 @@ namespace Service
         }
 
         #region HELPER METHODS
+
         private async Task CheckIfRequesterIsAuthorizedAsync(Guid projectId, string requesterId, HashSet<string> allowedRoles)
         {
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
@@ -94,13 +98,6 @@ namespace Service
             if (requester is null)
             {
                 throw new NotAProjectMemberForbiddenRequestException();
-            }
-
-            var requesterRole = await _repositoryManager.ProjectRoleRepository.GetProjectRoleById(projectId, (Guid)requester.ProjectRoleId, false);
-
-            if (!allowedRoles.Contains(requesterRole.Name))
-            {
-                throw new IncorrectRoleForbiddenRequestException();
             }
         }
 
@@ -118,16 +115,6 @@ namespace Service
             if (project is null)
             {
                 throw new ProjectNotFoundException(projectId);
-            }
-        }
-
-        private async Task CheckIfRoleExistsAsync(Guid projectId, Guid roleId, bool trackChanges)
-        {
-            var role = await _repositoryManager.ProjectRoleRepository.GetProjectRoleById(projectId, roleId, trackChanges);
-
-            if (role == null)
-            {
-                throw new RoleNotFoundException(roleId);
             }
         }
 

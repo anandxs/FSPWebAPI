@@ -4,6 +4,7 @@ using Entities.Exceptions;
 using Entities.Models;
 using Microsoft.AspNetCore.Identity;
 using Service.Contracts;
+using Shared;
 using Shared.DataTransferObjects;
 
 namespace Service
@@ -79,6 +80,10 @@ namespace Service
             {
                 throw new NotAProjectMemberForbiddenRequestException();
             }
+            else if (requester.Role == Constants.PROJECT_ROLE_OBSERVER)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
+            }
 
             var card = _mapper.Map<Card>(cardForCreation);
 
@@ -105,6 +110,10 @@ namespace Service
             {
                 throw new NotAProjectMemberForbiddenRequestException();
             }
+            else if (requester.Role == Constants.PROJECT_ROLE_OBSERVER)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
+            }
 
             var card = await _repositoryManager.CardRepository.GetCardByIdAsync(cardId, trackChanges);
 
@@ -124,6 +133,10 @@ namespace Service
             if (requester is null)
             {
                 throw new NotAProjectMemberForbiddenRequestException();
+            }
+            else if (requester.Role == Constants.PROJECT_ROLE_OBSERVER)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
             }
 
             var card = await _repositoryManager.CardRepository.GetCardByIdAsync(cardId, trackChanges);
@@ -145,6 +158,10 @@ namespace Service
             {
                 throw new NotAProjectMemberForbiddenRequestException();
             }
+            else if (requester.Role != Constants.PROJECT_ROLE_ADMIN)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
+            }
 
             var card = await _repositoryManager.CardRepository.GetCardByIdAsync(cardId, trackChanges);
 
@@ -156,9 +173,5 @@ namespace Service
             _repositoryManager.CardRepository.DeleteCard(card);
             await _repositoryManager.SaveAsync();
         }
-
-        #region HELPER METHODS
-
-        #endregion
     }
 }
