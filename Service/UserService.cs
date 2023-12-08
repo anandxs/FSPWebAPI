@@ -37,7 +37,7 @@ namespace Service
 
             var roles = await _userManager.GetRolesAsync(user);
 
-            //userDto.role = roles.Count != 0 ? roles[0] : Constants.GLOBAL_ROLE_USER;
+            userDto.Role = roles.Count != 0 ? roles[0] : Constants.GLOBAL_ROLE_USER;
 
             return userDto;
         }
