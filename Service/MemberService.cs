@@ -32,11 +32,34 @@ namespace Service
             _emailService = emailService;
         }
 
-        public async Task InviteUserAsync(string requesterId, string userId, Guid projectId, MemberForCreationDto memberDto, bool trackChanges)
+        public async Task<IEnumerable<ProjectMemberDto>> GetAllProjectMembersAsync(Guid projectId, string requesterId, bool trackChanges)
         {
-            await CheckIfRequesterIsAuthorizedAsync(projectId, requesterId, new HashSet<string> { "Admin" });
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
 
-            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
+            if (requester == null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+
+            var members = await _repositoryManager.ProjectMemberRepository.GetAllProjectMembersAsync(projectId, trackChanges);
+
+            var membersDto = _mapper.Map<IEnumerable<ProjectMemberDto>>(members);
+
+            return membersDto;
+        }
+
+        public async Task AddMemberAsync(Guid projectId, string requesterId, MemberForCreationDto memberDto, bool trackChanges)
+        {
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+
+            if (requester == null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+            else if (requester.Role != Constants.PROJECT_ROLE_ADMIN)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
+            }
 
             var newMember = await _userManager.FindByEmailAsync(memberDto.Email);
 
@@ -72,11 +95,18 @@ namespace Service
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task RemoveMemberAsync(string requesterId, string userId, Guid projectId, string memberId, bool trackChanges)
+        public async Task RemoveMemberAsync(Guid projectId, string memberId, string requesterId, bool trackChanges)
         {
-            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
-            
-            await CheckIfRequesterIsAuthorizedAsync(projectId, requesterId, new HashSet<string> { "Admin" });
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+
+            if (requester == null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+            else if (requester.Role != Constants.PROJECT_ROLE_ADMIN)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
+            }
 
             var member = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, memberId, false);
 
@@ -87,6 +117,42 @@ namespace Service
 
             _repositoryManager.ProjectMemberRepository.RemoveMember(member);
             await _repositoryManager.SaveAsync();
+        }
+
+        public async Task ExitProjectAsync(Guid projectId, string requesterId, bool trackChanges)
+        {
+            var members = await _repositoryManager.ProjectMemberRepository.GetAllProjectMembersAsync(projectId, trackChanges);
+
+            var requester = members.Where(m => m.MemberId.Equals(requesterId)).SingleOrDefault();
+
+            if (requester == null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+
+            var entity = await _repositoryManager.ProjectMemberRepository.GetProjectForMemberAsync(requesterId, projectId, trackChanges);
+
+            if (entity == null || entity.Project == null)
+            {
+                throw new ProjectNotFoundException(projectId);
+            }
+
+            if (entity.Project.OwnerId == requesterId)
+            {
+                throw new Exception("Owner cannot exit group.");
+            }
+
+            var adminCount = members.Where(m => m.Role == Constants.PROJECT_ROLE_ADMIN).Count();
+
+            if (requester.Role == Constants.PROJECT_ROLE_ADMIN && adminCount == 1) 
+            {
+                throw new Exception("Project needs to have atleast one admin.");
+            }
+            else
+            {
+                _repositoryManager.ProjectMemberRepository.RemoveMember(requester);
+                await _repositoryManager.SaveAsync();
+            }
         }
 
         #region HELPER METHODS

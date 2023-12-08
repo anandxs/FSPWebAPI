@@ -8,7 +8,7 @@ using System.Security.Claims;
 namespace FSPWebAPI.Presentation.Controllers
 {
     [ApiController]
-    [Route("api/owner/{ownerId}/projects/{projectId}/members")]
+    [Route("api/projects/{projectId}/members")]
     [Authorize(Roles = Constants.GLOBAL_ROLE_USER)]
     public class MemberController : ControllerBase
     {
@@ -20,32 +20,46 @@ namespace FSPWebAPI.Presentation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetMembersForProject(string ownerId, Guid projectId)
-        {
-            return Ok();
-        }
-
-        [HttpPost]
-        public async Task<IActionResult> InviteUser(string ownerId, Guid projectId, [FromBody] MemberForCreationDto memberDto)
+        public async Task<IActionResult> GetMembersForProject(Guid projectId)
         {
             var requesterId = GetRequesterId();
 
-            await _service.MemberService.InviteUserAsync(requesterId, ownerId, projectId, memberDto, false);
+            var members = await _service.MemberService.GetAllProjectMembersAsync(projectId, requesterId, false);
+
+            return Ok(members);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddMember(Guid projectId, [FromBody] MemberForCreationDto memberDto)
+        {
+            var requesterId = GetRequesterId();
+
+            await _service.MemberService.AddMemberAsync(projectId, requesterId, memberDto, false);
 
             return NoContent();
         }
 
         [HttpDelete("{memberId}")]
-        public async Task<IActionResult> RemoveMember(string ownerId, Guid projectId, string memberId)
+        public async Task<IActionResult> RemoveMember(Guid projectId, string memberId)
         {
             var requesterId = GetRequesterId();
 
-            if (ownerId == memberId)
+            if (requesterId == memberId)
             {
-                return BadRequest("Invalid action.");
+                return BadRequest("You cannot remove yourself.");
             }
 
-            await _service.MemberService.RemoveMemberAsync(requesterId, ownerId, projectId, memberId, false);
+            await _service.MemberService.RemoveMemberAsync(projectId, memberId, requesterId, false);
+
+            return NoContent();
+        }
+
+        [HttpDelete]
+        public async Task<IActionResult> ExitProject(Guid projectId)
+        {
+            var requesterId = GetRequesterId();
+
+            await _service.MemberService.ExitProjectAsync(projectId, requesterId, false);
 
             return NoContent();
         }
