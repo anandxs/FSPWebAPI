@@ -32,11 +32,18 @@ namespace Service
             _emailService = emailService;
         }
 
-        public async Task InviteUserAsync(string requesterId, string userId, Guid projectId, MemberForCreationDto memberDto, bool trackChanges)
+        public async Task AddMemberAsync(Guid projectId, string requesterId, MemberForCreationDto memberDto, bool trackChanges)
         {
-            await CheckIfRequesterIsAuthorizedAsync(projectId, requesterId, new HashSet<string> { "Admin" });
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
 
-            await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
+            if (requester == null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+            else if (requester.Role != Constants.PROJECT_ROLE_ADMIN)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
+            }
 
             var newMember = await _userManager.FindByEmailAsync(memberDto.Email);
 

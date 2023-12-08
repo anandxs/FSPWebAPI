@@ -8,7 +8,7 @@ using System.Security.Claims;
 namespace FSPWebAPI.Presentation.Controllers
 {
     [ApiController]
-    [Route("api/owner/{ownerId}/projects/{projectId}/members")]
+    [Route("api/projects/{projectId}/members")]
     [Authorize(Roles = Constants.GLOBAL_ROLE_USER)]
     public class MemberController : ControllerBase
     {
@@ -20,32 +20,27 @@ namespace FSPWebAPI.Presentation.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetMembersForProject(string ownerId, Guid projectId)
+        public async Task<IActionResult> GetMembersForProject(Guid projectId)
         {
             return Ok();
         }
 
         [HttpPost]
-        public async Task<IActionResult> InviteUser(string ownerId, Guid projectId, [FromBody] MemberForCreationDto memberDto)
+        public async Task<IActionResult> InviteUser(Guid projectId, [FromBody] MemberForCreationDto memberDto)
         {
             var requesterId = GetRequesterId();
 
-            await _service.MemberService.InviteUserAsync(requesterId, ownerId, projectId, memberDto, false);
+            await _service.MemberService.AddMemberAsync(projectId, requesterId, memberDto, false);
 
             return NoContent();
         }
 
         [HttpDelete("{memberId}")]
-        public async Task<IActionResult> RemoveMember(string ownerId, Guid projectId, string memberId)
+        public async Task<IActionResult> RemoveMember(Guid projectId, string memberId)
         {
             var requesterId = GetRequesterId();
 
-            if (ownerId == memberId)
-            {
-                return BadRequest("Invalid action.");
-            }
-
-            await _service.MemberService.RemoveMemberAsync(requesterId, ownerId, projectId, memberId, false);
+            await _service.MemberService.RemoveMemberAsync(requesterId, requesterId, projectId, memberId, false);
 
             return NoContent();
         }
