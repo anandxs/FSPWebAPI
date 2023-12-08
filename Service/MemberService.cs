@@ -31,24 +31,11 @@ namespace Service
             _emailService = emailService;
         }
 
-        //public async Task<IEnumerable<ProjectMemberDto>> GetProjectMembersAsync(string userId, Guid projectId, bool trackChanges)
-        //{
-        //    await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
-
-        //    var members = await _repositoryManager.ProjectMemberRepository.GetProjectMembersAsync(projectId, trackChanges);
-
-        //    var membersDto = _mapper.Map<IEnumerable<ProjectMemberDto>>(members);
-
-        //    return membersDto;
-        //}
-
         public async Task InviteUserAsync(string requesterId, string userId, Guid projectId, MemberForCreationDto memberDto, bool trackChanges)
         {
             await CheckIfRequesterIsAuthorizedAsync(projectId, requesterId, new HashSet<string> { "Admin" });
 
             await CheckIfUserAndProjectExistsAsync(userId, projectId, trackChanges);
-
-            await CheckIfRoleExistsAsync(projectId, memberDto.RoleId, trackChanges);
 
             var newMember = await _userManager.FindByEmailAsync(memberDto.Email);
 
@@ -95,13 +82,6 @@ namespace Service
             {
                 throw new NotAProjectMemberForbiddenRequestException();
             }
-
-            //var requesterRole = await _repositoryManager.ProjectRoleRepository.GetProjectRoleById(projectId, (Guid)requester.ProjectRoleId, false);
-
-            //if (!allowedRoles.Contains(requesterRole.Name))
-            //{
-            //    throw new IncorrectRoleForbiddenRequestException();
-            //}
         }
 
         private async Task CheckIfUserAndProjectExistsAsync(string userId, Guid projectId, bool trackChanges)
@@ -119,16 +99,6 @@ namespace Service
             {
                 throw new ProjectNotFoundException(projectId);
             }
-        }
-
-        private async Task CheckIfRoleExistsAsync(Guid projectId, Guid roleId, bool trackChanges)
-        {
-            //var role = await _repositoryManager.ProjectRoleRepository.GetProjectRoleById(projectId, roleId, trackChanges);
-
-            //if (role == null)
-            //{
-            //    throw new RoleNotFoundException(roleId);
-            //}
         }
 
         #endregion

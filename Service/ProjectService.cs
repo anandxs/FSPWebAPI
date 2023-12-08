@@ -4,6 +4,7 @@ using Entities.Exceptions;
 using Entities.Models;
 using Microsoft.AspNetCore.Identity;
 using Service.Contracts;
+using Shared;
 using Shared.DataTransferObjects;
 
 namespace Service
@@ -51,9 +52,9 @@ namespace Service
 
         public async Task<ProjectDto> CreateProjectAsync(string requesterId, ProjectForCreationDto project)
         {
-            var user = await _userManager.FindByIdAsync(requesterId);
+            var requester = await _userManager.FindByIdAsync(requesterId);
 
-            if (user is null)
+            if (requester is null)
             {
                 throw new UserNotFoundException(requesterId);
             }
@@ -61,25 +62,16 @@ namespace Service
             var projectEntity = _mapper.Map<Project>(project);
 
             _repositoryManager.ProjectRepository.CreateProject(projectEntity, requesterId);
+
+            var member = new ProjectMember
+            {
+                User = requester,
+                Project = projectEntity,
+                Role = Constants.PROJECT_ROLE_ADMIN
+            };
+
+            _repositoryManager.ProjectMemberRepository.AddProjectMember(member);
             await _repositoryManager.SaveAsync();
-
-            //var defaultRoles = await _repositoryManager.DefaultProjectRoleRepository.GetAllRolesAsync(false);
-
-            //foreach (var defaultRole in defaultRoles)
-            //{
-            //    var role = new ProjectRole
-            //    {
-            //        Name = defaultRole.Name,
-            //        ProjectId = projectEntity.ProjectId
-            //    };
-            //    _repositoryManager.ProjectRoleRepository.CreateRole(role);  
-            //}
-            //await _repositoryManager.SaveAsync();
-
-            //var adminRole = await _repositoryManager.ProjectRoleRepository.GetProjectRoleByName(projectEntity.ProjectId, "Admin", false);
-
-            //_repositoryManager.ProjectMemberRepository.AddProjectMember(projectEntity.ProjectId, requesterId, adminRole.RoleId);
-            //await _repositoryManager.SaveAsync();
 
             var projectToReturn = _mapper.Map<ProjectDto>(projectEntity);
 
