@@ -2,6 +2,7 @@
 using Contracts;
 using Entities.ConfigurationModels;
 using Entities.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using NETCore.MailKit.Core;
@@ -28,7 +29,8 @@ namespace Service
             IOptions<JwtConfiguration> jwtConfiguration,
             IOptions<ClientConfiguration> clientConfiguration,
             IOptions<SuperAdminConfiguration> adminConfiguration,
-            IEmailService emailService)
+            IEmailService emailService,
+            IHttpContextAccessor contextAccessor)
         {
             _projectService = new Lazy<IProjectService>(() => new ProjectService(repositoryManager, logger, mapper, userManager));
             _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(logger, mapper, userManager, jwtConfiguration, emailService, clientConfiguration, adminConfiguration));
@@ -37,7 +39,7 @@ namespace Service
             _userService = new Lazy<IUserService>(() => new UserService(logger, mapper, userManager, emailService));
             _memberService = new Lazy<IMemberService>(() => new MemberService(repositoryManager, logger, mapper, userManager, emailService));
             _defaultProjectRoleService = new Lazy<IDefaultProjectRoleService>(() => new DefaultProjectRoleService(repositoryManager, logger, mapper));
-            _cardMemberService = new Lazy<ICardMemberService>(() => new CardMemberService(repositoryManager, logger, mapper));
+            _cardMemberService = new Lazy<ICardMemberService>(() => new CardMemberService(repositoryManager, logger, mapper, contextAccessor));
         }
 
         public IProjectService ProjectService => _projectService.Value;

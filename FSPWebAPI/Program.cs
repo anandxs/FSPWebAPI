@@ -32,6 +32,7 @@ builder.Services.ConfigureEmail(builder.Configuration);
 builder.Services.AddClientConfiguration(builder.Configuration);
 builder.Services.AddSuperAdminConfiguration(builder.Configuration);
 builder.Services.AddScoped<IDbInitializer, DbInitializer>();
+builder.Services.AddHttpContextAccessor();
 
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(FSPWebAPI.Presentation.AssemblyReference).Assembly);

@@ -14,6 +14,7 @@ namespace Repository
         {
             return await FindByCondition(a => a.CardId.Equals(cardId), trackChanges)
                     .Include(a => a.Member)
+                    .Include(a => a.Card)
                     .ToListAsync();
         }
 
@@ -21,6 +22,7 @@ namespace Repository
         {
             return await FindByCondition(a => a.MemberId.Equals(memberId), trackChanges)
                     .Include(a => a.Card)
+                    .Include(a => a.Member)
                     .ToListAsync();
         }
 
