@@ -4,6 +4,7 @@ using Entities.Exceptions;
 using Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Service.Contracts;
+using Shared;
 using Shared.DataTransferObjects;
 using System.Security.Claims;
 
@@ -54,6 +55,10 @@ namespace Service
             {
                 throw new NotAProjectMemberForbiddenRequestException();
             }
+            else if (requester.Role != Constants.PROJECT_ROLE_ADMIN)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
+            }
 
             var card = await _repositoryManager.CardRepository.GetCardByIdAsync(cardId, trackChanges);
 
@@ -83,6 +88,39 @@ namespace Service
             };
 
             _repositoryManager.CardMemberRepository.AssignMemberToCard(entity);
+            await _repositoryManager.SaveAsync();
+        }
+
+        public async Task UnassignMemberFromCardAsync(Guid projectId, Guid cardId, string memberId, bool trackChanges)
+        {
+            var requesterId = GetRequesterId();
+
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+
+            if (requester == null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+            else if (requester.Role != Constants.PROJECT_ROLE_ADMIN)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
+            }
+
+            var card = await _repositoryManager.CardRepository.GetCardByIdAsync(cardId, trackChanges);
+
+            if (card == null)
+            {
+                throw new CardNotFoundException(cardId);
+            }
+
+            var existingAssignee = await _repositoryManager.CardMemberRepository.GetAssignedMemberAsync(cardId, memberId, trackChanges);
+
+            if (existingAssignee == null)
+            {
+                throw new Exception("Member is not assigned to this card.");
+            }
+
+            _repositoryManager.CardMemberRepository.UnassignMemberFromCard(existingAssignee);
             await _repositoryManager.SaveAsync();
         }
 

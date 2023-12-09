@@ -24,12 +24,20 @@ namespace FSPWebAPI.Presentation.Controllers
             return Ok(cards);
         }
 
-        [HttpPost("cards/{cardId:guid}/assignees")]
-        public async Task<IActionResult> AssignMemberToCard(Guid projectId, Guid cardId, [FromBody] string memberId)
+        [HttpPost("cards/{cardId:guid}/assignees/{assigneeId}")]
+        public async Task<IActionResult> AssignMemberToCard(Guid projectId, Guid cardId, string assigneeId)
         {
-            await _service.CardMemberService.AssignMemberToCardAsync(projectId, cardId, memberId, false);
+            await _service.CardMemberService.AssignMemberToCardAsync(projectId, cardId, assigneeId, false);
 
             return Ok("Card assigned to member successfully.");
+        }
+
+        [HttpDelete("cards/{cardId:guid}/assignees/{assigneeId}")]
+        public async Task<IActionResult> UnassignCardFromMember(Guid projectId, Guid cardId, string assigneeId)
+        {
+            await _service.CardMemberService.UnassignMemberFromCardAsync(projectId, cardId, assigneeId, false);
+
+            return Ok("Unassigned card from member successfully.");
         }
     }
 }
