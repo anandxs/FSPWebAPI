@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Contracts;
 using Entities.Exceptions;
+using Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Service.Contracts;
 using Shared.DataTransferObjects;
@@ -23,7 +24,7 @@ namespace Service
             _contextAccessor = contextAccessor;
         }
 
-        public async Task<IEnumerable<CardDto>> GetAllCardAssigneesAsync(Guid projectId, Guid cardId, bool trackChanges)
+        public async Task<IEnumerable<UserDto>> GetAllCardAssigneesAsync(Guid projectId, Guid cardId, bool trackChanges)
         {
             var requesterId = GetRequesterId();
 
@@ -36,11 +37,53 @@ namespace Service
 
             var entites = await _repositoryManager.CardMemberRepository.GetAllCardAssigneesAsync(cardId, trackChanges);
 
-            var cards = entites.Select(e => e.Card);
+            var members = entites.Select(e => e.Member);
 
-            var cardDto = _mapper.Map<IEnumerable<CardDto>>(cards);
+            var membersDto = _mapper.Map<IEnumerable<UserDto>>(members);
 
-            return cardDto;
+            return membersDto;
+        }
+
+        public async Task AssignMemberToCardAsync(Guid projectId, Guid cardId, string memberId, bool trackChanges)
+        {
+            var requesterId = GetRequesterId();
+
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+
+            if (requester == null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+
+            var card = await _repositoryManager.CardRepository.GetCardByIdAsync(cardId, trackChanges);
+
+            if (card == null)
+            {
+                throw new CardNotFoundException(cardId);
+            }
+
+            var member = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, memberId, trackChanges);
+
+            if (member == null)
+            {
+                throw new Exception("Given user is not a member of this project.");
+            }
+
+            var existingAssignee = await _repositoryManager.CardMemberRepository.GetAssignedMemberAsync(cardId, memberId, trackChanges);
+
+            if (existingAssignee != null)
+            {
+                throw new Exception("Member is already assigned to this card");
+            }
+
+            var entity = new CardMember
+            {
+                CardId = cardId,
+                MemberId = memberId,
+            };
+
+            _repositoryManager.CardMemberRepository.AssignMemberToCard(entity);
+            await _repositoryManager.SaveAsync();
         }
 
         #region HELPER METHODS

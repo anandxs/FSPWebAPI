@@ -1,7 +1,6 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
-using System.Security.Claims;
 
 namespace FSPWebAPI.Presentation.Controllers
 {
@@ -23,6 +22,14 @@ namespace FSPWebAPI.Presentation.Controllers
             var cards = await _service.CardMemberService.GetAllCardAssigneesAsync(projectId, cardId, false);
 
             return Ok(cards);
+        }
+
+        [HttpPost("cards/{cardId:guid}/assignees")]
+        public async Task<IActionResult> AssignMemberToCard(Guid projectId, Guid cardId, [FromBody] string memberId)
+        {
+            await _service.CardMemberService.AssignMemberToCardAsync(projectId, cardId, memberId, false);
+
+            return Ok("Card assigned to member successfully.");
         }
     }
 }

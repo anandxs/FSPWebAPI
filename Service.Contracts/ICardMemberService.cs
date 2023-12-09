@@ -4,6 +4,7 @@ namespace Service.Contracts
 {
     public interface ICardMemberService
     {
-        Task<IEnumerable<CardDto>> GetAllCardAssigneesAsync(Guid projectId, Guid cardId, bool trackChanges);
+        Task<IEnumerable<UserDto>> GetAllCardAssigneesAsync(Guid projectId, Guid cardId, bool trackChanges);
+        Task AssignMemberToCardAsync(Guid projectId, Guid cardId, string memberId, bool trackChanges);
     }
 }

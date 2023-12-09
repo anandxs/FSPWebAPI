@@ -26,6 +26,12 @@ namespace Repository
                     .ToListAsync();
         }
 
+        public async Task<CardMember> GetAssignedMemberAsync(Guid cardId, string memberId, bool trackChanges)
+        {
+            return await FindByCondition(m => m.CardId.Equals(cardId) && m.MemberId.Equals(memberId), trackChanges)
+                    .SingleOrDefaultAsync();
+        }
+
         public void AssignMemberToCard(CardMember cardMember)
         {
             Create(cardMember);
