@@ -1,4 +1,4 @@
 ﻿namespace Shared.DataTransferObjects
 {
-    public record CardMemberDto(CardDto Card, UserDto Member);
+    public record CardMemberDto(CardDto Card, ProjectUserDto Member);
 }

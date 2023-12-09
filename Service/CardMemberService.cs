@@ -25,7 +25,7 @@ namespace Service
             _contextAccessor = contextAccessor;
         }
 
-        public async Task<IEnumerable<UserDto>> GetAllCardAssigneesAsync(Guid projectId, Guid cardId, bool trackChanges)
+        public async Task<IEnumerable<ProjectUserDto>> GetAllCardAssigneesAsync(Guid projectId, Guid cardId, bool trackChanges)
         {
             var requesterId = GetRequesterId();
 
@@ -40,7 +40,7 @@ namespace Service
 
             var members = entites.Select(e => e.Member);
 
-            var membersDto = _mapper.Map<IEnumerable<UserDto>>(members);
+            var membersDto = _mapper.Map<IEnumerable<ProjectUserDto>>(members);
 
             return membersDto;
         }

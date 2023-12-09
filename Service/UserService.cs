@@ -12,6 +12,7 @@ namespace Service
 {
     public class UserService : IUserService
     {
+        private readonly IRepositoryManager _repositoryManager;
         private readonly UserManager<User> _userManager;
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
@@ -19,25 +20,43 @@ namespace Service
 
         public UserService(
             ILoggerManager logger,
-            IMapper mapper, 
+            IMapper mapper,
             UserManager<User> userManager,
-            IEmailService emailService)
+            IEmailService emailService,
+            IRepositoryManager repositoryManager)
         {
             _userManager = userManager;
             _logger = logger;
             _mapper = mapper;
             _emailService = emailService;
+            _repositoryManager = repositoryManager;
+        }
+
+        public async Task<IEnumerable<UserDto>> GetUsersAsync(bool trackChanges)
+        {
+            var users = await _repositoryManager.UserRepository.GetAllUsers(trackChanges);
+
+            var usersDto = _mapper.Map<IEnumerable<UserDto>>(users);
+
+            usersDto = usersDto.Select(userDto =>
+            {
+                userDto.Role = "USER";
+                return userDto;
+            });
+
+            return usersDto;
         }
 
         public async Task<UserDto> GetUserAsync(string userId)
         {
             var user = await GetUserAndCheckIfTheyExistAsync(userId);
 
-            var userDto = _mapper.Map<UserDto>(user);
-
             var roles = await _userManager.GetRolesAsync(user);
 
-            userDto.Role = roles.Count != 0 ? roles[0] : Constants.GLOBAL_ROLE_USER;
+            var role = roles.Count != 0 ? roles[0] : Constants.GLOBAL_ROLE_USER;
+
+            var userDto = _mapper.Map<UserDto>(user);
+            userDto.Role = role;
 
             return userDto;
         }
