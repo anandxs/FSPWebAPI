@@ -9,5 +9,6 @@
         IUserService UserService { get; }
         IMemberService MemberService { get; }
         IDefaultProjectRoleService DefaultProjectRoleService { get; }
+        ICardMemberService CardMemberService { get; }
     }
 }
