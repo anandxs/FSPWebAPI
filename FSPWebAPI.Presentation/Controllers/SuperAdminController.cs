@@ -29,6 +29,14 @@ namespace FSPWebAPI.Presentation.Controllers
             return Ok(users);
         }
 
+        [HttpPut("users/{userId}")]
+        public async Task<IActionResult> ToggleUserStatus(string userId)
+        {
+            await _service.UserService.ToggleUserAccountStatus(userId);
+
+            return NoContent();
+        }
+
         #endregion
 
         #region DEFAULT PROJECT ROLE MANAGEMENT

@@ -8,5 +8,6 @@ namespace Service.Contracts
         Task<UserDto> GetUserAsync(string userId);
         Task UpdateUserAsync(string userId, UserForUpdateDto userDto);
         Task UpdatePasswordAsync(string userId, UserForPasswordUpdate userDto);
+        Task ToggleUserAccountStatus(string userId);
     }
 }

@@ -84,6 +84,27 @@ namespace Service
             await _emailService.SendAsync(user.Email, "Password Changed", $"<p>Your password has been changed successfully.</p>", true);
         }
 
+        public async Task ToggleUserAccountStatus(string userId)
+        {
+            var user = await _userManager.FindByIdAsync(userId);
+
+            if (user == null)
+            {
+                throw new UserNotFoundException(userId);
+            }
+
+            var roles = await _userManager.GetRolesAsync(user);
+
+            if (roles[0] == Constants.GLOBAL_ROLE_SUPERADMIN)
+            {
+                throw new Exception("Cannot block superadmin");
+            }
+
+            user.IsBlocked = !user.IsBlocked;
+            user.RefreshToken = null;
+            await _userManager.UpdateAsync(user);
+        }
+
         private async Task<User> GetUserAndCheckIfTheyExistAsync(string userId)
         {
             var user = await _userManager.FindByIdAsync(userId);
