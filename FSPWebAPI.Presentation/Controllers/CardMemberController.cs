@@ -19,7 +19,15 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpGet("cards/{cardId:guid}/assignees")]
         public async Task<IActionResult> GetAllCardAssignees(Guid projectId, Guid cardId)
         {
-            var cards = await _service.CardMemberService.GetAllCardAssigneesAsync(projectId, cardId, false);
+            var assignees = await _service.CardMemberService.GetAllCardAssigneesAsync(projectId, cardId, false);
+
+            return Ok(assignees);
+        }
+
+        [HttpGet("assignee/{assigneeId}/cards")]
+        public async Task<IActionResult> GetAllAssignedCardsForMember(Guid projectId, string assigneeId)
+        {
+            var cards = await _service.CardMemberService.GetAllAssignedCardsForMemberAsync(projectId, assigneeId, false);
 
             return Ok(cards);
         }

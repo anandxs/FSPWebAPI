@@ -45,6 +45,26 @@ namespace Service
             return membersDto;
         }
 
+        public async Task<IEnumerable<CardDto>> GetAllAssignedCardsForMemberAsync(Guid projectId, string memberId, bool trackChanges)
+        {
+            var requesterId = GetRequesterId();
+
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+
+            if (requester == null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+
+            var entites = await _repositoryManager.CardMemberRepository.GetAllAssignedCardsForMemberAsync(memberId, trackChanges);
+
+            var cards = entites.Select(e => e.Card);
+
+            var cardsDto = _mapper.Map<IEnumerable<CardDto>>(cards);
+
+            return cardsDto;
+        }
+
         public async Task AssignMemberToCardAsync(Guid projectId, Guid cardId, string memberId, bool trackChanges)
         {
             var requesterId = GetRequesterId();

@@ -18,7 +18,7 @@ namespace Repository
                     .ToListAsync();
         }
 
-        public async Task<IEnumerable<CardMember>> GetAllAssignedCardsForMemberAsync(Guid memberId, bool trackChanges)
+        public async Task<IEnumerable<CardMember>> GetAllAssignedCardsForMemberAsync(string memberId, bool trackChanges)
         {
             return await FindByCondition(a => a.MemberId.Equals(memberId), trackChanges)
                     .Include(a => a.Card)
