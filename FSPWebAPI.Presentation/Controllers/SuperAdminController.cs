@@ -19,6 +19,26 @@ namespace FSPWebAPI.Presentation.Controllers
             _service = service;
         }
 
+        #region USER MANAGEMENT
+
+        [HttpGet("users")]
+        public async Task<IActionResult> GetAllUsers()
+        {
+            var users = await _service.UserService.GetUsersAsync(false);
+
+            return Ok(users);
+        }
+
+        [HttpPut("users/{userId}")]
+        public async Task<IActionResult> ToggleUserStatus(string userId)
+        {
+            await _service.UserService.ToggleUserAccountStatus(userId);
+
+            return NoContent();
+        }
+
+        #endregion
+
         #region DEFAULT PROJECT ROLE MANAGEMENT
 
         [HttpGet("roles")]

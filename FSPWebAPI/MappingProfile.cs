@@ -11,6 +11,7 @@ namespace FSPWebAPI
             CreateMap<UserForRegistrationDto, User>();
             CreateMap<UserForUpdateDto, User>();
             CreateMap<UserForPasswordUpdate, User>();
+            CreateMap<User, ProjectUserDto>();
             CreateMap<User, UserDto>();
             CreateMap<Project, ProjectDto>();
             CreateMap<ProjectForCreationDto, Project>();

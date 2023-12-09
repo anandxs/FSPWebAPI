@@ -36,7 +36,7 @@ namespace Service
             _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(logger, mapper, userManager, jwtConfiguration, emailService, clientConfiguration, adminConfiguration));
             _groupService = new Lazy<IGroupService>(() => new GroupService(repositoryManager, logger, mapper, userManager));
             _cardService = new Lazy<ICardService>(() => new CardService(repositoryManager, logger, mapper, userManager));
-            _userService = new Lazy<IUserService>(() => new UserService(logger, mapper, userManager, emailService));
+            _userService = new Lazy<IUserService>(() => new UserService(logger, mapper, userManager, emailService, repositoryManager));
             _memberService = new Lazy<IMemberService>(() => new MemberService(repositoryManager, logger, mapper, userManager, emailService));
             _defaultProjectRoleService = new Lazy<IDefaultProjectRoleService>(() => new DefaultProjectRoleService(repositoryManager, logger, mapper));
             _cardMemberService = new Lazy<ICardMemberService>(() => new CardMemberService(repositoryManager, logger, mapper, contextAccessor));

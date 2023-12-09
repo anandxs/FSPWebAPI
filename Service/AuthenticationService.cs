@@ -84,10 +84,15 @@ namespace Service
                 throw new EmailNotConfirmedUnauthorizedException(_user.Email);
             }
 
-            var result = (_user != null && await _userManager.CheckPasswordAsync(_user, userForAuth.Password));
+            var result = (await _userManager.CheckPasswordAsync(_user, userForAuth.Password));
             if (!result)
             {
                 _logger.LogWarn($"{nameof(ValidateUser)}: Authentication failed. Wrong email name or password.");
+            }
+
+            if (_user.IsBlocked)
+            {
+                throw new Exception("You have been blocked");
             }
 
             return result;
