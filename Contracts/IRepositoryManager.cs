@@ -7,6 +7,7 @@
         IProjectMemberRepository ProjectMemberRepository { get; }
         ICardRepository CardRepository { get; }
         IDefaultProjectRoleRepository DefaultProjectRoleRepository { get; }
+        ICardMemberRepository CardMemberRepository { get; }
         Task SaveAsync();
     }
 }

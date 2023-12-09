@@ -25,6 +25,7 @@ namespace Repository
         public async Task<ProjectMember> GetProjectMemberAsync(Guid projectId, string memberId, bool trackChanges)
         {
             return await FindByCondition(m => m.ProjectId.Equals(projectId) && m.MemberId.Equals(memberId), trackChanges)
+                    .Include(m => m.Project)
                     .SingleOrDefaultAsync();
         }
 

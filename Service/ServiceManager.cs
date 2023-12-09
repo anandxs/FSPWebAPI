@@ -2,6 +2,7 @@
 using Contracts;
 using Entities.ConfigurationModels;
 using Entities.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Options;
 using NETCore.MailKit.Core;
@@ -18,6 +19,7 @@ namespace Service
         private readonly Lazy<IUserService> _userService;
         private readonly Lazy<IMemberService> _memberService;
         private readonly Lazy<IDefaultProjectRoleService> _defaultProjectRoleService;
+        private readonly Lazy<ICardMemberService> _cardMemberService;
 
         public ServiceManager(
             IRepositoryManager repositoryManager, 
@@ -27,7 +29,8 @@ namespace Service
             IOptions<JwtConfiguration> jwtConfiguration,
             IOptions<ClientConfiguration> clientConfiguration,
             IOptions<SuperAdminConfiguration> adminConfiguration,
-            IEmailService emailService)
+            IEmailService emailService,
+            IHttpContextAccessor contextAccessor)
         {
             _projectService = new Lazy<IProjectService>(() => new ProjectService(repositoryManager, logger, mapper, userManager));
             _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(logger, mapper, userManager, jwtConfiguration, emailService, clientConfiguration, adminConfiguration));
@@ -36,6 +39,7 @@ namespace Service
             _userService = new Lazy<IUserService>(() => new UserService(logger, mapper, userManager, emailService));
             _memberService = new Lazy<IMemberService>(() => new MemberService(repositoryManager, logger, mapper, userManager, emailService));
             _defaultProjectRoleService = new Lazy<IDefaultProjectRoleService>(() => new DefaultProjectRoleService(repositoryManager, logger, mapper));
+            _cardMemberService = new Lazy<ICardMemberService>(() => new CardMemberService(repositoryManager, logger, mapper, contextAccessor));
         }
 
         public IProjectService ProjectService => _projectService.Value;
@@ -45,5 +49,6 @@ namespace Service
         public IUserService UserService => _userService.Value;
         public IMemberService MemberService => _memberService.Value;
         public IDefaultProjectRoleService DefaultProjectRoleService => _defaultProjectRoleService.Value;
+        public ICardMemberService CardMemberService => _cardMemberService.Value;
     }
 }
