@@ -95,7 +95,7 @@ namespace Service
 
             var roles = await _userManager.GetRolesAsync(user);
 
-            if (roles[0] == Constants.GLOBAL_ROLE_SUPERADMIN)
+            if (roles.Count != 0 && roles[0] == Constants.GLOBAL_ROLE_SUPERADMIN)
             {
                 throw new Exception("Cannot block superadmin");
             }
