@@ -20,7 +20,7 @@ namespace FSPWebAPI.Presentation.Controllers
             _service = service;
         }
 
-        [HttpGet("project/{projectId:guid}/groups")]
+        [HttpGet("projects/{projectId:guid}/groups")]
         public async Task<IActionResult> GetGroupsForProject(Guid projectId)
         {
             var requesterId = GetRequesterId();
@@ -40,7 +40,7 @@ namespace FSPWebAPI.Presentation.Controllers
             return Ok(group);
         }
 
-        [HttpPost("project/{projectId:guid}/groups")]
+        [HttpPost("projects/{projectId:guid}/groups")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateGroup(Guid projectId, [FromBody] GroupForCreationDto groupForCreation)
         {
