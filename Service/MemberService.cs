@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using AutoMapper.Execution;
 using Contracts;
 using Entities.Exceptions;
 using Entities.Models;
@@ -113,6 +114,18 @@ namespace Service
             if (member == null)
             {
                 throw new MemberNotFoundException(memberId);
+            }
+
+            if (member.Role == Constants.PROJECT_ROLE_ADMIN)
+            {
+                var members = await _repositoryManager.ProjectMemberRepository.GetAllProjectMembersAsync(projectId, trackChanges);
+                var adminCount = members.Where(m => m.Role == Constants.PROJECT_ROLE_ADMIN).Count();
+
+
+                if (adminCount == 1)
+                {
+                    throw new NotEnoughAdminsBadRequestException();
+                }
             }
 
             _repositoryManager.ProjectMemberRepository.RemoveMember(member);
