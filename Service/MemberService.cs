@@ -96,6 +96,37 @@ namespace Service
             await _repositoryManager.SaveAsync();
         }
 
+        public async Task ChangeMemberRoleAsync(Guid projectId, string requesterId, MemberForUpdateDto memberDto, bool trackChanges)
+        {
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+
+            if (requester == null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+            else if (requester.Role != Constants.PROJECT_ROLE_ADMIN)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
+            }
+
+            var existingMember = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, memberDto.MemberId, trackChanges);
+
+            if (existingMember == null)
+            {
+                throw new NotAProjectMemberBadRequestException(memberDto.MemberId);
+            }
+
+            existingMember.Role = memberDto.Role switch
+            {
+                Constants.PROJECT_ROLE_ADMIN => Constants.PROJECT_ROLE_ADMIN,
+                Constants.PROJECT_ROLE_MEMBER => Constants.PROJECT_ROLE_MEMBER,
+                Constants.PROJECT_ROLE_OBSERVER => Constants.PROJECT_ROLE_OBSERVER,
+                _ => existingMember.Role,
+            };
+
+            await _repositoryManager.SaveAsync();
+        }
+
         public async Task RemoveMemberAsync(Guid projectId, string memberId, string requesterId, bool trackChanges)
         {
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);

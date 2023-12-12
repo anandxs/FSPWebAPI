@@ -39,6 +39,21 @@ namespace FSPWebAPI.Presentation.Controllers
             return NoContent();
         }
 
+        [HttpPut]
+        public async Task<IActionResult> ChangeMemberRole(Guid projectId, [FromBody] MemberForUpdateDto memberDto)
+        {
+            if (memberDto.Role != Constants.PROJECT_ROLE_ADMIN && memberDto.Role != Constants.PROJECT_ROLE_MEMBER && memberDto.Role != Constants.PROJECT_ROLE_OBSERVER)
+            {
+                return BadRequest($"{memberDto.Role} is not a valid role.");
+            }
+
+            var requesterId = GetRequesterId();
+
+            await _service.MemberService.ChangeMemberRoleAsync(projectId, requesterId, memberDto, true);
+
+            return NoContent();
+        }
+
         [HttpDelete("{memberId}")]
         public async Task<IActionResult> RemoveMember(Guid projectId, string memberId)
         {
