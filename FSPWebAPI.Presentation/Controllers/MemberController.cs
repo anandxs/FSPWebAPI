@@ -29,6 +29,16 @@ namespace FSPWebAPI.Presentation.Controllers
             return Ok(members);
         }
 
+        [HttpGet("memberId")]
+        public async Task<IActionResult> GetProjectMember(Guid projectId, string memberId)
+        {
+            var requesterId = GetRequesterId();
+
+            var member = await _service.MemberService.GetProjectMemberAsync(projectId, memberId ,requesterId, false);
+
+            return Ok(member);
+        }
+
         [HttpPost]
         public async Task<IActionResult> AddMember(Guid projectId, [FromBody] MemberForCreationDto memberDto)
         {

@@ -96,6 +96,27 @@ namespace Service
             await _repositoryManager.SaveAsync();
         }
 
+        public async Task<ProjectMemberDto> GetProjectMemberAsync(Guid projectId, string memberId, string requesterId, bool trackChanges)
+        {
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+
+            if (requester == null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+
+            var member = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, memberId, trackChanges);
+
+            if (member == null)
+            {
+                throw new MemberNotFoundException(memberId);
+            }
+
+            var projectMemberDto = _mapper.Map<ProjectMemberDto>(member);
+            return projectMemberDto;
+        }
+
+
         public async Task ChangeMemberRoleAsync(Guid projectId, string requesterId, MemberForUpdateDto memberDto, bool trackChanges)
         {
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
