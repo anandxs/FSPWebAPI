@@ -26,6 +26,7 @@ namespace Repository
         {
             return await FindByCondition(m => m.ProjectId.Equals(projectId) && m.MemberId.Equals(memberId), trackChanges)
                     .Include(m => m.Project)
+                    .Include(m => m.User)
                     .SingleOrDefaultAsync();
         }
 
