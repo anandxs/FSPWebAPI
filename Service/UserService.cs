@@ -97,7 +97,7 @@ namespace Service
 
             if (roles.Count != 0 && roles[0] == Constants.GLOBAL_ROLE_SUPERADMIN)
             {
-                throw new Exception("Cannot block superadmin");
+                throw new CannotModifySuperAdminBadRequestException();
             }
 
             user.IsBlocked = !user.IsBlocked;
