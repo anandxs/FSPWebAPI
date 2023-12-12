@@ -45,7 +45,7 @@ namespace FSPWebAPI.Presentation.Controllers
         {
             await _service.CardMemberService.UnassignMemberFromCardAsync(projectId, cardId, assigneeId, false);
 
-            return Ok("Unassigned card from member successfully.");
+            return NoContent();
         }
     }
 }

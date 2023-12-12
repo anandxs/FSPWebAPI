@@ -139,14 +139,14 @@ namespace Service
 
             if (entity.Project.OwnerId == requesterId)
             {
-                throw new Exception("Owner cannot exit group.");
+                throw new OwnerCannotExitBadRequestException();
             }
 
             var adminCount = members.Where(m => m.Role == Constants.PROJECT_ROLE_ADMIN).Count();
 
             if (requester.Role == Constants.PROJECT_ROLE_ADMIN && adminCount == 1) 
             {
-                throw new Exception("Project needs to have atleast one admin.");
+                throw new NotEnoughAdminsBadRequestException();
             }
             else
             {

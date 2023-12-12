@@ -91,14 +91,14 @@ namespace Service
 
             if (member == null)
             {
-                throw new Exception("Given user is not a member of this project.");
+                throw new NotAProjectMemberBadRequestException(memberId);
             }
 
             var existingAssignee = await _repositoryManager.CardMemberRepository.GetAssignedMemberAsync(cardId, memberId, trackChanges);
 
             if (existingAssignee != null)
             {
-                throw new Exception("Member is already assigned to this card");
+                throw new MemberAlreadyAssignedToCardBadRequestException();
             }
 
             var entity = new CardMember
@@ -137,7 +137,7 @@ namespace Service
 
             if (existingAssignee == null)
             {
-                throw new Exception("Member is not assigned to this card.");
+                return;
             }
 
             _repositoryManager.CardMemberRepository.UnassignMemberFromCard(existingAssignee);

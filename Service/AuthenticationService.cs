@@ -92,7 +92,7 @@ namespace Service
 
             if (_user.IsBlocked)
             {
-                throw new Exception("You have been blocked");
+                throw new BlockedUserForbiddenRequest();
             }
 
             return result;
@@ -156,7 +156,7 @@ namespace Service
             if (user == null)
             {
                 _logger.LogWarn($"User with id : {emailDto.UserId} does not exist.");
-                throw new Exception();
+                throw new UserNotFoundException(emailDto.UserId);
             }
 
             var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(emailDto.Code));
@@ -173,7 +173,7 @@ namespace Service
             if (user == null)
             {
                 _logger.LogWarn($"User with email : {email} does not exist.");
-                throw new Exception();
+                throw new UserNotFoundException(email);
             }
 
             var code = await _userManager.GeneratePasswordResetTokenAsync(user);
@@ -191,7 +191,7 @@ namespace Service
             if (user == null)
             {
                 _logger.LogWarn($"User with id : {resetDto.UserId} does not exist.");
-                throw new Exception();
+                throw new UserNotFoundException(resetDto.UserId);
             }
 
             var code = Encoding.UTF8.GetString(WebEncoders.Base64UrlDecode(resetDto.Code));
