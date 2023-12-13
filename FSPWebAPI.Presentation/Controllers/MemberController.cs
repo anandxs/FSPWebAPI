@@ -29,7 +29,7 @@ namespace FSPWebAPI.Presentation.Controllers
             return Ok(members);
         }
 
-        [HttpGet("memberId")]
+        [HttpGet("{memberId}")]
         public async Task<IActionResult> GetProjectMember(Guid projectId, string memberId)
         {
             var requesterId = GetRequesterId();
