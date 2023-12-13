@@ -168,6 +168,11 @@ namespace Service
                 throw new MemberNotFoundException(memberId);
             }
 
+            if (memberId.Equals(member.Project.OwnerId))
+            {
+                throw new OwnerCannotBeRemovedBadRequestException();
+            }
+
             if (member.Role == Constants.PROJECT_ROLE_ADMIN)
             {
                 var members = await _repositoryManager.ProjectMemberRepository.GetAllProjectMembersAsync(projectId, trackChanges);
@@ -204,7 +209,7 @@ namespace Service
 
             if (entity.Project.OwnerId == requesterId)
             {
-                throw new OwnerCannotExitBadRequestException();
+                throw new OwnerCannotBeRemovedBadRequestException();
             }
 
             var adminCount = members.Where(m => m.Role == Constants.PROJECT_ROLE_ADMIN).Count();
