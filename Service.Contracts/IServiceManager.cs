@@ -8,7 +8,7 @@
         IAuthenticationService AuthenticationService { get; }
         IUserService UserService { get; }
         IMemberService MemberService { get; }
-        IDefaultProjectRoleService DefaultProjectRoleService { get; }
+        IRoleService RoleService { get; }
         ICardMemberService CardMemberService { get; }
     }
 }

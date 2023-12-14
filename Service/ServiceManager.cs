@@ -18,7 +18,7 @@ namespace Service
         private readonly Lazy<ICardService> _cardService;
         private readonly Lazy<IUserService> _userService;
         private readonly Lazy<IMemberService> _memberService;
-        private readonly Lazy<IDefaultProjectRoleService> _defaultProjectRoleService;
+        private readonly Lazy<IRoleService> _roleService;
         private readonly Lazy<ICardMemberService> _cardMemberService;
 
         public ServiceManager(
@@ -38,7 +38,7 @@ namespace Service
             _cardService = new Lazy<ICardService>(() => new CardService(repositoryManager, logger, mapper, userManager));
             _userService = new Lazy<IUserService>(() => new UserService(logger, mapper, userManager, emailService, repositoryManager));
             _memberService = new Lazy<IMemberService>(() => new MemberService(repositoryManager, logger, mapper, userManager, emailService));
-            _defaultProjectRoleService = new Lazy<IDefaultProjectRoleService>(() => new DefaultProjectRoleService(repositoryManager, logger, mapper));
+            _roleService = new Lazy<IRoleService>(() => new RoleService(repositoryManager, logger, mapper));
             _cardMemberService = new Lazy<ICardMemberService>(() => new CardMemberService(repositoryManager, logger, mapper, contextAccessor));
         }
 
@@ -48,7 +48,7 @@ namespace Service
         public ICardService CardService => _cardService.Value;
         public IUserService UserService => _userService.Value;
         public IMemberService MemberService => _memberService.Value;
-        public IDefaultProjectRoleService DefaultProjectRoleService => _defaultProjectRoleService.Value;
+        public IRoleService RoleService => _roleService.Value;
         public ICardMemberService CardMemberService => _cardMemberService.Value;
     }
 }

@@ -2,7 +2,7 @@
 
 namespace Service.Contracts
 {
-    public interface IDefaultProjectRoleService
+    public interface IRoleService
     {
         Task<IEnumerable<RoleDto>> GetAllRolesAsync(bool trackChanges);
         Task CreateRoleAsync(RoleForCreationDto role, bool trackChanges);

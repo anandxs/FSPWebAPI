@@ -7,13 +7,13 @@ using Shared.DataTransferObjects;
 
 namespace Service
 {
-    public class DefaultProjectRoleService : IDefaultProjectRoleService
+    public class RoleService : IRoleService
     {
         private readonly IRepositoryManager _repositoryManager;
         private readonly IMapper _mapper;
         private readonly ILoggerManager _logger;
 
-        public DefaultProjectRoleService(IRepositoryManager repositoryManager, ILoggerManager logger, IMapper mapper)
+        public RoleService(IRepositoryManager repositoryManager, ILoggerManager logger, IMapper mapper)
         {
             _repositoryManager = repositoryManager;
             _mapper = mapper;
