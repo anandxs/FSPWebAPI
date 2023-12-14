@@ -4,7 +4,10 @@ using Entities.Exceptions;
 using Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Service.Contracts;
+using Shared;
 using Shared.DataTransferObjects;
+using System.Reflection.Metadata;
+using System.Security.Claims;
 
 namespace Service
 {
@@ -25,6 +28,15 @@ namespace Service
 
         public async Task<IEnumerable<RoleDto>> GetAllRolesForProjectAsync(Guid projectId, bool trackChanges)
         {
+            var requesterId = GetRequesterId();
+
+            var member = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+
+            if (member == null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+
             var roles = await _repositoryManager.RoleRepository.GetAllRolesForProjectAsync(projectId, trackChanges);
 
             var rolesDto = _mapper.Map<IEnumerable<RoleDto>>(roles);
@@ -62,6 +74,14 @@ namespace Service
 
             _repositoryManager.RoleRepository.DeleteRole(role);
             await _repositoryManager.SaveAsync();
+        }
+
+        private string GetRequesterId()
+        {
+            var claimsIdentity = (ClaimsIdentity)_contextAccessor.HttpContext.User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            return claim!.Value;
         }
 
         private async Task<Role> GetRoleAndCheckIfItExistsAsync(Guid roleId, bool trackChanges)
