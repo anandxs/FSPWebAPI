@@ -44,9 +44,22 @@ namespace Service
             return rolesDto;
         }
 
-        public async Task CreateRoleAsync(RoleForCreationDto role, bool trackChanges)
+        public async Task CreateRoleAsync(Guid projectId, RoleForCreationDto role, bool trackChanges)
         {
-            var existingRole = await _repositoryManager.RoleRepository.GetRoleByNameAsync(role.Name, trackChanges);
+            var requesterId = GetRequesterId();
+
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+
+            if (requester == null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
+            }
+
+            var existingRole = await _repositoryManager.RoleRepository.GetRoleByNameAsync(projectId, role.Name, trackChanges);
 
             if (existingRole != null)
             {
@@ -55,7 +68,7 @@ namespace Service
 
             var roleEntity = _mapper.Map<Role>(role);
 
-            _repositoryManager.RoleRepository.CreateRole(roleEntity);
+            _repositoryManager.RoleRepository.CreateRole(projectId, roleEntity);
             await _repositoryManager.SaveAsync();
         }
 

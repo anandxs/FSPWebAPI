@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared;
+using Shared.DataTransferObjects;
 
 namespace FSPWebAPI.Presentation.Controllers
 {
@@ -26,8 +27,10 @@ namespace FSPWebAPI.Presentation.Controllers
         }
 
         [HttpPost("projects/{projectId:guid}/roles")]
-        public async Task<IActionResult> CreateRole(Guid projectId)
+        public async Task<IActionResult> CreateRole(Guid projectId, [FromBody] RoleForCreationDto roleDto)
         {
+            await _service.RoleService.CreateRoleAsync(projectId, roleDto, false);
+
             return StatusCode(201);
         }
 

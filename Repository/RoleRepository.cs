@@ -22,14 +22,15 @@ namespace Repository
                         .SingleOrDefaultAsync();
         }
 
-        public async Task<Role> GetRoleByNameAsync(string role, bool trackChanges)
+        public async Task<Role> GetRoleByNameAsync(Guid projectId, string role, bool trackChanges)
         {
-            return await FindByCondition(r => r.Name.Equals(role), trackChanges)
+            return await FindByCondition(r => r.Name.Equals(role) && r.ProjectId.Equals(projectId), trackChanges)
                         .SingleOrDefaultAsync();
         }
 
-        public void CreateRole(Role role)
+        public void CreateRole(Guid projectId, Role role)
         {
+            role.ProjectId = projectId;
             Create(role);
         }
 
