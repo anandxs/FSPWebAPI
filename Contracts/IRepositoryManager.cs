@@ -6,7 +6,7 @@
         IGroupRepository GroupRepository { get; }
         IProjectMemberRepository ProjectMemberRepository { get; }
         ICardRepository CardRepository { get; }
-        IDefaultProjectRoleRepository DefaultProjectRoleRepository { get; }
+        IRoleRepository RoleRepository { get; }
         ICardMemberRepository CardMemberRepository { get; }
         IUserRepository UserRepository { get; }
         Task SaveAsync();

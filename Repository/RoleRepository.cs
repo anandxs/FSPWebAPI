@@ -4,36 +4,36 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Repository
 {
-    public class DefaultProjectRoleRepository : RepositoryBase<DefaultProjectRole>, IDefaultProjectRoleRepository
+    public class RoleRepository : RepositoryBase<Role>, IRoleRepository
     {
-        public DefaultProjectRoleRepository(RepositoryContext repositoryContext) : base(repositoryContext)
+        public RoleRepository(RepositoryContext repositoryContext) : base(repositoryContext)
         {
         }
 
-        public async Task<IEnumerable<DefaultProjectRole>> GetAllRolesAsync(bool trackChanges)
+        public async Task<IEnumerable<Role>> GetAllRolesAsync(bool trackChanges)
         {
             return await FindAll(trackChanges)
                         .ToListAsync();
         }
 
-        public async Task<DefaultProjectRole> GetRoleByIdAsync(Guid roleId, bool trackChanges)
+        public async Task<Role> GetRoleByIdAsync(Guid roleId, bool trackChanges)
         {
             return await FindByCondition(r => r.RoleId.Equals(roleId), trackChanges)
                         .SingleOrDefaultAsync();
         }
 
-        public async Task<DefaultProjectRole> GetRoleByNameAsync(string role, bool trackChanges)
+        public async Task<Role> GetRoleByNameAsync(string role, bool trackChanges)
         {
             return await FindByCondition(r => r.Name.Equals(role), trackChanges)
                         .SingleOrDefaultAsync();
         }
 
-        public void CreateRole(DefaultProjectRole role)
+        public void CreateRole(Role role)
         {
             Create(role);
         }
 
-        public void DeleteRole(DefaultProjectRole role)
+        public void DeleteRole(Role role)
         {
             Delete(role);
         }

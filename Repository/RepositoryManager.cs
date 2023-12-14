@@ -9,7 +9,7 @@ namespace Repository
         private readonly Lazy<IGroupRepository> _groupRepository;
         private readonly Lazy<IProjectMemberRepository> _projectMemberRepository;
         private readonly Lazy<ICardRepository> _cardRepository;
-        private readonly Lazy<IDefaultProjectRoleRepository> _defaultProjectRoleRepository;
+        private readonly Lazy<IRoleRepository> _defaultProjectRoleRepository;
         private readonly Lazy<ICardMemberRepository> _cardMemberRepository;
         private readonly Lazy<IUserRepository> _userRepository;
 
@@ -20,7 +20,7 @@ namespace Repository
             _groupRepository = new Lazy<IGroupRepository>(() => new GroupRepository(repositoryContext));
             _projectMemberRepository = new Lazy<IProjectMemberRepository>(() => new ProjectMemberRepository(repositoryContext));
             _cardRepository = new Lazy<ICardRepository>(() => new CardRepository(repositoryContext));
-            _defaultProjectRoleRepository = new Lazy<IDefaultProjectRoleRepository>(() => new DefaultProjectRoleRepository(repositoryContext));
+            _defaultProjectRoleRepository = new Lazy<IRoleRepository>(() => new RoleRepository(repositoryContext));
             _cardMemberRepository = new Lazy<ICardMemberRepository>(() => new CardMemberRepository(repositoryContext));
             _userRepository = new Lazy<IUserRepository>(() => new UserRepository(repositoryContext));
         }
@@ -29,7 +29,7 @@ namespace Repository
         public IGroupRepository GroupRepository => _groupRepository.Value;
         public IProjectMemberRepository ProjectMemberRepository => _projectMemberRepository.Value;
         public ICardRepository CardRepository => _cardRepository.Value;
-        public IDefaultProjectRoleRepository DefaultProjectRoleRepository => _defaultProjectRoleRepository.Value;
+        public IRoleRepository RoleRepository => _defaultProjectRoleRepository.Value;
         public ICardMemberRepository CardMemberRepository => _cardMemberRepository.Value;
         public IUserRepository UserRepository => _userRepository.Value;
 
