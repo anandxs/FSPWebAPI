@@ -34,5 +34,10 @@ namespace Repository
             Delete(project);
         }
 
+        public async Task<Project> GetProjectByIdAsync(Guid projectId, bool trackChanges)
+        {
+            return await FindByCondition(p => p.ProjectId.Equals(projectId), trackChanges)
+                        .SingleOrDefaultAsync();
+        }
     }
 }
