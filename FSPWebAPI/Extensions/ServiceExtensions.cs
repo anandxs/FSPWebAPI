@@ -13,19 +13,22 @@ using Repository;
 using Service;
 using Service.Contracts;
 using System.Text;
-using static Org.BouncyCastle.Math.EC.ECCurve;
 
 namespace FSPWebAPI.Extensions
 {
     public static class ServiceExtensions
     {
-        public static void ConfigureCors(this IServiceCollection services)
+        public static void ConfigureCors(this IServiceCollection services, IConfiguration configuration)
         {
+            var clientSection = configuration.GetSection("Client");
+            var origin_1 = clientSection["Url"];
+            var origin_2 = clientSection["Url2"];
+
             services.AddCors(options =>
             {
                 options.AddPolicy("CorsPolicy", builder =>
                 {
-                    builder.WithOrigins("http://127.0.0.1:5173", "http://localhost:5173")
+                    builder.WithOrigins(origin_1, origin_2)
                         .AllowAnyMethod()
                         .AllowAnyHeader()
                         .AllowCredentials();
