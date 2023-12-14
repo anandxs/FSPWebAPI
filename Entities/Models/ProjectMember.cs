@@ -13,8 +13,8 @@ namespace Entities.Models
         [ForeignKey(nameof(Project))]
         public Guid ProjectId { get; set; }
         public Project Project { get; set; }
-        [Required(ErrorMessage = "Role is a required field.")]
-        [MaxLength(256, ErrorMessage = "Maximum length for role name is 256 characters.")]
-        public string? Role { get; set; }
+        [ForeignKey(nameof(Role))]
+        public Guid? RoleId { get; set; }
+        public Role? Role { get; set; }
     }
 }
