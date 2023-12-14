@@ -67,7 +67,6 @@ namespace Service
             {
                 User = requester,
                 Project = projectEntity,
-                Role = Constants.PROJECT_ROLE_ADMIN
             };
 
             _repositoryManager.ProjectMemberRepository.AddProjectMember(member);
@@ -86,7 +85,7 @@ namespace Service
             {
                 throw new NotAProjectMemberForbiddenRequestException();
             }
-            else if (entity.Role != Constants.PROJECT_ROLE_ADMIN)
+            else if (entity.Role.Name != Constants.PROJECT_ROLE_ADMIN)
             {
                 throw new IncorrectRoleForbiddenRequestException();
             }
@@ -103,7 +102,7 @@ namespace Service
             {
                 throw new NotAProjectMemberForbiddenRequestException();
             }
-            else if (entity.Role != Constants.PROJECT_ROLE_ADMIN)
+            else if (entity.Role.Name != Constants.PROJECT_ROLE_ADMIN)
             {
                 throw new IncorrectRoleForbiddenRequestException();
             }
@@ -122,7 +121,7 @@ namespace Service
             {
                 throw new NotAProjectMemberForbiddenRequestException();
             }
-            else if (entity.Role != Constants.PROJECT_ROLE_ADMIN)
+            else if (entity.Role.Name != Constants.PROJECT_ROLE_ADMIN)
             {
                 throw new IncorrectRoleForbiddenRequestException();
             }

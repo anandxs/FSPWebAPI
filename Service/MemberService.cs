@@ -57,7 +57,7 @@ namespace Service
             {
                 throw new NotAProjectMemberForbiddenRequestException();
             }
-            else if (requester.Role != Constants.PROJECT_ROLE_ADMIN)
+            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
             {
                 throw new IncorrectRoleForbiddenRequestException();
             }
@@ -91,7 +91,6 @@ namespace Service
             {
                 MemberId = newMember.Id,
                 ProjectId = projectId,
-                Role = role,
             });
             await _repositoryManager.SaveAsync();
         }
@@ -125,7 +124,7 @@ namespace Service
             {
                 throw new NotAProjectMemberForbiddenRequestException();
             }
-            else if (requester.Role != Constants.PROJECT_ROLE_ADMIN)
+            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
             {
                 throw new IncorrectRoleForbiddenRequestException();
             }
@@ -137,12 +136,12 @@ namespace Service
                 throw new NotAProjectMemberBadRequestException(memberDto.MemberId);
             }
 
-            existingMember.Role = memberDto.Role switch
+            existingMember.Role.Name = memberDto.Role switch
             {
                 Constants.PROJECT_ROLE_ADMIN => Constants.PROJECT_ROLE_ADMIN,
                 Constants.PROJECT_ROLE_MEMBER => Constants.PROJECT_ROLE_MEMBER,
                 Constants.PROJECT_ROLE_OBSERVER => Constants.PROJECT_ROLE_OBSERVER,
-                _ => existingMember.Role,
+                _ => existingMember.Role.Name,
             };
 
             await _repositoryManager.SaveAsync();
@@ -156,7 +155,7 @@ namespace Service
             {
                 throw new NotAProjectMemberForbiddenRequestException();
             }
-            else if (requester.Role != Constants.PROJECT_ROLE_ADMIN)
+            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
             {
                 throw new IncorrectRoleForbiddenRequestException();
             }
@@ -173,10 +172,10 @@ namespace Service
                 throw new OwnerCannotBeRemovedBadRequestException();
             }
 
-            if (member.Role == Constants.PROJECT_ROLE_ADMIN)
+            if (member.Role.Name == Constants.PROJECT_ROLE_ADMIN)
             {
                 var members = await _repositoryManager.ProjectMemberRepository.GetAllProjectMembersAsync(projectId, trackChanges);
-                var adminCount = members.Where(m => m.Role == Constants.PROJECT_ROLE_ADMIN).Count();
+                var adminCount = members.Where(m => m.Role.Name == Constants.PROJECT_ROLE_ADMIN).Count();
 
 
                 if (adminCount == 1)
@@ -212,9 +211,9 @@ namespace Service
                 throw new OwnerCannotBeRemovedBadRequestException();
             }
 
-            var adminCount = members.Where(m => m.Role == Constants.PROJECT_ROLE_ADMIN).Count();
+            var adminCount = members.Where(m => m.Role.Name == Constants.PROJECT_ROLE_ADMIN).Count();
 
-            if (requester.Role == Constants.PROJECT_ROLE_ADMIN && adminCount == 1) 
+            if (requester.Role.Name == Constants.PROJECT_ROLE_ADMIN && adminCount == 1) 
             {
                 throw new NotEnoughAdminsBadRequestException();
             }

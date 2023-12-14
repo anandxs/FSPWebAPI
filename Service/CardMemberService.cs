@@ -75,7 +75,7 @@ namespace Service
             {
                 throw new NotAProjectMemberForbiddenRequestException();
             }
-            else if (requester.Role != Constants.PROJECT_ROLE_ADMIN)
+            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
             {
                 throw new IncorrectRoleForbiddenRequestException();
             }
@@ -121,7 +121,7 @@ namespace Service
             {
                 throw new NotAProjectMemberForbiddenRequestException();
             }
-            else if (requester.Role != Constants.PROJECT_ROLE_ADMIN)
+            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
             {
                 throw new IncorrectRoleForbiddenRequestException();
             }
