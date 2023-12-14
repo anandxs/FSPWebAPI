@@ -14,6 +14,7 @@ namespace Repository
         {
             return await FindByCondition(m => m.ProjectId.Equals(projectId), trackChanges)
                     .Include(m => m.User)
+                    .Include(m => m.Role)
                     .ToListAsync();
         }
 
@@ -27,6 +28,7 @@ namespace Repository
             return await FindByCondition(m => m.ProjectId.Equals(projectId) && m.MemberId.Equals(memberId), trackChanges)
                     .Include(m => m.Project)
                     .Include(m => m.User)
+                    .Include(m => m.Role)
                     .SingleOrDefaultAsync();
         }
 
@@ -34,6 +36,7 @@ namespace Repository
         {
             return await FindByCondition(m => m.MemberId.Equals(requesterdId), trackChanges)
                     .Include(m => m.Project)
+                    .Include(m => m.Role)
                     .ToListAsync();
         }
 
@@ -41,6 +44,7 @@ namespace Repository
         {
             return await FindByCondition(m => m.MemberId.Equals(requesterdId) && m.ProjectId.Equals(projectId), trackChanges)
                     .Include(m => m.Project)
+                    .Include(m => m.Role)
                     .SingleOrDefaultAsync();
         }
 
