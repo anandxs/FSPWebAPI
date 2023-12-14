@@ -81,9 +81,36 @@ namespace Service
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task DeleteRoleAsync(Guid roleId, bool trackChanges)
+        public async Task DeleteRoleAsync(Guid projectId, Guid roleId, bool trackChanges)
         {
-            var role = await GetRoleAndCheckIfItExistsAsync(roleId, trackChanges);
+            var requesterId = GetRequesterId();
+
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+
+            if (requester == null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
+            }
+
+            var role = await _repositoryManager.RoleRepository.GetRoleByIdAsync(roleId, trackChanges);
+
+            if (role == null)
+            {
+                throw new RoleNotFoundException(roleId);
+            }
+
+            var members = await _repositoryManager.ProjectMemberRepository.GetAllProjectMembersAsync(projectId, trackChanges);
+
+            var roleMemberCount = members.Where(m => m.RoleId.Equals(roleId)).Count();
+
+            if (roleMemberCount != 0)
+            {
+                throw new RoleNotEmptyBadRequestException(role.Name);
+            }
 
             _repositoryManager.RoleRepository.DeleteRole(role);
             await _repositoryManager.SaveAsync();

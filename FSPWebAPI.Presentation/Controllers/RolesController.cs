@@ -40,9 +40,11 @@ namespace FSPWebAPI.Presentation.Controllers
             return NoContent();
         }
 
-        [HttpDelete("roles/{roleId:guid}")]
-        public async Task<IActionResult> DeleteRole(Guid roleId)
+        [HttpDelete("projects/{projectId:guid}/roles/{roleId:guid}")]
+        public async Task<IActionResult> DeleteRole(Guid projectId, Guid roleId)
         {
+            await _service.RoleService.DeleteRoleAsync(projectId, roleId, false);
+
             return NoContent();
         }
     }
