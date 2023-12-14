@@ -20,31 +20,31 @@ namespace Service
             _logger = logger;
         }
 
-        public async Task<IEnumerable<DefaultProjectRoleDto>> GetAllRolesAsync(bool trackChanges)
+        public async Task<IEnumerable<RoleDto>> GetAllRolesAsync(bool trackChanges)
         {
-            var roles = await _repositoryManager.DefaultProjectRoleRepository.GetAllRolesAsync(trackChanges);
+            var roles = await _repositoryManager.RoleRepository.GetAllRolesAsync(trackChanges);
 
-            var rolesDto = _mapper.Map<IEnumerable<DefaultProjectRoleDto>>(roles);
+            var rolesDto = _mapper.Map<IEnumerable<RoleDto>>(roles);
 
             return rolesDto;
         }
 
-        public async Task CreateRoleAsync(DefaultProjectRoleForCreationDto role, bool trackChanges)
+        public async Task CreateRoleAsync(RoleForCreationDto role, bool trackChanges)
         {
-            var existingRole = await _repositoryManager.DefaultProjectRoleRepository.GetRoleByNameAsync(role.Name, trackChanges);
+            var existingRole = await _repositoryManager.RoleRepository.GetRoleByNameAsync(role.Name, trackChanges);
 
             if (existingRole != null)
             {
                 throw new DuplicateEntryBadRequest();
             }
 
-            var roleEntity = _mapper.Map<DefaultProjectRole>(role);
+            var roleEntity = _mapper.Map<Role>(role);
 
-            _repositoryManager.DefaultProjectRoleRepository.CreateRole(roleEntity);
+            _repositoryManager.RoleRepository.CreateRole(roleEntity);
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task UpdateRoleAsync(Guid roleId, DefaultProjectRoleForUpdateDto role, bool trackChanges)
+        public async Task UpdateRoleAsync(Guid roleId, RoleForUpdateDto role, bool trackChanges)
         {
             var roleEntity = await GetRoleAndCheckIfItExistsAsync(roleId, trackChanges);
 
@@ -57,13 +57,13 @@ namespace Service
         {
             var role = await GetRoleAndCheckIfItExistsAsync(roleId, trackChanges);
 
-            _repositoryManager.DefaultProjectRoleRepository.DeleteRole(role);
+            _repositoryManager.RoleRepository.DeleteRole(role);
             await _repositoryManager.SaveAsync();
         }
 
-        private async Task<DefaultProjectRole> GetRoleAndCheckIfItExistsAsync(Guid roleId, bool trackChanges)
+        private async Task<Role> GetRoleAndCheckIfItExistsAsync(Guid roleId, bool trackChanges)
         {
-            var role = await _repositoryManager.DefaultProjectRoleRepository.GetRoleByIdAsync(roleId, trackChanges);
+            var role = await _repositoryManager.RoleRepository.GetRoleByIdAsync(roleId, trackChanges);
 
             if (role == null)
             {
