@@ -7,7 +7,7 @@ using Shared.DataTransferObjects;
 namespace FSPWebAPI.Presentation.Controllers
 {
     [ApiController]
-    [Route("api")]
+    [Route("api/projects/{projectId:guid}/roles")]
     [Authorize(Roles = Constants.GLOBAL_ROLE_USER)]
     public class RolesController : ControllerBase
     {
@@ -18,7 +18,7 @@ namespace FSPWebAPI.Presentation.Controllers
             _service = service;
         }
 
-        [HttpGet("projects/{projectId:guid}/roles")]
+        [HttpGet]
         public async Task<IActionResult> GetAllRolesForProject(Guid projectId)
         {
             var roles = await _service.RoleService.GetAllRolesForProjectAsync(projectId, false);
@@ -26,7 +26,7 @@ namespace FSPWebAPI.Presentation.Controllers
             return Ok(roles);
         }
 
-        [HttpPost("projects/{projectId:guid}/roles")]
+        [HttpPost]
         public async Task<IActionResult> CreateRole(Guid projectId, [FromBody] RoleForCreationDto roleDto)
         {
             await _service.RoleService.CreateRoleAsync(projectId, roleDto, false);
@@ -34,13 +34,13 @@ namespace FSPWebAPI.Presentation.Controllers
             return StatusCode(201);
         }
 
-        [HttpPut("roles/{roleId:guid}")]
-        public async Task<IActionResult> UpdateRole(Guid roleId)
+        [HttpPut("{roleId:guid}")]
+        public async Task<IActionResult> UpdateRole(Guid projectId, Guid roleId)
         {
             return NoContent();
         }
 
-        [HttpDelete("projects/{projectId:guid}/roles/{roleId:guid}")]
+        [HttpDelete("{roleId:guid}")]
         public async Task<IActionResult> DeleteRole(Guid projectId, Guid roleId)
         {
             await _service.RoleService.DeleteRoleAsync(projectId, roleId, false);
