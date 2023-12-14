@@ -35,8 +35,10 @@ namespace FSPWebAPI.Presentation.Controllers
         }
 
         [HttpPut("{roleId:guid}")]
-        public async Task<IActionResult> UpdateRole(Guid projectId, Guid roleId)
+        public async Task<IActionResult> UpdateRole(Guid projectId, Guid roleId, [FromBody] RoleForUpdateDto roleDto)
         {
+            await _service.RoleService.UpdateRoleAsync(projectId, roleId, roleDto,true);
+
             return NoContent();
         }
 

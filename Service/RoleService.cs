@@ -72,12 +72,29 @@ namespace Service
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task UpdateRoleAsync(Guid roleId, RoleForUpdateDto role, bool trackChanges)
+        public async Task UpdateRoleAsync(Guid projectId, Guid roleId, RoleForUpdateDto role, bool trackChanges)
         {
-            var roleEntity = await GetRoleAndCheckIfItExistsAsync(roleId, trackChanges);
+            var requesterId = GetRequesterId();
+
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+
+            if (requester == null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
+            }
+
+            var roleEntity = await _repositoryManager.RoleRepository.GetRoleByIdAsync(roleId, trackChanges);
+
+            if (roleEntity == null)
+            {
+                throw new RoleNotFoundException(roleId);
+            }
 
             _mapper.Map(role, roleEntity);
-
             await _repositoryManager.SaveAsync();
         }
 
@@ -122,18 +139,6 @@ namespace Service
             var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
 
             return claim!.Value;
-        }
-
-        private async Task<Role> GetRoleAndCheckIfItExistsAsync(Guid roleId, bool trackChanges)
-        {
-            var role = await _repositoryManager.RoleRepository.GetRoleByIdAsync(roleId, trackChanges);
-
-            if (role == null)
-            {
-                throw new RoleNotFoundException(roleId);
-            }
-
-            return role;
         }
     }
 }
