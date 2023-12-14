@@ -10,10 +10,10 @@ namespace Repository
         {
         }
 
-        public async Task<IEnumerable<Role>> GetAllRolesAsync(bool trackChanges)
+        public async Task<IEnumerable<Role>> GetAllRolesForProjectAsync(Guid projectId, bool trackChanges)
         {
-            return await FindAll(trackChanges)
-                        .ToListAsync();
+            return await FindByCondition(r => r.ProjectId.Equals(projectId), trackChanges)
+                    .ToListAsync();
         }
 
         public async Task<Role> GetRoleByIdAsync(Guid roleId, bool trackChanges)
