@@ -38,7 +38,7 @@ namespace Service
             _cardService = new Lazy<ICardService>(() => new CardService(repositoryManager, logger, mapper, userManager));
             _userService = new Lazy<IUserService>(() => new UserService(logger, mapper, userManager, emailService, repositoryManager));
             _memberService = new Lazy<IMemberService>(() => new MemberService(repositoryManager, logger, mapper, userManager, emailService));
-            _roleService = new Lazy<IRoleService>(() => new RoleService(repositoryManager, logger, mapper));
+            _roleService = new Lazy<IRoleService>(() => new RoleService(repositoryManager, logger, mapper, contextAccessor));
             _cardMemberService = new Lazy<ICardMemberService>(() => new CardMemberService(repositoryManager, logger, mapper, contextAccessor));
         }
 

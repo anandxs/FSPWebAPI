@@ -2,6 +2,7 @@
 using Contracts;
 using Entities.Exceptions;
 using Entities.Models;
+using Microsoft.AspNetCore.Http;
 using Service.Contracts;
 using Shared.DataTransferObjects;
 
@@ -12,17 +13,19 @@ namespace Service
         private readonly IRepositoryManager _repositoryManager;
         private readonly IMapper _mapper;
         private readonly ILoggerManager _logger;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public RoleService(IRepositoryManager repositoryManager, ILoggerManager logger, IMapper mapper)
+        public RoleService(IRepositoryManager repositoryManager, ILoggerManager logger, IMapper mapper, IHttpContextAccessor contextAccessor)
         {
             _repositoryManager = repositoryManager;
             _mapper = mapper;
             _logger = logger;
+            _contextAccessor = contextAccessor;
         }
 
-        public async Task<IEnumerable<RoleDto>> GetAllRolesAsync(bool trackChanges)
+        public async Task<IEnumerable<RoleDto>> GetAllRolesForProjectAsync(Guid projectId, bool trackChanges)
         {
-            var roles = await _repositoryManager.RoleRepository.GetAllRolesAsync(trackChanges);
+            var roles = await _repositoryManager.RoleRepository.GetAllRolesForProjectAsync(projectId, trackChanges);
 
             var rolesDto = _mapper.Map<IEnumerable<RoleDto>>(roles);
 
