@@ -67,6 +67,11 @@ namespace Service
             {
                 User = requester,
                 Project = projectEntity,
+                Role = new Role
+                {
+                    Name = Constants.PROJECT_ROLE_ADMIN,
+                    Project = projectEntity,
+                }
             };
 
             _repositoryManager.ProjectMemberRepository.AddProjectMember(member);
