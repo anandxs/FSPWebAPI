@@ -8,7 +8,6 @@
         ITaskTypeRepository TaskTypeRepository { get; }
         ITagRepository TagRepository { get; }
         IProjectMemberRepository ProjectMemberRepository { get; }
-        ICardRepository CardRepository { get; }
         IUserRepository UserRepository { get; }
         Task SaveAsync();
     }

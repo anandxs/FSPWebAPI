@@ -18,7 +18,6 @@ namespace Service
         private readonly Lazy<ITaskTypeService> _taskTypeService;
         private readonly Lazy<ITagService> _tagService;
         private readonly Lazy<IAuthenticationService> _authenticationService;
-        private readonly Lazy<ICardService> _cardService;
         private readonly Lazy<IUserService> _userService;
         private readonly Lazy<IMemberService> _memberService;
 
@@ -39,7 +38,6 @@ namespace Service
             _taskTypeService = new Lazy<ITaskTypeService>(() => new TaskTypeService(repositoryManager, logger, mapper, contextAccessor));
             _tagService = new Lazy<ITagService>(() => new TagService(repositoryManager, logger, mapper, contextAccessor));
             _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(logger, mapper, userManager, jwtConfiguration, emailService, clientConfiguration, adminConfiguration));
-            _cardService = new Lazy<ICardService>(() => new CardService(repositoryManager, logger, mapper, userManager));
             _userService = new Lazy<IUserService>(() => new UserService(logger, mapper, userManager, emailService, repositoryManager));
             _memberService = new Lazy<IMemberService>(() => new MemberService(repositoryManager, logger, mapper, userManager, emailService));
         }
@@ -50,7 +48,6 @@ namespace Service
         public ITaskTypeService TaskTypeService => _taskTypeService.Value;
         public ITagService TagService => _tagService.Value;
         public IAuthenticationService AuthenticationService => _authenticationService.Value;
-        public ICardService CardService => _cardService.Value;
         public IUserService UserService => _userService.Value;
         public IMemberService MemberService => _memberService.Value;
     }
