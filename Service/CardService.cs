@@ -67,11 +67,11 @@ namespace Service
 
         public async Task<(CardDto cardDto, Guid projectId)> CreateCardAsync(Guid groupId, string requesterId, CardForCreationDto cardForCreation, bool trackChanges)
         {
-            var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(groupId, trackChanges);
+            var group = await _repositoryManager.StageRepository.GetStageByIdAsync(groupId, trackChanges);
 
             if (group  == null)
             {
-                throw new GroupNotFoundException(groupId);
+                throw new StageNotFoundException(groupId);
             }
 
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(group.ProjectId, requesterId, false);
@@ -97,11 +97,11 @@ namespace Service
 
         public async Task UpdateCardAsync(Guid cardId, string requesterId, CardForUpdateDto cardForUpdate, bool trackChanges)
         {
-            var group = await _repositoryManager.GroupRepository.GetGroupByIdAsync(cardForUpdate.GroupId, trackChanges);
+            var group = await _repositoryManager.StageRepository.GetStageByIdAsync(cardForUpdate.GroupId, trackChanges);
 
             if (group == null)
             {
-                throw new GroupNotFoundException(cardForUpdate.GroupId);
+                throw new StageNotFoundException(cardForUpdate.GroupId);
             }
 
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(group.ProjectId, requesterId, false);

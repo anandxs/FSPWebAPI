@@ -3,7 +3,7 @@
     public interface IRepositoryManager
     {
         IProjectRepository ProjectRepository { get; }
-        IGroupRepository GroupRepository { get; }
+        IStageRepository StageRepository { get; }
         IProjectMemberRepository ProjectMemberRepository { get; }
         ICardRepository CardRepository { get; }
         IRoleRepository RoleRepository { get; }

@@ -3,7 +3,7 @@
     public interface IServiceManager
     {
         IProjectService ProjectService { get; }
-        IGroupService GroupService { get; }
+        IStageService StageService { get; }
         ICardService CardService { get; }
         IAuthenticationService AuthenticationService { get; }
         IUserService UserService { get; }

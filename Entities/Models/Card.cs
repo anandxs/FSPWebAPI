@@ -20,6 +20,6 @@ namespace Entities.Models
         public User? Creator{ get; set; }
         [ForeignKey(nameof(Group))]
         public Guid GroupId { get; set; }
-        public Group Group { get; set; }
+        public Stage Group { get; set; }
     }
 }

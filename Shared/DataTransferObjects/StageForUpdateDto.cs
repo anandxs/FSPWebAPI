@@ -2,9 +2,9 @@
 
 namespace Shared.DataTransferObjects
 {
-    public record GroupForCreationDto
+    public record StageForUpdateDto
     {
-        [Required(ErrorMessage = "Group name is a required field.")]
+        [Required(ErrorMessage = "Stage name is a required field.")]
         public string? Name { get; set; }
     }
 }
