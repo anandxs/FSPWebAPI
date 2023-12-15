@@ -9,7 +9,6 @@
         ITagRepository TagRepository { get; }
         IProjectMemberRepository ProjectMemberRepository { get; }
         ICardRepository CardRepository { get; }
-        ICardMemberRepository CardMemberRepository { get; }
         IUserRepository UserRepository { get; }
         Task SaveAsync();
     }

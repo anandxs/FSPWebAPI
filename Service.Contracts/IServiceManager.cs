@@ -11,6 +11,5 @@
         IAuthenticationService AuthenticationService { get; }
         IUserService UserService { get; }
         IMemberService MemberService { get; }
-        ICardMemberService CardMemberService { get; }
     }
 }

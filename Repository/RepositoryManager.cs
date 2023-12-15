@@ -12,7 +12,6 @@ namespace Repository
         private readonly Lazy<ITagRepository> _tagRepository;
         private readonly Lazy<IProjectMemberRepository> _projectMemberRepository;
         private readonly Lazy<ICardRepository> _cardRepository;
-        private readonly Lazy<ICardMemberRepository> _cardMemberRepository;
         private readonly Lazy<IUserRepository> _userRepository;
 
         public RepositoryManager(RepositoryContext repositoryContext)
@@ -25,7 +24,6 @@ namespace Repository
             _tagRepository = new Lazy<ITagRepository>(() => new TagRepository(repositoryContext));
             _projectMemberRepository = new Lazy<IProjectMemberRepository>(() => new ProjectMemberRepository(repositoryContext));
             _cardRepository = new Lazy<ICardRepository>(() => new CardRepository(repositoryContext));
-            _cardMemberRepository = new Lazy<ICardMemberRepository>(() => new CardMemberRepository(repositoryContext));
             _userRepository = new Lazy<IUserRepository>(() => new UserRepository(repositoryContext));
         }
 
@@ -36,7 +34,6 @@ namespace Repository
         public ITagRepository TagRepository => _tagRepository.Value;
         public IProjectMemberRepository ProjectMemberRepository => _projectMemberRepository.Value;
         public ICardRepository CardRepository => _cardRepository.Value;
-        public ICardMemberRepository CardMemberRepository => _cardMemberRepository.Value;
         public IUserRepository UserRepository => _userRepository.Value;
 
         public async Task SaveAsync() => await _repositoryContext.SaveChangesAsync();
