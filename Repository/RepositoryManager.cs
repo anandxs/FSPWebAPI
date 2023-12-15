@@ -22,7 +22,7 @@ namespace Repository
             _roleRepository = new Lazy<IRoleRepository>(() => new RoleRepository(repositoryContext));
             _stageRepository = new Lazy<IStageRepository>(() => new StageRepository(repositoryContext));
             _taskTypeRepository = new Lazy<ITaskTypeRepository>(() => new TaskTypeRepository(repositoryContext));
-            _tagRepository = new Lazy<ITagRepository>>(() => new TagRepository(repositoryContext));
+            _tagRepository = new Lazy<ITagRepository>(() => new TagRepository(repositoryContext));
             _projectMemberRepository = new Lazy<IProjectMemberRepository>(() => new ProjectMemberRepository(repositoryContext));
             _cardRepository = new Lazy<ICardRepository>(() => new CardRepository(repositoryContext));
             _cardMemberRepository = new Lazy<ICardMemberRepository>(() => new CardMemberRepository(repositoryContext));

@@ -10,13 +10,13 @@ namespace Repository
         {
         }
 
-        public async Task<IEnumerable<Tag>> GetAllProjectTags(Guid projectId, bool trackChanges)
+        public async Task<IEnumerable<Tag>> GetAllProjectTagsAsync(Guid projectId, bool trackChanges)
         {
             return await FindByCondition(t => t.ProjectId.Equals(projectId), trackChanges)
                     .ToListAsync();
         }
 
-        public async Task<Tag> GetTagById(Guid tagId, bool trackChanges)
+        public async Task<Tag> GetTagByIdAsync(Guid tagId, bool trackChanges)
         {
             return await FindByCondition(t => t.TagId.Equals(tagId), trackChanges)
                     .SingleOrDefaultAsync();

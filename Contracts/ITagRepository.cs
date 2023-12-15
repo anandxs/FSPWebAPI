@@ -4,8 +4,8 @@ namespace Contracts
 {
     public interface ITagRepository
     {
-        Task<IEnumerable<Tag>> GetAllProjectTags(Guid projectId, bool trackChanges);
-        Task<Tag> GetTagById(Guid tagId, bool trackChanges);
+        Task<IEnumerable<Tag>> GetAllProjectTagsAsync(Guid projectId, bool trackChanges);
+        Task<Tag> GetTagByIdAsync(Guid tagId, bool trackChanges);
         void CreateTag(Guid projectId, Tag tag);
         void DeleteTag(Tag tag);
     }
