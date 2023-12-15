@@ -20,6 +20,7 @@ namespace Repository
         public DbSet<Role>? ProjectRoles { get; set; }
         public DbSet<Stage>? Stages { get; set; }
         public DbSet<TaskType>? TaskTypes { get; set; }
+        public DbSet<Tag> Tags { get; set; }
         public DbSet<ProjectMember>? ProjectMembers { get; set; }
         public DbSet<Card>? Cards { get; set; }
         public DbSet<CardMember> CardMembers { get; set; }

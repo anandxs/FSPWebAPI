@@ -6,6 +6,7 @@
         IRoleRepository RoleRepository { get; }
         IStageRepository StageRepository { get; }
         ITaskTypeRepository TaskTypeRepository { get; }
+        ITagRepository TagRepository { get; }
         IProjectMemberRepository ProjectMemberRepository { get; }
         ICardRepository CardRepository { get; }
         ICardMemberRepository CardMemberRepository { get; }
