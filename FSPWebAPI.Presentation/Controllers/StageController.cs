@@ -25,9 +25,9 @@ namespace FSPWebAPI.Presentation.Controllers
         {
             var requesterId = GetRequesterId();
 
-            var groups = await _service.StageService.GetAllStagesForProjectAsync(projectId, requesterId, false);
+            var stages = await _service.StageService.GetAllStagesForProjectAsync(projectId, requesterId, false);
 
-            return Ok(groups);
+            return Ok(stages);
         }
 
         [HttpGet("stages/{stageId:guid}", Name = "GetStageById")]
@@ -35,18 +35,18 @@ namespace FSPWebAPI.Presentation.Controllers
         {
             var requesterId = GetRequesterId();
 
-            var group = await _service.StageService.GetStageByIdAsync(stageId, requesterId, false);
+            var stage = await _service.StageService.GetStageByIdAsync(stageId, requesterId, false);
 
-            return Ok(group);
+            return Ok(stage);
         }
 
         [HttpPost("projects/{projectId:guid}/stages")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> CreateStage(Guid projectId, [FromBody] StageForCreationDto groupForCreation)
+        public async Task<IActionResult> CreateStage(Guid projectId, [FromBody] StageForCreationDto stageForCreation)
         {
             var requesterId = GetRequesterId();
 
-            var stage = await _service.StageService.CreateStageAsync(projectId, requesterId, groupForCreation, false);
+            var stage = await _service.StageService.CreateStageAsync(projectId, requesterId, stageForCreation, false);
 
             return CreatedAtRoute(
                 "GetStageById", 
@@ -59,11 +59,11 @@ namespace FSPWebAPI.Presentation.Controllers
 
         [HttpPut("stages/{stageId:guid}")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> UpdateStage(Guid stageId, [FromBody] StageForUpdateDto groupForUpdate)
+        public async Task<IActionResult> UpdateStage(Guid stageId, [FromBody] StageForUpdateDto stageForUpdate)
         {
             var requesterId = GetRequesterId();
 
-            await _service.StageService.UpdateStageAsync(stageId, requesterId, groupForUpdate, true);
+            await _service.StageService.UpdateStageAsync(stageId, requesterId, stageForUpdate, true);
 
             return NoContent();
         }
