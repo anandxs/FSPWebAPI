@@ -20,6 +20,10 @@ namespace FSPWebAPI
             CreateMap<Stage, StageDto>();
             CreateMap<Stage, IncludedStageDto>();
             CreateMap<StageForUpdateDto, Stage>();
+            CreateMap<TaskTypeForCreationDto, TaskType>();
+            CreateMap<TaskType, TaskTypeDto>();
+            CreateMap<TaskType, IncludedTaskTypeDto>();
+            CreateMap<TaskTypeForUpdateDto, TaskType>();
             CreateMap<Card, CardDto>();
             CreateMap<CardForCreationDto, Card>();
             CreateMap<CardForUpdateDto, Card>();
