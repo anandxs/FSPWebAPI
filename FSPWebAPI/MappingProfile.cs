@@ -16,10 +16,14 @@ namespace FSPWebAPI
             CreateMap<Project, ProjectDto>();
             CreateMap<ProjectForCreationDto, Project>();
             CreateMap<ProjectForUpdateDto, Project>();
-            CreateMap<GroupForCreationDto, Group>();
-            CreateMap<Group, GroupDto>();
-            CreateMap<Group, IncludedGroupDto>();
-            CreateMap<GroupForUpdateDto, Group>();
+            CreateMap<StageForCreationDto, Stage>();
+            CreateMap<Stage, StageDto>();
+            CreateMap<Stage, IncludedStageDto>();
+            CreateMap<StageForUpdateDto, Stage>();
+            CreateMap<TaskTypeForCreationDto, TaskType>();
+            CreateMap<TaskType, TaskTypeDto>();
+            CreateMap<TaskType, IncludedTaskTypeDto>();
+            CreateMap<TaskTypeForUpdateDto, TaskType>();
             CreateMap<Card, CardDto>();
             CreateMap<CardForCreationDto, Card>();
             CreateMap<CardForUpdateDto, Card>();

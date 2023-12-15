@@ -2,9 +2,9 @@
 
 namespace Shared.DataTransferObjects
 {
-    public record GroupForUpdateDto
+    public record TaskTypeForUpdateDto
     {
-        [Required(ErrorMessage = "Group name is a required field.")]
+        [Required(ErrorMessage = "Task type name is a required field.")]
         public string? Name { get; set; }
     }
 }

@@ -17,8 +17,9 @@ namespace Repository
         }
 
         public DbSet<Project>? Projects { get; set; }
-        public DbSet<Role>? Roles { get; set; }
-        public DbSet<Group>? Groups { get; set; }
+        public DbSet<Role>? ProjectRoles { get; set; }
+        public DbSet<Stage>? Stages { get; set; }
+        public DbSet<TaskType>? TaskTypes { get; set; }
         public DbSet<ProjectMember>? ProjectMembers { get; set; }
         public DbSet<Card>? Cards { get; set; }
         public DbSet<CardMember> CardMembers { get; set; }

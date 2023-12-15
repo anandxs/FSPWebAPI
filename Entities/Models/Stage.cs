@@ -3,12 +3,12 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace Entities.Models
 {
-    public class Group
+    public class Stage
     {
-        [Column("GroupId")]
-        public Guid GroupId { get; set; }
-        [Required(ErrorMessage = "Group name is required field.")]
-        [MaxLength(256, ErrorMessage = "Maximum length for group name is 256 characters")]
+        [Column("StageId")]
+        public Guid StageId { get; set; }
+        [Required(ErrorMessage = "Stage name is required field.")]
+        [MaxLength(256, ErrorMessage = "Maximum length for stage name is 256 characters")]
         public string? Name { get; set; }
         public bool IsActive { get; set; } = true;
         [ForeignKey(nameof(Project))]

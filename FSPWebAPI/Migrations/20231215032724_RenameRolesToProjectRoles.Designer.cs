@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository;
 
@@ -11,9 +12,10 @@ using Repository;
 namespace FSPWebAPI.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    partial class RepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20231215032724_RenameRolesToProjectRoles")]
+    partial class RenameRolesToProjectRoles
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -82,6 +84,31 @@ namespace FSPWebAPI.Migrations
                     b.HasIndex("MemberId");
 
                     b.ToTable("CardMembers");
+                });
+
+            modelBuilder.Entity("Entities.Models.Group", b =>
+                {
+                    b.Property<Guid>("GroupId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier")
+                        .HasColumnName("GroupId");
+
+                    b.Property<bool>("IsActive")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(256)
+                        .HasColumnType("nvarchar(256)");
+
+                    b.Property<Guid>("ProjectId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.HasKey("GroupId");
+
+                    b.HasIndex("ProjectId");
+
+                    b.ToTable("Groups");
                 });
 
             modelBuilder.Entity("Entities.Models.Project", b =>
@@ -158,56 +185,6 @@ namespace FSPWebAPI.Migrations
                     b.HasIndex("ProjectId");
 
                     b.ToTable("ProjectRoles");
-                });
-
-            modelBuilder.Entity("Entities.Models.Stage", b =>
-                {
-                    b.Property<Guid>("StageId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("StageId");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("StageId");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("Stages");
-                });
-
-            modelBuilder.Entity("Entities.Models.TaskType", b =>
-                {
-                    b.Property<Guid>("TypeId")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier")
-                        .HasColumnName("TypeId");
-
-                    b.Property<bool>("IsActive")
-                        .HasColumnType("bit");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasMaxLength(256)
-                        .HasColumnType("nvarchar(256)");
-
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("TypeId");
-
-                    b.HasIndex("ProjectId");
-
-                    b.ToTable("TaskTypes");
                 });
 
             modelBuilder.Entity("Entities.Models.User", b =>
@@ -433,7 +410,7 @@ namespace FSPWebAPI.Migrations
                         .WithMany()
                         .HasForeignKey("CreatorId");
 
-                    b.HasOne("Entities.Models.Stage", "Group")
+                    b.HasOne("Entities.Models.Group", "Group")
                         .WithMany()
                         .HasForeignKey("GroupId")
                         .OnDelete(DeleteBehavior.Cascade)
@@ -459,6 +436,17 @@ namespace FSPWebAPI.Migrations
                     b.Navigation("Card");
 
                     b.Navigation("Member");
+                });
+
+            modelBuilder.Entity("Entities.Models.Group", b =>
+                {
+                    b.HasOne("Entities.Models.Project", "Project")
+                        .WithMany()
+                        .HasForeignKey("ProjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Project");
                 });
 
             modelBuilder.Entity("Entities.Models.Project", b =>
@@ -496,28 +484,6 @@ namespace FSPWebAPI.Migrations
                 });
 
             modelBuilder.Entity("Entities.Models.Role", b =>
-                {
-                    b.HasOne("Entities.Models.Project", "Project")
-                        .WithMany()
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Project");
-                });
-
-            modelBuilder.Entity("Entities.Models.Stage", b =>
-                {
-                    b.HasOne("Entities.Models.Project", "Project")
-                        .WithMany()
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.Navigation("Project");
-                });
-
-            modelBuilder.Entity("Entities.Models.TaskType", b =>
                 {
                     b.HasOne("Entities.Models.Project", "Project")
                         .WithMany()
