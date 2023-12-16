@@ -14,13 +14,20 @@ namespace Repository
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             base.OnModelCreating(modelBuilder);
+
+            modelBuilder.Entity<ProjectTask>()
+                .HasOne(t => t.Stage)
+                .WithMany(s => s.Tasks)
+                .HasForeignKey(t => t.StageId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
 
         public DbSet<Project>? Projects { get; set; }
         public DbSet<Role>? ProjectRoles { get; set; }
         public DbSet<Stage>? Stages { get; set; }
         public DbSet<TaskType>? TaskTypes { get; set; }
-        public DbSet<Tag> Tags { get; set; }
+        public DbSet<Tag>? Tags { get; set; }
+        public DbSet<ProjectTask>? Tasks { get; set; }
         public DbSet<ProjectMember>? ProjectMembers { get; set; }
     }
 }
