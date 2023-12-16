@@ -7,7 +7,5 @@ namespace Shared.DataTransferObjects
         [Required(ErrorMessage = "Comment cannot be empty.")]
         [MaxLength(500, ErrorMessage = "Maximum length of comment is 500 characters")]
         public string? Comment { get; set; }
-        [Required(ErrorMessage = "Commenter id should not be empty")]
-        public string? CommenterId { get; set; }
     }
 }

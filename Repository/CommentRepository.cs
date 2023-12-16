@@ -13,6 +13,7 @@ namespace Repository
         public async Task<IEnumerable<TaskComment>> GetAllCommentsForTaskAsync(Guid taskId, bool trackChanges)
         {
             return await FindByCondition(c => c.TaskId.Equals(taskId), trackChanges)
+                        .Include(c => c.Commenter)
                         .ToListAsync();
         }
 

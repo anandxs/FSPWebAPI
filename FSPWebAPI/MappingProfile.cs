@@ -35,7 +35,7 @@ namespace FSPWebAPI
             CreateMap<RoleForCreationDto, Role>();
             CreateMap<RoleForUpdateDto, Role>();
             CreateMap<TaskComment,  TaskCommentDto>();
-            CreateMap<TaskForCreationDto, TaskComment>();
+            CreateMap<TaskCommentForCreationDto, TaskComment>();
         }
     }
 }
