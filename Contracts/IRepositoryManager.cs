@@ -7,6 +7,7 @@
         IStageRepository StageRepository { get; }
         ITaskTypeRepository TaskTypeRepository { get; }
         ITagRepository TagRepository { get; }
+        ITaskRepository TaskRepository { get; }
         IProjectMemberRepository ProjectMemberRepository { get; }
         IUserRepository UserRepository { get; }
         Task SaveAsync();
