@@ -6,7 +6,7 @@ using Shared.DataTransferObjects;
 namespace FSPWebAPI.Presentation.Controllers
 {
     [ApiController]
-    [Route("api")]
+    [Route("api/projects/{projectId:guid}/types")]
     public class TaskTypeController : ControllerBase
     {
         private readonly IServiceManager _service;
@@ -16,7 +16,7 @@ namespace FSPWebAPI.Presentation.Controllers
             _service = service;
         }
 
-        [HttpGet("projects/{projectId:guid}/tasktypes")]
+        [HttpGet]
         public async Task<IActionResult> GetAllTasksForProject(Guid projectId)
         {
             var types = await _service.TaskTypeService.GetAllTaskTypesForProjectAsync(projectId, false);
@@ -24,15 +24,15 @@ namespace FSPWebAPI.Presentation.Controllers
             return Ok(types);
         }
 
-        [HttpGet("tasktypes/{tasktypeId:guid}", Name = "GetTaskTypeById")]
-        public async Task<IActionResult> GetTaskTypeById(Guid tasktypeId)
+        [HttpGet("{typeId:guid}", Name = "GetTaskTypeById")]
+        public async Task<IActionResult> GetTaskTypeById(Guid projectId, Guid typeId)
         {
-            var type = await _service.TaskTypeService.GetTaskTypeByIdAsync(tasktypeId, false);
+            var type = await _service.TaskTypeService.GetTaskTypeByIdAsync(projectId, typeId, false);
 
             return Ok(type);
         }
 
-        [HttpPost("projects/{projectId:guid}/tasktypes")]
+        [HttpPost]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateTaskType(Guid projectId, [FromBody] TaskTypeForCreationDto taskTypeForCreationDto)
         {
@@ -42,32 +42,33 @@ namespace FSPWebAPI.Presentation.Controllers
                 "GetTaskTypeById",
                 new
                 {
-                    tasktypeId = type.TypeId
+                    projectId = projectId,
+                    typeId= type.TypeId
                 },
                 type);
         }
 
-        [HttpPut("tasktypes/{tasktypeId:guid}")]
+        [HttpPut("{typeId:guid}")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> UpdateTaskType(Guid tasktypeId, [FromBody] TaskTypeForUpdateDto taskTypeForUpdate)
+        public async Task<IActionResult> UpdateTaskType(Guid projectId, Guid typeId, [FromBody] TaskTypeForUpdateDto taskTypeForUpdate)
         {
-            await _service.TaskTypeService.UpdateTaskTypeAsync(tasktypeId, taskTypeForUpdate, true);
+            await _service.TaskTypeService.UpdateTaskTypeAsync(projectId, typeId, taskTypeForUpdate, true);
 
             return NoContent();
         }
 
-        [HttpPut("tasktypes/{tasktypeId:guid}/archive")]
-        public async Task<IActionResult> ToggleTaskTypeArchiveStatus(Guid tasktypeId)
+        [HttpPut("{typeId:guid}/archive")]
+        public async Task<IActionResult> ToggleTaskTypeArchiveStatus(Guid projectId, Guid typeId)
         {
-            await _service.TaskTypeService.ToggleTaskTypeArchiveStatusAsync(tasktypeId, true);
+            await _service.TaskTypeService.ToggleTaskTypeArchiveStatusAsync(projectId, typeId, true);
 
             return NoContent();
         }
 
-        [HttpDelete("tasktypes/{tasktypeId:guid}")]
-        public async Task<IActionResult> DeleteTaskType(Guid tasktypeId)
+        [HttpDelete("{typeId:guid}")]
+        public async Task<IActionResult> DeleteTaskType(Guid projectId, Guid typeId)
         {
-            await _service.TaskTypeService.DeleteTaskTypeAsync(tasktypeId, false);
+            await _service.TaskTypeService.DeleteTaskTypeAsync(projectId, typeId, false);
 
             return NoContent();
         }

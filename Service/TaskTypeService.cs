@@ -43,22 +43,22 @@ namespace Service
             return typesDto;
         }
 
-        public async Task<TaskTypeDto> GetTaskTypeByIdAsync(Guid typeId, bool trackChanges)
+        public async Task<TaskTypeDto> GetTaskTypeByIdAsync(Guid projectId, Guid typeId, bool trackChanges)
         {
             var requesterId = GetRequesterId();
 
-            var type = await _repositoryManager.TaskTypeRepository.GetTaskTypeByIdAsync(typeId, trackChanges);
-
-            if (type == null)
-            {
-                throw new TaskTypeNotFoundException(typeId);
-            }
-
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(type.ProjectId, requesterId, false);
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
 
             if (requester is null)
             {
                 throw new NotAProjectMemberForbiddenRequestException();
+            }
+
+            var type = await _repositoryManager.TaskTypeRepository.GetTaskTypeByIdAsync(projectId, typeId, trackChanges);
+
+            if (type == null)
+            {
+                throw new TaskTypeNotFoundException(typeId);
             }
 
             var typeDto = _mapper.Map<TaskTypeDto>(type);
@@ -98,70 +98,55 @@ namespace Service
             return typeDto;
         }
 
-        public async Task UpdateTaskTypeAsync(Guid typeId, TaskTypeForUpdateDto taskTypeForUpdateDto, bool trackChanges)
+        public async Task UpdateTaskTypeAsync(Guid projectId, Guid typeId, TaskTypeForUpdateDto taskTypeForUpdateDto, bool trackChanges)
         {
             var requesterId = GetRequesterId();
 
-            var type = await _repositoryManager.TaskTypeRepository.GetTaskTypeByIdAsync(typeId, trackChanges);
-
-            if (type == null)
-            {
-                throw new TaskTypeNotFoundException(typeId);
-            }
-
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(type.ProjectId, requesterId, false);
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
 
             if (requester is null)
             {
                 throw new NotAProjectMemberForbiddenRequestException();
             }
-            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
+
+            var type = await _repositoryManager.TaskTypeRepository.GetTaskTypeByIdAsync(projectId, typeId, trackChanges);
+
+            if (type == null)
             {
-                throw new IncorrectRoleForbiddenRequestException();
+                throw new TaskTypeNotFoundException(typeId);
             }
 
             _mapper.Map(taskTypeForUpdateDto, type);
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task ToggleTaskTypeArchiveStatusAsync(Guid typeId, bool trackChanges)
+        public async Task ToggleTaskTypeArchiveStatusAsync(Guid projectId, Guid typeId, bool trackChanges)
         {
             var requesterId = GetRequesterId();
 
-            var type = await _repositoryManager.TaskTypeRepository.GetTaskTypeByIdAsync(typeId, trackChanges);
-
-            if (type == null)
-            {
-                throw new TaskTypeNotFoundException(typeId);
-            }
-
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(type.ProjectId, requesterId, false);
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
 
             if (requester is null)
             {
                 throw new NotAProjectMemberForbiddenRequestException();
             }
-            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
+
+            var type = await _repositoryManager.TaskTypeRepository.GetTaskTypeByIdAsync(projectId, typeId, trackChanges);
+
+            if (type == null)
             {
-                throw new IncorrectRoleForbiddenRequestException();
+                throw new TaskTypeNotFoundException(typeId);
             }
 
             type.IsActive = !type.IsActive;
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task DeleteTaskTypeAsync(Guid typeId, bool trackChanges)
+        public async Task DeleteTaskTypeAsync(Guid projectId, Guid typeId, bool trackChanges)
         {
             var requesterId = GetRequesterId();
 
-            var type = await _repositoryManager.TaskTypeRepository.GetTaskTypeByIdAsync(typeId, trackChanges);
-
-            if (type == null)
-            {
-                throw new TaskTypeNotFoundException(typeId);
-            }
-
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(type.ProjectId, requesterId, false);
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
 
             if (requester is null)
             {
@@ -170,6 +155,13 @@ namespace Service
             else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
             {
                 throw new IncorrectRoleForbiddenRequestException();
+            }
+
+            var type = await _repositoryManager.TaskTypeRepository.GetTaskTypeByIdAsync(projectId, typeId, trackChanges);
+
+            if (type == null)
+            {
+                throw new TaskTypeNotFoundException(typeId);
             }
 
             _repositoryManager.TaskTypeRepository.DeleteTaskType(type);

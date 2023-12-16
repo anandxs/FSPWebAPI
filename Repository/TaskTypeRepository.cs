@@ -16,9 +16,9 @@ namespace Repository
                         .ToListAsync();
         }
 
-        public async Task<TaskType> GetTaskTypeByIdAsync(Guid typeId, bool trackChanges)
+        public async Task<TaskType> GetTaskTypeByIdAsync(Guid projectId, Guid typeId, bool trackChanges)
         {
-            return await FindByCondition(t => t.TypeId.Equals(typeId), trackChanges)
+            return await FindByCondition(t => t.ProjectId.Equals(projectId) && t.TypeId.Equals(typeId), trackChanges)
                         .SingleOrDefaultAsync();
         }
 

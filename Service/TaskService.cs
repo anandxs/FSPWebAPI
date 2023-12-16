@@ -100,7 +100,7 @@ namespace Service
                 throw new StageNotFoundException(task.StageId);
             }
 
-            var type = await _repositoryManager.TaskTypeRepository.GetTaskTypeByIdAsync(task.TypeId, trackChanges);
+            var type = await _repositoryManager.TaskTypeRepository.GetTaskTypeByIdAsync(projectId, task.TypeId, trackChanges);
 
             if (type == null)
             {
