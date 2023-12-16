@@ -93,7 +93,7 @@ namespace Service
                 }
             }
 
-            var stage = await _repositoryManager.StageRepository.GetStageByIdAsync(task.StageId, trackChanges);
+            var stage = await _repositoryManager.StageRepository.GetStageByIdAsync(projectId, task.StageId, trackChanges);
 
             if (stage == null)
             {

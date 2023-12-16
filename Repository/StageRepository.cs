@@ -16,9 +16,9 @@ namespace Repository
                     .ToListAsync();
         }
 
-        public async Task<Stage> GetStageByIdAsync(Guid stageId, bool trackChanges)
+        public async Task<Stage> GetStageByIdAsync(Guid projectId, Guid stageId, bool trackChanges)
         {
-            return await FindByCondition(s => s.StageId.Equals(stageId), trackChanges)
+            return await FindByCondition(s => s.ProjectId.Equals(projectId) && s.StageId.Equals(stageId), trackChanges)
                     .SingleOrDefaultAsync();
         }
 
