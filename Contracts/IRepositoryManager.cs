@@ -8,6 +8,7 @@
         ITaskTypeRepository TaskTypeRepository { get; }
         ITagRepository TagRepository { get; }
         ITaskRepository TaskRepository { get; }
+        ICommentRepository CommentRepository { get; }
         IProjectMemberRepository ProjectMemberRepository { get; }
         IUserRepository UserRepository { get; }
         Task SaveAsync();

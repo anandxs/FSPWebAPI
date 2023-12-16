@@ -15,7 +15,5 @@ namespace Shared.DataTransferObjects
         public Guid StageId { get; set; }
         [Required(ErrorMessage = "Type id is a required field.")]
         public Guid TypeId { get; set; }
-        [Required(ErrorMessage = "Project id is a required field.")]
-        public Guid ProjectId { get; set; }
     }
 }
