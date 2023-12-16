@@ -7,6 +7,7 @@
         IStageService StageService { get; }
         ITaskTypeService TaskTypeService { get; }
         ITagService TagService { get; }
+        ITaskService TaskService { get; }
         IAuthenticationService AuthenticationService { get; }
         IUserService UserService { get; }
         IMemberService MemberService { get; }
