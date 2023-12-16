@@ -34,6 +34,7 @@ namespace Repository
         public DbSet<TaskType>? TaskTypes { get; set; }
         public DbSet<Tag>? Tags { get; set; }
         public DbSet<ProjectTask>? Tasks { get; set; }
+        public DbSet<TaskComment>? Comments { get; set; }
         public DbSet<ProjectMember>? ProjectMembers { get; set; }
     }
 }

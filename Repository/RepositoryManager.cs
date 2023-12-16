@@ -11,6 +11,7 @@ namespace Repository
         private readonly Lazy<ITaskTypeRepository> _taskTypeRepository;
         private readonly Lazy<ITagRepository> _tagRepository;
         private readonly Lazy<ITaskRepository> _taskRepository;
+        private readonly Lazy<ICommentRepository> _commentRepository;
         private readonly Lazy<IProjectMemberRepository> _projectMemberRepository;
         private readonly Lazy<IUserRepository> _userRepository;
 
@@ -23,6 +24,7 @@ namespace Repository
             _taskTypeRepository = new Lazy<ITaskTypeRepository>(() => new TaskTypeRepository(repositoryContext));
             _tagRepository = new Lazy<ITagRepository>(() => new TagRepository(repositoryContext));
             _taskRepository = new Lazy<ITaskRepository>(() => new TaskRepository(repositoryContext));   
+            _commentRepository = new Lazy<ICommentRepository>(() => new CommentRepository(repositoryContext));
             _projectMemberRepository = new Lazy<IProjectMemberRepository>(() => new ProjectMemberRepository(repositoryContext));
             _userRepository = new Lazy<IUserRepository>(() => new UserRepository(repositoryContext));
         }
@@ -33,6 +35,7 @@ namespace Repository
         public ITaskTypeRepository TaskTypeRepository => _taskTypeRepository.Value;
         public ITagRepository TagRepository => _tagRepository.Value;
         public ITaskRepository TaskRepository => _taskRepository.Value;
+        public ICommentRepository CommentRepository => _commentRepository.Value;
         public IProjectMemberRepository ProjectMemberRepository => _projectMemberRepository.Value;
         public IUserRepository UserRepository => _userRepository.Value;
 
