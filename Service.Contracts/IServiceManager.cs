@@ -7,10 +7,9 @@
         IStageService StageService { get; }
         ITaskTypeService TaskTypeService { get; }
         ITagService TagService { get; }
-        ICardService CardService { get; }
+        ITaskService TaskService { get; }
         IAuthenticationService AuthenticationService { get; }
         IUserService UserService { get; }
         IMemberService MemberService { get; }
-        ICardMemberService CardMemberService { get; }
     }
 }

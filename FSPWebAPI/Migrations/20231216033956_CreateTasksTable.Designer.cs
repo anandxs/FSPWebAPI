@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Repository;
 
@@ -11,9 +12,10 @@ using Repository;
 namespace FSPWebAPI.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    partial class RepositoryContextModelSnapshot : ModelSnapshot
+    [Migration("20231216033956_CreateTasksTable")]
+    partial class CreateTasksTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -99,9 +101,6 @@ namespace FSPWebAPI.Migrations
                     b.Property<bool>("IsActive")
                         .HasColumnType("bit");
 
-                    b.Property<Guid>("ProjectId")
-                        .HasColumnType("uniqueidentifier");
-
                     b.Property<Guid>("StageId")
                         .HasColumnType("uniqueidentifier");
 
@@ -116,8 +115,6 @@ namespace FSPWebAPI.Migrations
                     b.HasKey("TaskId");
 
                     b.HasIndex("AssigneeId");
-
-                    b.HasIndex("ProjectId");
 
                     b.HasIndex("StageId");
 
@@ -480,12 +477,6 @@ namespace FSPWebAPI.Migrations
                         .WithMany()
                         .HasForeignKey("AssigneeId");
 
-                    b.HasOne("Entities.Models.Project", "Project")
-                        .WithMany("Tasks")
-                        .HasForeignKey("ProjectId")
-                        .OnDelete(DeleteBehavior.NoAction)
-                        .IsRequired();
-
                     b.HasOne("Entities.Models.Stage", "Stage")
                         .WithMany("Tasks")
                         .HasForeignKey("StageId")
@@ -499,8 +490,6 @@ namespace FSPWebAPI.Migrations
                         .IsRequired();
 
                     b.Navigation("Assignee");
-
-                    b.Navigation("Project");
 
                     b.Navigation("Stage");
 
@@ -600,11 +589,6 @@ namespace FSPWebAPI.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("Entities.Models.Project", b =>
-                {
-                    b.Navigation("Tasks");
                 });
 
             modelBuilder.Entity("Entities.Models.Stage", b =>

@@ -33,6 +33,7 @@ namespace FSPWebAPI.Presentation.Controllers
         }
 
         [HttpPost("projects/{projectId:guid}/tags")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateTag(Guid projectId, [FromBody] TagForCreationDto tagForCreationDto)
         {
             var tag = await _service.TagService.CreateTagAsync(projectId, tagForCreationDto, false);

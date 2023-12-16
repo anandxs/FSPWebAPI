@@ -27,9 +27,9 @@ namespace FSPWebAPI
             CreateMap<Tag, TagDto>();
             CreateMap<TagForCreationDto, Tag>();
             CreateMap<TagForUpdateDto, Tag>();
-            CreateMap<Card, CardDto>();
-            CreateMap<CardForCreationDto, Card>();
-            CreateMap<CardForUpdateDto, Card>();
+            CreateMap<ProjectTask, ProjectTaskDto>();
+            CreateMap<TaskForCreationDto, ProjectTask>();
+            CreateMap<TaskForUpdateDto, ProjectTask>();
             CreateMap<ProjectMember, ProjectMemberDto>();
             CreateMap<Role, RoleDto>();
             CreateMap<RoleForCreationDto, Role>();

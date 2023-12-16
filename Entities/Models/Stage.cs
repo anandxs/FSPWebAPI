@@ -14,5 +14,7 @@ namespace Entities.Models
         [ForeignKey(nameof(Project))]
         public Guid ProjectId { get; set; }
         public Project Project { get; set; }
+
+        public ICollection<ProjectTask> Tasks { get; set; }
     }
 }
