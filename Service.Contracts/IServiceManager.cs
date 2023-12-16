@@ -8,6 +8,7 @@
         ITaskTypeService TaskTypeService { get; }
         ITagService TagService { get; }
         ITaskService TaskService { get; }
+        ICommentService CommentService { get; }
         IAuthenticationService AuthenticationService { get; }
         IUserService UserService { get; }
         IMemberService MemberService { get; }
