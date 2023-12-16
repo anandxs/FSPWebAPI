@@ -6,7 +6,7 @@ using Shared.DataTransferObjects;
 namespace FSPWebAPI.Presentation.Controllers
 {
     [ApiController]
-    [Route("api")]
+    [Route("api/projects/{projectId:guid}/tags")]
     public class TagController :  ControllerBase
     {
         private readonly IServiceManager _service;
@@ -16,7 +16,7 @@ namespace FSPWebAPI.Presentation.Controllers
             _service = service;
         }
 
-        [HttpGet("projects/{projectId:guid}/tags")]
+        [HttpGet]
         public async Task<IActionResult> GetAllTagsForProject(Guid projectId)
         {
             var tags = await _service.TagService.GetAllTagsForProjectAsync(projectId, false);
@@ -24,15 +24,15 @@ namespace FSPWebAPI.Presentation.Controllers
             return Ok(tags);
         }
 
-        [HttpGet("tags/{tagId:guid}", Name = "GetTagById")]
-        public async Task<IActionResult> GetTagById(Guid tagId)
+        [HttpGet("{tagId:guid}", Name = "GetTagById")]
+        public async Task<IActionResult> GetTagById(Guid projectId, Guid tagId)
         {
-            var tag = await _service.TagService.GetTagByIdAsync(tagId, false);
+            var tag = await _service.TagService.GetTagByIdAsync(projectId, tagId, false);
 
             return Ok(tag);
         }
 
-        [HttpPost("projects/{projectId:guid}/tags")]
+        [HttpPost]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateTag(Guid projectId, [FromBody] TagForCreationDto tagForCreationDto)
         {
@@ -42,24 +42,25 @@ namespace FSPWebAPI.Presentation.Controllers
                 "GetTagById",
                 new
                 {
+                    projectId,
                     tagId = tag.TagId
                 },
                 tag);
         }
 
-        [HttpPut("tags/{tagId:guid}")]
+        [HttpPut("{tagId:guid}")]
         [ServiceFilter(typeof(ValidationFilterAttribute))]
-        public async Task<IActionResult> UpdateTag(Guid tagId, [FromBody] TagForUpdateDto tagForUpdateDto)
+        public async Task<IActionResult> UpdateTag(Guid projectId, Guid tagId, [FromBody] TagForUpdateDto tagForUpdateDto)
         {
-            await _service.TagService.UpdateTagAsync(tagId, tagForUpdateDto, true);
+            await _service.TagService.UpdateTagAsync(projectId, tagId, tagForUpdateDto, true);
 
             return NoContent();
         }
 
-        [HttpDelete("tags/{tagId:guid}")]
-        public async Task<IActionResult> DeleteTag(Guid tagId)
+        [HttpDelete("{tagId:guid}")]
+        public async Task<IActionResult> DeleteTag(Guid projectId, Guid tagId)
         {
-            await _service.TagService.DeleteTagAsync(tagId, false);
+            await _service.TagService.DeleteTagAsync(projectId, tagId, false);
 
             return NoContent();
         }

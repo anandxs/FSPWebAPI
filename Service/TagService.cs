@@ -44,22 +44,22 @@ namespace Service
             return tagsDto;
         }
 
-        public async Task<TagDto> GetTagByIdAsync(Guid tagId, bool trackChanges)
+        public async Task<TagDto> GetTagByIdAsync(Guid projectId, Guid tagId, bool trackChanges)
         {
             var requesterId = GetRequesterId();
 
-            var tag = await _repositoryManager.TagRepository.GetTagByIdAsync(tagId, trackChanges);
-
-            if (tag == null)
-            {
-                throw new TagNotFoundException(tagId);
-            }
-
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(tag.ProjectId, requesterId, false);
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
 
             if (requester is null)
             {
                 throw new NotAProjectMemberForbiddenRequestException();
+            }
+
+            var tag = await _repositoryManager.TagRepository.GetTagByIdAsync(projectId, tagId, trackChanges);
+
+            if (tag == null)
+            {
+                throw new TagNotFoundException(tagId);
             }
 
             var tagDto = _mapper.Map<TagDto>(tag);
@@ -99,44 +99,37 @@ namespace Service
             return tagDto;
         }
 
-        public async Task UpdateTagAsync(Guid tagId, TagForUpdateDto tagForUpdateDto, bool trackChanges)
+        public async Task UpdateTagAsync(Guid projectId, Guid tagId, TagForUpdateDto tagForUpdateDto, bool trackChanges)
         {
             var requesterId = GetRequesterId();
 
-            var tag = await _repositoryManager.TagRepository.GetTagByIdAsync(tagId, trackChanges);
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
+
+            if (requester is null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
+            }
+
+            var tag = await _repositoryManager.TagRepository.GetTagByIdAsync(projectId, tagId, trackChanges);
 
             if (tag == null)
             {
                 throw new TaskTypeNotFoundException(tagId);
             }
 
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(tag.ProjectId, requesterId, false);
-
-            if (requester is null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
-            {
-                throw new IncorrectRoleForbiddenRequestException();
-            }
-
             _mapper.Map(tagForUpdateDto, tag);
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task DeleteTagAsync(Guid tagId, bool trackChanges)
+        public async Task DeleteTagAsync(Guid projectId, Guid tagId, bool trackChanges)
         {
             var requesterId = GetRequesterId();
 
-            var tag = await _repositoryManager.TagRepository.GetTagByIdAsync(tagId, trackChanges);
-
-            if (tag == null)
-            {
-                throw new TagNotFoundException(tagId);
-            }
-
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(tag.ProjectId, requesterId, false);
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
 
             if (requester is null)
             {
@@ -145,6 +138,13 @@ namespace Service
             else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
             {
                 throw new IncorrectRoleForbiddenRequestException();
+            }
+
+            var tag = await _repositoryManager.TagRepository.GetTagByIdAsync(projectId, tagId, trackChanges);
+
+            if (tag == null)
+            {
+                throw new TagNotFoundException(tagId);
             }
 
             _repositoryManager.TagRepository.DeleteTag(tag);

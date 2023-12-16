@@ -16,9 +16,9 @@ namespace Repository
                     .ToListAsync();
         }
 
-        public async Task<Tag> GetTagByIdAsync(Guid tagId, bool trackChanges)
+        public async Task<Tag> GetTagByIdAsync(Guid projectId, Guid tagId, bool trackChanges)
         {
-            return await FindByCondition(t => t.TagId.Equals(tagId), trackChanges)
+            return await FindByCondition(t => t.ProjectId.Equals(projectId) && t.TagId.Equals(tagId), trackChanges)
                     .SingleOrDefaultAsync();
         }
 
