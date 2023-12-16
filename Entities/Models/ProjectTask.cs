@@ -25,7 +25,7 @@ namespace Entities.Models
         public Guid TypeId { get; set; }
         public TaskType Type { get; set; }
         [ForeignKey(nameof(Project))]
-        public Guid? ProjectId { get; set; }
-        public Project? Project { get; set; }
+        public Guid ProjectId { get; set; }
+        public Project Project { get; set; }
     }
 }

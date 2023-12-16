@@ -103,6 +103,7 @@ namespace FSPWebAPI.Extensions
                         ValidIssuer = jwtConfiguration.ValidIssuer,
                         ValidAudience = jwtConfiguration.ValidAudience,
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
+                        ClockSkew = TimeSpan.FromDays(30) 
                     };
 
                     options.Events = new JwtBearerEvents()

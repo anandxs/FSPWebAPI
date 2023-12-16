@@ -20,6 +20,12 @@ namespace Repository
                 .WithMany(s => s.Tasks)
                 .HasForeignKey(t => t.StageId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<ProjectTask>()
+                .HasOne(t => t.Project)
+                .WithMany(p => p.Tasks)
+                .HasForeignKey(t => t.ProjectId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
 
         public DbSet<Project>? Projects { get; set; }

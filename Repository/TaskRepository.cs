@@ -24,6 +24,8 @@ namespace Repository
 
         public void CreateTask(ProjectTask task)
         {
+            task.IsActive = true;
+            task.CreatedAt = DateTime.Now;
             Create(task);
         }
 

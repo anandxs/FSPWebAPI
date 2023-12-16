@@ -15,5 +15,7 @@ namespace Entities.Models
         [ForeignKey(nameof(User))]
         public string OwnerId { get; set; }
         public User User { get; set; }
+
+        public ICollection<ProjectTask> Tasks { get; set; }
     }
 }
