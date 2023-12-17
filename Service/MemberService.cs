@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using AutoMapper.Execution;
 using Contracts;
 using Entities.Exceptions;
 using Entities.Models;
@@ -62,37 +61,39 @@ namespace Service
                 throw new IncorrectRoleForbiddenRequestException();
             }
 
+            var role = await _repositoryManager.RoleRepository.GetRoleByIdAsync(projectId, memberDto.RoleId, trackChanges);
+
+            if (role == null)
+            {
+                throw new RoleNotFoundException(memberDto.RoleId);
+            }
+
             var newMember = await _userManager.FindByEmailAsync(memberDto.Email);
 
             if (newMember == null)
             {
-                _logger.LogWarn($"User with email : {memberDto.Email} not found");
-                throw new UserNotFoundException(memberDto.Email);
-            }
-
-            var existingMember = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, newMember.Id, trackChanges);
-
-            if (existingMember != null)
-            {
-                throw new MemberAlreadyExistsBadRequest(memberDto.Email);
-            }
-
-            string role;
-            if (memberDto.Role == Constants.PROJECT_ROLE_ADMIN || memberDto.Role == Constants.PROJECT_ROLE_MEMBER)
-            {
-                role = memberDto.Role;
             }
             else
             {
-                role = Constants.PROJECT_ROLE_OBSERVER;
-            }
+                var existingMember = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, newMember.Id, trackChanges);
 
-            _repositoryManager.ProjectMemberRepository.AddProjectMember(new ProjectMember
-            {
-                MemberId = newMember.Id,
-                ProjectId = projectId,
-            });
-            await _repositoryManager.SaveAsync();
+                if (existingMember != null)
+                {
+                    throw new MemberAlreadyExistsBadRequest(memberDto.Email);
+                }
+
+                _repositoryManager.ProjectMemberRepository.AddProjectMember(new ProjectMember
+                {
+                    MemberId = newMember.Id,
+                    ProjectId = projectId,
+                    RoleId = memberDto.RoleId
+                });
+                await _repositoryManager.SaveAsync();
+
+                string subject = "Added To Project";
+                string message = $"<p>You have been added to the {requester.Project.Name} project by {requester.User.FirstName} {requester.User.LastName}.</p>";
+                await _emailService.SendAsync(memberDto.Email, subject, message, true);
+            }
         }
 
         public async Task<ProjectMemberDto> GetProjectMemberAsync(Guid projectId, string memberId, string requesterId, bool trackChanges)
@@ -115,7 +116,6 @@ namespace Service
             return projectMemberDto;
         }
 
-
         public async Task ChangeMemberRoleAsync(Guid projectId, string requesterId, MemberForUpdateDto memberDto, bool trackChanges)
         {
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
@@ -136,14 +136,14 @@ namespace Service
                 throw new NotAProjectMemberBadRequestException(memberDto.MemberId);
             }
 
-            existingMember.Role.Name = memberDto.Role switch
-            {
-                Constants.PROJECT_ROLE_ADMIN => Constants.PROJECT_ROLE_ADMIN,
-                Constants.PROJECT_ROLE_MEMBER => Constants.PROJECT_ROLE_MEMBER,
-                Constants.PROJECT_ROLE_OBSERVER => Constants.PROJECT_ROLE_OBSERVER,
-                _ => existingMember.Role.Name,
-            };
+            var role = await _repositoryManager.RoleRepository.GetRoleByIdAsync(projectId, memberDto.RoleId, trackChanges);
 
+            if (role == null)
+            {
+                throw new RoleNotFoundException(memberDto.RoleId);
+            }
+
+            existingMember.RoleId = memberDto.RoleId;
             await _repositoryManager.SaveAsync();
         }
 
@@ -223,36 +223,5 @@ namespace Service
                 await _repositoryManager.SaveAsync();
             }
         }
-
-        #region HELPER METHODS
-
-        private async Task CheckIfRequesterIsAuthorizedAsync(Guid projectId, string requesterId, HashSet<string> allowedRoles)
-        {
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
-
-            if (requester is null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-        }
-
-        private async Task CheckIfUserAndProjectExistsAsync(string userId, Guid projectId, bool trackChanges)
-        {
-            var user = await _userManager.FindByIdAsync(userId);
-
-            if (user is null)
-            {
-                throw new UserNotFoundException(userId);
-            }
-
-            var project = await _repositoryManager.ProjectRepository.GetProjectOwnedByUserAsync(userId, projectId, trackChanges);
-
-            if (project is null)
-            {
-                throw new ProjectNotFoundException(projectId);
-            }
-        }
-
-        #endregion
     }
 }

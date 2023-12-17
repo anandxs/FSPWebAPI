@@ -87,7 +87,7 @@ namespace Service
                 throw new IncorrectRoleForbiddenRequestException();
             }
 
-            var roleEntity = await _repositoryManager.RoleRepository.GetRoleByIdAsync(roleId, trackChanges);
+            var roleEntity = await _repositoryManager.RoleRepository.GetRoleByIdAsync(projectId, roleId, trackChanges);
 
             if (roleEntity == null)
             {
@@ -113,7 +113,7 @@ namespace Service
                 throw new IncorrectRoleForbiddenRequestException();
             }
 
-            var role = await _repositoryManager.RoleRepository.GetRoleByIdAsync(roleId, trackChanges);
+            var role = await _repositoryManager.RoleRepository.GetRoleByIdAsync(projectId, roleId, trackChanges);
 
             if (role == null)
             {

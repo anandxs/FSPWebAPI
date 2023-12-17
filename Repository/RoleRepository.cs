@@ -16,9 +16,9 @@ namespace Repository
                     .ToListAsync();
         }
 
-        public async Task<Role> GetRoleByIdAsync(Guid roleId, bool trackChanges)
+        public async Task<Role> GetRoleByIdAsync(Guid projectId, Guid roleId, bool trackChanges)
         {
-            return await FindByCondition(r => r.RoleId.Equals(roleId), trackChanges)
+            return await FindByCondition(r => r.ProjectId.Equals(projectId) && r.RoleId.Equals(roleId), trackChanges)
                         .SingleOrDefaultAsync();
         }
 
