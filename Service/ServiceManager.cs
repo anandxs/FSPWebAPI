@@ -41,9 +41,9 @@ namespace Service
             _tagService = new Lazy<ITagService>(() => new TagService(repositoryManager, logger, mapper, contextAccessor));
             _taskService = new Lazy<ITaskService>(() => new TaskService(repositoryManager, logger, mapper, contextAccessor));
             _commentService = new Lazy<ICommentService>(() => new CommentService(repositoryManager, logger, mapper, contextAccessor));
-            _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(logger, mapper, userManager, jwtConfiguration, emailService, clientConfiguration, adminConfiguration));
+            _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(repositoryManager, logger, mapper, userManager, emailService, jwtConfiguration, clientConfiguration, adminConfiguration));
             _userService = new Lazy<IUserService>(() => new UserService(logger, mapper, userManager, emailService, repositoryManager));
-            _memberService = new Lazy<IMemberService>(() => new MemberService(repositoryManager, logger, mapper, userManager, emailService));
+            _memberService = new Lazy<IMemberService>(() => new MemberService(repositoryManager, logger, mapper, userManager, emailService, clientConfiguration));
         }
 
         public IProjectService ProjectService => _projectService.Value;

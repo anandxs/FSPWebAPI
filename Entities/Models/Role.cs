@@ -15,5 +15,7 @@ namespace Entities.Models
         [Required(ErrorMessage = "Role name is a required field.")]
         [MaxLength(256, ErrorMessage = "Maximum length of role name is 256 characters.")]
         public string? Name { get; set; }
+
+        public ICollection<UserInvite> UserInvites { get; set; }
     }
 }
