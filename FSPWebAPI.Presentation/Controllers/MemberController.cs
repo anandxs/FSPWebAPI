@@ -44,9 +44,22 @@ namespace FSPWebAPI.Presentation.Controllers
         {
             var requesterId = GetRequesterId();
 
-            await _service.MemberService.AddMemberAsync(projectId, requesterId, memberDto, false);
+            var result = await _service.MemberService.AddMemberAsync(projectId, requesterId, memberDto, false);
 
-            return NoContent();
+            return Ok(new { message = result });
+        }
+
+        [HttpPost("accept")]
+        public async Task<IActionResult> AcceptInvite(Guid projectId)
+        {
+            var requesterId = GetRequesterId();
+
+            var result = await _service.MemberService.AcceptInviteAsync(projectId, requesterId);
+
+            if (result)
+                return Ok(new { message = "Successfully joined project"});
+
+            return BadRequest(new { message = "Invalid invitation link."});
         }
 
         [HttpPut]
