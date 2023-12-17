@@ -26,6 +26,12 @@ namespace Repository
                 .WithMany(p => p.Tasks)
                 .HasForeignKey(t => t.ProjectId)
                 .OnDelete(DeleteBehavior.NoAction);
+
+            modelBuilder.Entity<UserInvite>()
+                .HasOne(u => u.Role)
+                .WithMany(r => r.UserInvites)
+                .HasForeignKey(u => u.RoleId)
+                .OnDelete(DeleteBehavior.NoAction);
         }
 
         public DbSet<Project>? Projects { get; set; }

@@ -10,6 +10,7 @@
         ITaskRepository TaskRepository { get; }
         ICommentRepository CommentRepository { get; }
         IProjectMemberRepository ProjectMemberRepository { get; }
+        IUserInviteRepository UserInviteRepository { get; }
         IUserRepository UserRepository { get; }
         Task SaveAsync();
     }

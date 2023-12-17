@@ -13,6 +13,7 @@ namespace Repository
         private readonly Lazy<ITaskRepository> _taskRepository;
         private readonly Lazy<ICommentRepository> _commentRepository;
         private readonly Lazy<IProjectMemberRepository> _projectMemberRepository;
+        private readonly Lazy<IUserInviteRepository> _userInviteRepository;
         private readonly Lazy<IUserRepository> _userRepository;
 
         public RepositoryManager(RepositoryContext repositoryContext)
@@ -26,6 +27,7 @@ namespace Repository
             _taskRepository = new Lazy<ITaskRepository>(() => new TaskRepository(repositoryContext));   
             _commentRepository = new Lazy<ICommentRepository>(() => new CommentRepository(repositoryContext));
             _projectMemberRepository = new Lazy<IProjectMemberRepository>(() => new ProjectMemberRepository(repositoryContext));
+            _userInviteRepository = new Lazy<IUserInviteRepository>(() => new UserInviteRepository(repositoryContext));
             _userRepository = new Lazy<IUserRepository>(() => new UserRepository(repositoryContext));
         }
 
@@ -37,6 +39,7 @@ namespace Repository
         public ITaskRepository TaskRepository => _taskRepository.Value;
         public ICommentRepository CommentRepository => _commentRepository.Value;
         public IProjectMemberRepository ProjectMemberRepository => _projectMemberRepository.Value;
+        public IUserInviteRepository UserInviteRepository => _userInviteRepository.Value;
         public IUserRepository UserRepository => _userRepository.Value;
 
         public async Task SaveAsync() => await _repositoryContext.SaveChangesAsync();

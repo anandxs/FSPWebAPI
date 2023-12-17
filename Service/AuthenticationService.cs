@@ -21,28 +21,31 @@ namespace Service
 {
     public class AuthenticationService : IAuthenticationService
     {
+        private readonly IRepositoryManager _repositoryManager;
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
-        private readonly IOptions<JwtConfiguration> _jwtOptions;
-        private readonly JwtConfiguration _jwtConfiguration;
         private readonly IEmailService _emailService;
+        private readonly IOptions<JwtConfiguration> _jwtOptions;
         private readonly IOptions<ClientConfiguration> _clientOptions;
-        private readonly ClientConfiguration _clientConfiguration;
         private readonly IOptions<SuperAdminConfiguration> _adminOptions;
+        private readonly JwtConfiguration _jwtConfiguration;
+        private readonly ClientConfiguration _clientConfiguration;
         private readonly SuperAdminConfiguration _adminConfiguration;
 
         private User? _user;
 
         public AuthenticationService(
+            IRepositoryManager repositoryManager,
             ILoggerManager logger,
             IMapper mapper,
             UserManager<User> userManager,
-            IOptions<JwtConfiguration> jwtOptions,
             IEmailService emailService,
+            IOptions<JwtConfiguration> jwtOptions,
             IOptions<ClientConfiguration> clientOptions,
             IOptions<SuperAdminConfiguration> adminOptions)
         {
+            _repositoryManager = repositoryManager;
             _logger = logger;
             _mapper = mapper;
             _userManager = userManager;
