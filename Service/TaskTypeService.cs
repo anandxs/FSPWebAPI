@@ -81,13 +81,6 @@ namespace Service
                 throw new IncorrectRoleForbiddenRequestException();
             }
 
-            var project = requester.Project;
-
-            if (project is null)
-            {
-                throw new ProjectNotFoundException(projectId);
-            }
-
             var type = _mapper.Map<TaskType>(taskTypeForCreation);
 
             _repositoryManager.TaskTypeRepository.CreateTaskType(type, projectId);
