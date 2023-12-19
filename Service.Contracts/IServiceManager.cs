@@ -12,5 +12,6 @@
         IAuthenticationService AuthenticationService { get; }
         IUserService UserService { get; }
         IMemberService MemberService { get; }
+        IStatsService StatsService { get; }
     }
 }

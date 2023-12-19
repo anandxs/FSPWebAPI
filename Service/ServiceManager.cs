@@ -22,6 +22,7 @@ namespace Service
         private readonly Lazy<IAuthenticationService> _authenticationService;
         private readonly Lazy<IUserService> _userService;
         private readonly Lazy<IMemberService> _memberService;
+        private readonly Lazy<IStatsService> _statsService;
 
         public ServiceManager(
             IRepositoryManager repositoryManager, 
@@ -44,6 +45,7 @@ namespace Service
             _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(repositoryManager, logger, mapper, userManager, emailService, jwtConfiguration, clientConfiguration, adminConfiguration));
             _userService = new Lazy<IUserService>(() => new UserService(logger, mapper, userManager, emailService, repositoryManager));
             _memberService = new Lazy<IMemberService>(() => new MemberService(repositoryManager, logger, mapper, userManager, emailService, clientConfiguration));
+            _statsService = new Lazy<IStatsService>(() => new StatsService(repositoryManager, logger, mapper, contextAccessor));
         }
 
         public IProjectService ProjectService => _projectService.Value;
@@ -56,5 +58,6 @@ namespace Service
         public IAuthenticationService AuthenticationService => _authenticationService.Value;
         public IUserService UserService => _userService.Value;
         public IMemberService MemberService => _memberService.Value;
+        public IStatsService StatsService => _statsService.Value;
     }
 }
