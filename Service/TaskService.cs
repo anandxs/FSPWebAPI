@@ -107,6 +107,8 @@ namespace Service
                 throw new TaskTypeNotFoundException(task.TypeId);
             }
 
+            task.ProjectId = projectId;
+
             _repositoryManager.TaskRepository.CreateTask(task);
             await _repositoryManager.SaveAsync();
 
