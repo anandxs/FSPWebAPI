@@ -13,12 +13,18 @@ namespace Repository
         public async Task<IEnumerable<ProjectTask>> GetAllTasksForProjectAsync(Guid projectId, bool trackChanges)
         {
             return await FindByCondition(t => t.ProjectId.Equals(projectId), trackChanges)
+                        .Include(t => t.Stage)
+                        .Include(t => t.Type)
+                        .Include(t => t.Assignee)
                         .ToListAsync();
         }
 
         public async Task<ProjectTask> GetTaskByIdAsync(Guid taskId, bool trackChanges)
         {
             return await FindByCondition(t => t.TaskId.Equals(taskId), trackChanges)
+                        .Include(t => t.Stage)
+                        .Include(t => t.Type)
+                        .Include(t => t.Assignee)
                         .SingleOrDefaultAsync();
         }
 
