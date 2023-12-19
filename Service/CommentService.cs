@@ -49,13 +49,11 @@ namespace Service
 
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
 
+            var task = await _repositoryManager.TaskRepository.GetTaskByIdAsync(taskId, trackChanges);
+
             if (requester is null)
             {
                 throw new NotAProjectMemberForbiddenRequestException();
-            }
-            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
-            {
-                throw new IncorrectPasswordBadRequestException();
             }
 
             var comment = _mapper.Map<TaskComment>(commentDto);
