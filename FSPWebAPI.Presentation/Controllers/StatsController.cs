@@ -24,5 +24,13 @@ namespace FSPWebAPI.Presentation.Controllers
 
             return Ok(data);
         }
+
+        [HttpGet("taskspertype")]
+        public async Task<IActionResult> GetTasksPerType(Guid projectId)
+        {
+            var data = await _service.StatsService.GetTasksPerTypeAsync(projectId, false);
+
+            return Ok(data);
+        }
     }
 }

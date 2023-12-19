@@ -1,6 +1,7 @@
 ﻿using AutoMapper;
 using Contracts;
 using Entities.Exceptions;
+using Entities.Models;
 using Microsoft.AspNetCore.Http;
 using Service.Contracts;
 using Shared;
@@ -54,6 +55,38 @@ namespace Service
             }
 
             return tasksPerStageDtos;
+        }
+
+        public async Task<IEnumerable<TasksPerTypeDto>> GetTasksPerTypeAsync(Guid projectId, bool trackChanges)
+        {
+            var requesterId = GetRequesterId();
+
+            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+
+            if (requester is null)
+            {
+                throw new NotAProjectMemberForbiddenRequestException();
+            }
+            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
+            }
+
+            var types = await _repositoryManager.TaskTypeRepository.GetAllTaskTypesForProjectAsync(projectId, trackChanges);
+            var tasks = await _repositoryManager.TaskRepository.GetAllTasksForProjectAsync(projectId, trackChanges);
+
+            var tasksPerTypeDto = new List<TasksPerTypeDto>();
+
+            foreach (var type in types)
+            {
+                tasksPerTypeDto.Add(new TasksPerTypeDto
+                {
+                    Type = type.Name,
+                    Count = tasks.Where(t => t.TypeId.Equals(type.TypeId)).Count(),
+                });
+            }
+
+            return tasksPerTypeDto;
         }
 
         private string GetRequesterId()
