@@ -41,6 +41,7 @@ namespace Repository
         public DbSet<Tag>? Tags { get; set; }
         public DbSet<ProjectTask>? Tasks { get; set; }
         public DbSet<TaskComment>? Comments { get; set; }
+        public DbSet<Attachment>? Attachments { get; set; }
         public DbSet<ProjectMember>? ProjectMembers { get; set; }
         public DbSet<UserInvite>? UserInvites { get; set; }
     }
