@@ -76,6 +76,7 @@ namespace Service
             }
 
             var newMember = await _userManager.FindByEmailAsync(memberDto.Email);
+            var project = await _repositoryManager.ProjectRepository.GetProjectByIdAsync(projectId, false);
 
             if (newMember == null)
             {
@@ -96,7 +97,7 @@ namespace Service
                 await _repositoryManager.SaveAsync();
                 
                 string subject = "Project Invite";
-                string message = $"<p>You have been invited to join the {requester.Project.Name} project by {requester.User.FirstName} {requester.User.LastName}.</p><p>Register your acccount <a href=\"{_clientConfig.Url}/register\">here</a></p><p>Click <a href=\"{_clientConfig.Url}/acceptinvite?projectId={projectId}&\">here</a> to accept your invitation</p>";
+                string message = $"<p>You have been invited to join the {project.Name} project by {requester.User.FirstName} {requester.User.LastName}.</p><p>Register your acccount <a href=\"{_clientConfig.Url}/register\">here</a></p><p>Click <a href=\"{_clientConfig.Url}/acceptinvite?projectId={projectId}&\">here</a> to accept your invitation</p>";
                 await _emailService.SendAsync(memberDto.Email, subject, message, true);
 
                 return $"Successfully invited user to the project.";
@@ -119,7 +120,7 @@ namespace Service
                 await _repositoryManager.SaveAsync();
 
                 string subject = "Added To Project";
-                string message = $"<p>You have been added to the {requester.Project.Name} project by {requester.User.FirstName} {requester.User.LastName}.</p>";
+                string message = $"<p>You have been added to the {project.Name} project by {requester.User.FirstName} {requester.User.LastName}.</p>";
                 await _emailService.SendAsync(memberDto.Email, subject, message, true);
 
                 return $"Successfully added user to the project.";
@@ -219,13 +220,14 @@ namespace Service
             }
 
             var member = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, memberId, false);
+            var project = await _repositoryManager.ProjectRepository.GetProjectByIdAsync(projectId, trackChanges);
 
             if (member == null)
             {
                 throw new MemberNotFoundException(memberId);
             }
 
-            if (memberId.Equals(member.Project.OwnerId))
+            if (memberId.Equals(project.OwnerId))
             {
                 throw new OwnerCannotBeRemovedBadRequestException();
             }

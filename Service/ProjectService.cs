@@ -130,6 +130,10 @@ namespace Service
             {
                 throw new IncorrectRoleForbiddenRequestException();
             }
+            else if (entity.Project.OwnerId != requesterId)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
+            }
 
             _repositoryManager.ProjectRepository.DeleteProject(entity.Project);
             await _repositoryManager.SaveAsync();

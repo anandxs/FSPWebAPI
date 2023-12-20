@@ -127,9 +127,10 @@ namespace Service
             {
                 throw new NotAProjectMemberForbiddenRequestException();
             }
-            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
+
+            if (requester.Role.Name != Constants.GLOBAL_ROLE_SUPERADMIN && taskForUpdateDto.AssigneeId != null)
             {
-                throw new IncorrectPasswordBadRequestException();
+                throw new IncorrectRoleForbiddenRequestException();
             }
 
             var task = await _repositoryManager.TaskRepository.GetTaskByIdAsync(taskId, trackChanges);
@@ -137,6 +138,11 @@ namespace Service
             if (task == null)
             {
                 throw new TaskNotFoundException(taskId);
+            }
+
+            if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN && requester.User.Id != task.AssigneeId)
+            {
+                throw new IncorrectRoleForbiddenRequestException();
             }
 
             _mapper.Map(taskForUpdateDto, task);
