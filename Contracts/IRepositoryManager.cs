@@ -9,6 +9,7 @@
         ITagRepository TagRepository { get; }
         ITaskRepository TaskRepository { get; }
         ICommentRepository CommentRepository { get; }
+        IAttachmentRepository AttachmentRepository { get; }
         IProjectMemberRepository ProjectMemberRepository { get; }
         IUserInviteRepository UserInviteRepository { get; }
         IUserRepository UserRepository { get; }
