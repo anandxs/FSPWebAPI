@@ -143,6 +143,13 @@ namespace Service
                 return false;
             }
 
+            var existingMember = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
+
+            if (existingMember != null)
+            {
+                return true;
+            }
+
             _repositoryManager.ProjectMemberRepository.AddProjectMember(new ProjectMember
             {
                 ProjectId = projectId,
