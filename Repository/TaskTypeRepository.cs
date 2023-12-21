@@ -22,6 +22,12 @@ namespace Repository
                         .SingleOrDefaultAsync();
         }
 
+        public async Task<TaskType> GetTaskTypeByNameAsync(Guid projectId, string name, bool trackChanges)
+        {
+            return await FindByCondition(t => t.ProjectId.Equals(projectId) && t.Name.Equals(name), trackChanges)
+                        .SingleOrDefaultAsync();
+        }
+
         public void CreateTaskType(TaskType taskType, Guid projectId)
         {
             taskType.ProjectId = projectId;

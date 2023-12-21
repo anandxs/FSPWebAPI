@@ -81,6 +81,13 @@ namespace Service
                 throw new IncorrectRoleForbiddenRequestException();
             }
 
+            var existingType = await _repositoryManager.TaskTypeRepository.GetTaskTypeByNameAsync(projectId, taskTypeForCreation.Name, false);
+
+            if (existingType != null)
+            {
+                throw new DuplicateEntryBadRequest();
+            }
+
             var type = _mapper.Map<TaskType>(taskTypeForCreation);
 
             _repositoryManager.TaskTypeRepository.CreateTaskType(type, projectId);
@@ -100,6 +107,13 @@ namespace Service
             if (requester is null)
             {
                 throw new NotAProjectMemberForbiddenRequestException();
+            }
+
+            var existingType = await _repositoryManager.TaskTypeRepository.GetTaskTypeByNameAsync(projectId, taskTypeForUpdateDto.Name, false);
+
+            if (existingType != null)
+            {
+                throw new DuplicateEntryBadRequest();
             }
 
             var type = await _repositoryManager.TaskTypeRepository.GetTaskTypeByIdAsync(projectId, typeId, trackChanges);
