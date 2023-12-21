@@ -80,6 +80,13 @@ namespace Service
                 throw new ProjectNotFoundException(projectId);
             }
 
+            var existingStage = await _repositoryManager.StageRepository.GetStageByNameAsync(projectId, stageForCreation.Name, false);
+
+            if (existingStage != null)
+            {
+                throw new DuplicateEntryBadRequest();
+            }
+
             var stage = _mapper.Map<Stage>(stageForCreation);
 
             _repositoryManager.StageRepository.CreateStage(stage, projectId);
@@ -100,6 +107,13 @@ namespace Service
             else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
             {
                 throw new IncorrectRoleForbiddenRequestException();
+            }
+
+            var existingStage = await _repositoryManager.StageRepository.GetStageByNameAsync(projectId, stageForUpdateDto.Name, false);
+
+            if (existingStage != null)
+            {
+                throw new DuplicateEntryBadRequest();
             }
 
             var stage = await _repositoryManager.StageRepository.GetStageByIdAsync(projectId, stageId, trackChanges);
