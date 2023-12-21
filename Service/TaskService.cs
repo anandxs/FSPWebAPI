@@ -128,7 +128,7 @@ namespace Service
                 throw new NotAProjectMemberForbiddenRequestException();
             }
 
-            if (requester.Role.Name != Constants.GLOBAL_ROLE_SUPERADMIN && taskForUpdateDto.AssigneeId != null)
+            if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN && taskForUpdateDto.AssigneeId == null)
             {
                 throw new IncorrectRoleForbiddenRequestException();
             }

@@ -87,6 +87,11 @@ namespace Service
                 throw new EmailNotConfirmedUnauthorizedException(_user.Email);
             }
 
+            if (_user == null)
+            {
+                return false;
+            }
+
             var result = (await _userManager.CheckPasswordAsync(_user, userForAuth.Password));
             if (!result)
             {

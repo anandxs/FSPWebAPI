@@ -73,7 +73,7 @@ namespace Service
                 throw new IncorrectRoleForbiddenRequestException();
             }
 
-            var project = requester.Project;
+            var project = await _repositoryManager.ProjectRepository.GetProjectByIdAsync(projectId, trackChanges);
 
             if (project is null)
             {
