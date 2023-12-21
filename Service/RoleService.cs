@@ -87,6 +87,13 @@ namespace Service
                 throw new IncorrectRoleForbiddenRequestException();
             }
 
+            var existingRole = await _repositoryManager.RoleRepository.GetRoleByNameAsync(projectId, role.Name, trackChanges);
+
+            if (existingRole != null)
+            {
+                throw new DuplicateEntryBadRequest();
+            }
+
             var roleEntity = await _repositoryManager.RoleRepository.GetRoleByIdAsync(projectId, roleId, trackChanges);
 
             if (roleEntity == null)
