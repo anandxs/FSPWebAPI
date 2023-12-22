@@ -22,6 +22,12 @@ namespace Repository
                     .SingleOrDefaultAsync();
         }
 
+        public async Task<Stage> GetStageByNameAsync(Guid projectId, string name, bool trackChanges)
+        {
+            return await FindByCondition(s => s.ProjectId.Equals(projectId) && s.Name.Equals(name), trackChanges)
+                    .SingleOrDefaultAsync();
+        }
+
         public void CreateStage(Stage group, Guid projectId)
         {
             group.ProjectId = projectId;

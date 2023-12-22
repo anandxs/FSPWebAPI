@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FSPWebAPI.Presentation.ActionFilters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared;
@@ -27,6 +28,7 @@ namespace FSPWebAPI.Presentation.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> AddCommentToTask(Guid projectId, Guid taskId, [FromBody] TaskCommentForCreationDto commentDto)
         {
             await _service.CommentService.AddCommentToTaskAsync(projectId, taskId, commentDto, false);
