@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FSPWebAPI.Presentation.ActionFilters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared;
@@ -27,6 +28,7 @@ namespace FSPWebAPI.Presentation.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateRole(Guid projectId, [FromBody] RoleForCreationDto roleDto)
         {
             await _service.RoleService.CreateRoleAsync(projectId, roleDto, false);
@@ -35,6 +37,7 @@ namespace FSPWebAPI.Presentation.Controllers
         }
 
         [HttpPut("{roleId:guid}")]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateRole(Guid projectId, Guid roleId, [FromBody] RoleForUpdateDto roleDto)
         {
             await _service.RoleService.UpdateRoleAsync(projectId, roleId, roleDto,true);

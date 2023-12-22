@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using FSPWebAPI.Presentation.ActionFilters;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
 using Shared;
@@ -40,6 +41,7 @@ namespace FSPWebAPI.Presentation.Controllers
         }
 
         [HttpPost]
+        [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> AddMember(Guid projectId, [FromBody] MemberForCreationDto memberDto)
         {
             var requesterId = GetRequesterId();
