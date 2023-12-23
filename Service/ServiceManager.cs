@@ -19,6 +19,7 @@ namespace Service
         private readonly Lazy<ITagService> _tagService;
         private readonly Lazy<ITaskService> _taskService;
         private readonly Lazy<ICommentService> _commentService;
+        private readonly Lazy<IAttachmentService> _attachmentService;
         private readonly Lazy<IAuthenticationService> _authenticationService;
         private readonly Lazy<IUserService> _userService;
         private readonly Lazy<IMemberService> _memberService;
@@ -42,6 +43,7 @@ namespace Service
             _tagService = new Lazy<ITagService>(() => new TagService(repositoryManager, logger, mapper, contextAccessor));
             _taskService = new Lazy<ITaskService>(() => new TaskService(repositoryManager, logger, mapper, contextAccessor));
             _commentService = new Lazy<ICommentService>(() => new CommentService(repositoryManager, logger, mapper, contextAccessor));
+            _attachmentService = new Lazy<IAttachmentService>(() => new AttachmentService(repositoryManager, logger, mapper, contextAccessor));
             _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(repositoryManager, logger, mapper, userManager, emailService, jwtConfiguration, clientConfiguration, adminConfiguration));
             _userService = new Lazy<IUserService>(() => new UserService(logger, mapper, userManager, emailService, repositoryManager));
             _memberService = new Lazy<IMemberService>(() => new MemberService(repositoryManager, logger, mapper, userManager, emailService, clientConfiguration));
@@ -55,9 +57,11 @@ namespace Service
         public ITagService TagService => _tagService.Value;
         public ITaskService TaskService => _taskService.Value;
         public ICommentService CommentService => _commentService.Value;
+        public IAttachmentService AttachmentService => _attachmentService.Value;
         public IAuthenticationService AuthenticationService => _authenticationService.Value;
         public IUserService UserService => _userService.Value;
         public IMemberService MemberService => _memberService.Value;
         public IStatsService StatsService => _statsService.Value;
+
     }
 }
