@@ -12,7 +12,7 @@ using Repository;
 namespace FSPWebAPI.Migrations
 {
     [DbContext(typeof(RepositoryContext))]
-    [Migration("20231220011455_AddAttachmentsTable")]
+    [Migration("20231223011438_AddAttachmentsTable")]
     partial class AddAttachmentsTable
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
