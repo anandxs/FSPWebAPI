@@ -1,6 +1,7 @@
 using CompanyEmployees.Extensions;
 using Contracts;
 using FSPWebAPI.Extensions;
+using FSPWebAPI.Hubs;
 using FSPWebAPI.Presentation.ActionFilters;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
@@ -33,6 +34,7 @@ builder.Services.AddClientConfiguration(builder.Configuration);
 builder.Services.AddSuperAdminConfiguration(builder.Configuration);
 builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 builder.Services.AddHttpContextAccessor();
+builder.Services.AddSignalR();
 
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(FSPWebAPI.Presentation.AssemblyReference).Assembly);
@@ -61,6 +63,7 @@ SeedDatabase();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+app.MapHub<ChatHub>("/chat");
 app.Run();
 
 void SeedDatabase()

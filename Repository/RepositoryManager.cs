@@ -16,6 +16,7 @@ namespace Repository
         private readonly Lazy<IProjectMemberRepository> _projectMemberRepository;
         private readonly Lazy<IUserInviteRepository> _userInviteRepository;
         private readonly Lazy<IUserRepository> _userRepository;
+        private readonly Lazy<IChatRepository> _chatRepository;
 
         public RepositoryManager(RepositoryContext repositoryContext)
         {
@@ -31,6 +32,7 @@ namespace Repository
             _projectMemberRepository = new Lazy<IProjectMemberRepository>(() => new ProjectMemberRepository(repositoryContext));
             _userInviteRepository = new Lazy<IUserInviteRepository>(() => new UserInviteRepository(repositoryContext));
             _userRepository = new Lazy<IUserRepository>(() => new UserRepository(repositoryContext));
+            _chatRepository = new Lazy<IChatRepository>(() => new ChatRepository(repositoryContext));
         }
 
         public IProjectRepository ProjectRepository => _projectRepository.Value;
@@ -44,6 +46,7 @@ namespace Repository
         public IProjectMemberRepository ProjectMemberRepository => _projectMemberRepository.Value;
         public IUserInviteRepository UserInviteRepository => _userInviteRepository.Value;
         public IUserRepository UserRepository => _userRepository.Value;
+        public IChatRepository ChatRepository => _chatRepository.Value;
 
         public async Task SaveAsync() => await _repositoryContext.SaveChangesAsync();
     }

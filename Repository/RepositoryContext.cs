@@ -44,5 +44,6 @@ namespace Repository
         public DbSet<Attachment>? Attachments { get; set; }
         public DbSet<ProjectMember>? ProjectMembers { get; set; }
         public DbSet<UserInvite>? UserInvites { get; set; }
+        public DbSet<ChatMessage>? ChatMessages { get; set; }
     }
 }
