@@ -1,6 +1,5 @@
 using CompanyEmployees.Extensions;
 using Contracts;
-using FSPWebAPI;
 using FSPWebAPI.Extensions;
 using FSPWebAPI.Hubs;
 using FSPWebAPI.Presentation.ActionFilters;
@@ -35,7 +34,6 @@ builder.Services.AddClientConfiguration(builder.Configuration);
 builder.Services.AddSuperAdminConfiguration(builder.Configuration);
 builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 builder.Services.AddHttpContextAccessor();
-builder.Services.AddSingleton<ChatRegisry>();
 builder.Services.AddSignalR();
 
 builder.Services.AddControllers()

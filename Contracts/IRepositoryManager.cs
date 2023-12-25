@@ -13,6 +13,7 @@
         IProjectMemberRepository ProjectMemberRepository { get; }
         IUserInviteRepository UserInviteRepository { get; }
         IUserRepository UserRepository { get; }
+        IChatRepository ChatRepository { get; }
         Task SaveAsync();
     }
 }

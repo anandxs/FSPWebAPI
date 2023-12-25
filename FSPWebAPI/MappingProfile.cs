@@ -37,6 +37,7 @@ namespace FSPWebAPI
             CreateMap<TaskComment,  TaskCommentDto>();
             CreateMap<TaskCommentForCreationDto, TaskComment>();
             CreateMap<Attachment, AttachmentDto>();
+            CreateMap<ChatMessage, ChatMessageDto>();
         }
     }
 }

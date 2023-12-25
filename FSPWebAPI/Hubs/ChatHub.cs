@@ -1,5 +1,9 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AutoMapper;
+using Contracts;
+using Entities.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Shared.DataTransferObjects;
 using System.Security.Claims;
 
 namespace FSPWebAPI.Hubs
@@ -7,27 +11,32 @@ namespace FSPWebAPI.Hubs
     [Authorize]
     public class ChatHub : Hub
     {
-        private readonly ChatRegisry _chatRegistry;
+        private readonly IRepositoryManager _repositoryManager;
+        private readonly IMapper _mapper;
 
-        public ChatHub(ChatRegisry chatRegisry)
+        public ChatHub(IRepositoryManager repositoryManager, IMapper mapper)
         {
-            _chatRegistry = chatRegisry;
+            _repositoryManager = repositoryManager;
+            _mapper = mapper;
         }
 
-        public async Task<List<UserMessage>> JoinGroup(string groupName)
+        public async Task<IEnumerable<ChatMessageDto>> JoinGroup(string groupName)
         {
             await Groups.AddToGroupAsync(Context.ConnectionId, groupName);
 
-            return _chatRegistry.GetMessages(groupName).OrderBy(x => x.SendAt).ToList();
+            var messages = await _repositoryManager.ChatRepository.GetAllMessagesForProjectAsync(Guid.Parse(groupName), false);
+            var messagesDto = _mapper.Map<List<ChatMessageDto>>(messages);
+
+            return messagesDto.OrderBy(x => x.SentAt);
         }
 
-        public async Task LeaveGroup(string groupName)
+        public async Task SendMessage(string groupName, string senderName, string message)
         {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, groupName);
-        }
+            if (message == "")
+            {
+                return;
+            }
 
-        public async Task SendMessage(string groupName, string message)
-        {
             var claims = Context.User.Claims;
             var user = new
             {
@@ -36,8 +45,24 @@ namespace FSPWebAPI.Hubs
                 name = claims.FirstOrDefault(x => x.Type.Equals(ClaimTypes.Email)).Value,
             };
 
-            _chatRegistry.AddMessage(groupName, new UserMessage(user.name, message, groupName, DateTimeOffset.Now));
-            await Clients.Group(groupName).SendAsync("groupMessage", user, message);
+            var chatMessage = new ChatMessage
+            {
+                Message = message,
+                ProjectId = Guid.Parse(groupName),
+                SenderId = user.userId,
+                SentAt = DateTime.Now,
+            };
+            _repositoryManager.ChatRepository.AddMessage(chatMessage);
+            await _repositoryManager.SaveAsync();
+
+            var nameArray = senderName.Split(' ');
+            chatMessage.Sender = new();
+            chatMessage.Sender.FirstName = nameArray[0];
+            chatMessage.Sender.LastName = nameArray[1];
+
+            var messageDto = _mapper.Map<ChatMessageDto>(chatMessage);
+
+            await Clients.Group(groupName).SendAsync("groupMessage", messageDto);
         }
     }
 }
