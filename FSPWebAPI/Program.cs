@@ -1,3 +1,4 @@
+using Azure.Storage.Blobs;
 using CompanyEmployees.Extensions;
 using Contracts;
 using FSPWebAPI.Extensions;
@@ -35,6 +36,7 @@ builder.Services.AddSuperAdminConfiguration(builder.Configuration);
 builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSignalR();
+builder.Services.ConfigureAzureBlobStorage();
 
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(FSPWebAPI.Presentation.AssemblyReference).Assembly);
