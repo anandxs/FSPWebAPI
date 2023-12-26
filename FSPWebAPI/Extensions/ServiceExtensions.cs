@@ -1,4 +1,5 @@
-﻿using Contracts;
+﻿using Azure.Storage.Blobs;
+using Contracts;
 using Entities.ConfigurationModels;
 using Entities.Models;
 using LoggerService;
@@ -185,6 +186,12 @@ namespace FSPWebAPI.Extensions
             {
                 config.UseMailKit(configuration.GetSection("Email").Get<MailKitOptions>());
             });
+        }
+
+        public static void ConfigureAzureBlobStorage(this IServiceCollection services)
+        {
+            var connectionString = Environment.GetEnvironmentVariable("AZURE_STORAGE_CONNECTION_STRING");
+            services.AddSingleton(x => new BlobServiceClient(connectionString));
         }
     }
 }

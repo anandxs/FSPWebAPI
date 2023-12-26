@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Azure.Storage.Blobs;
 using Contracts;
 using Entities.ConfigurationModels;
 using Entities.Models;
@@ -34,7 +35,8 @@ namespace Service
             IOptions<ClientConfiguration> clientConfiguration,
             IOptions<SuperAdminConfiguration> adminConfiguration,
             IEmailService emailService,
-            IHttpContextAccessor contextAccessor)
+            IHttpContextAccessor contextAccessor,
+            BlobServiceClient blobServiceClient)
         {
             _projectService = new Lazy<IProjectService>(() => new ProjectService(repositoryManager, logger, mapper, userManager));
             _roleService = new Lazy<IRoleService>(() => new RoleService(repositoryManager, logger, mapper, contextAccessor));
@@ -43,7 +45,7 @@ namespace Service
             _tagService = new Lazy<ITagService>(() => new TagService(repositoryManager, logger, mapper, contextAccessor));
             _taskService = new Lazy<ITaskService>(() => new TaskService(repositoryManager, logger, mapper, contextAccessor));
             _commentService = new Lazy<ICommentService>(() => new CommentService(repositoryManager, logger, mapper, contextAccessor));
-            _attachmentService = new Lazy<IAttachmentService>(() => new AttachmentService(repositoryManager, logger, mapper, contextAccessor));
+            _attachmentService = new Lazy<IAttachmentService>(() => new AttachmentService(repositoryManager, logger, mapper, contextAccessor, blobServiceClient));
             _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(repositoryManager, logger, mapper, userManager, emailService, jwtConfiguration, clientConfiguration, adminConfiguration));
             _userService = new Lazy<IUserService>(() => new UserService(logger, mapper, userManager, emailService, repositoryManager));
             _memberService = new Lazy<IMemberService>(() => new MemberService(repositoryManager, logger, mapper, userManager, emailService, clientConfiguration));

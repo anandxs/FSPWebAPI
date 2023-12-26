@@ -1,10 +1,13 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Mvc;
 using Service.Contracts;
+using Shared;
 
 namespace FSPWebAPI.Presentation.Controllers
 {
     [ApiController]
     [Route("api/projects/{projectId:guid}/tasks/{taskId:guid}/attachments")]
+    [Authorize(Roles = Constants.GLOBAL_ROLE_USER)]
     public class AttachmentController : ControllerBase
     {
         private readonly IServiceManager _service;
@@ -25,9 +28,30 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpGet("{attachmentId:guid}")]
         public async Task<IActionResult> GetAttachmentById(Guid projectId, Guid taskId, Guid attachmentId)
         {
-            var result = await _service.AttachmentService.GetAttachmentByIdAsync(projectId, taskId, attachmentId, false);
+            var (stream, fileName) = await _service.AttachmentService.GetAttachmentByIdAsync(projectId, taskId, attachmentId, false);
+            
+            return File(stream, "application/octet-stream", fileName);
+        }
 
-            return Ok(result);
+        [HttpPost]
+        public async Task<IActionResult> UploadAttachment(Guid projectId, Guid taskId)
+        {
+            if (Request.Form.Files.Count() == 0)
+            {
+                return BadRequest(new {message = "File is required."});
+            }
+
+            await _service.AttachmentService.AddAttachmentAsync(projectId, taskId, false);
+
+            return NoContent();
+        }
+
+        [HttpDelete("{attachmentId:guid}")]
+        public async Task<IActionResult> DeleteAttachmentById(Guid projectId, Guid taskId, Guid attachmentId)
+        {
+            await _service.AttachmentService.DeleteAttachmentAsync(projectId, taskId, attachmentId, false);
+
+            return NoContent();
         }
     }
 }
