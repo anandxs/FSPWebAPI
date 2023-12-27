@@ -36,7 +36,8 @@ namespace Service
             IOptions<SuperAdminConfiguration> adminConfiguration,
             IEmailService emailService,
             IHttpContextAccessor contextAccessor,
-            BlobServiceClient blobServiceClient)
+            BlobServiceClient blobServiceClient,
+            ITokenManager tokenManager)
         {
             _projectService = new Lazy<IProjectService>(() => new ProjectService(repositoryManager, logger, mapper, userManager));
             _roleService = new Lazy<IRoleService>(() => new RoleService(repositoryManager, logger, mapper, contextAccessor));
@@ -47,7 +48,7 @@ namespace Service
             _commentService = new Lazy<ICommentService>(() => new CommentService(repositoryManager, logger, mapper, contextAccessor));
             _attachmentService = new Lazy<IAttachmentService>(() => new AttachmentService(repositoryManager, logger, mapper, contextAccessor, blobServiceClient));
             _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(repositoryManager, logger, mapper, userManager, emailService, jwtConfiguration, clientConfiguration, adminConfiguration));
-            _userService = new Lazy<IUserService>(() => new UserService(logger, mapper, userManager, emailService, repositoryManager));
+            _userService = new Lazy<IUserService>(() => new UserService(repositoryManager, logger, mapper, userManager, emailService, tokenManager));
             _memberService = new Lazy<IMemberService>(() => new MemberService(repositoryManager, logger, mapper, userManager, emailService, clientConfiguration));
             _statsService = new Lazy<IStatsService>(() => new StatsService(repositoryManager, logger, mapper, contextAccessor));
         }

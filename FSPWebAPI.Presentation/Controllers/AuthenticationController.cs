@@ -12,10 +12,12 @@ namespace FSPWebAPI.Presentation.Controllers
     public class AuthenticationController : ControllerBase
     {
         private readonly IServiceManager _service;
+        private readonly ITokenManager _tokenManager;
 
-        public AuthenticationController(IServiceManager service)
+        public AuthenticationController(IServiceManager service, ITokenManager tokenManager)
         {
             _service = service;
+            _tokenManager = tokenManager;
         }
 
         /// <summary>
@@ -82,6 +84,7 @@ namespace FSPWebAPI.Presentation.Controllers
             HttpContext.Response.Cookies.Delete("X-Refresh-Token");
 
             await _service.AuthenticationService.RevokeRefresh(new TokenDto(accessToken, refreshToken));
+            await _tokenManager.DeactivateCurrentAsync();
 
             return NoContent();
         }

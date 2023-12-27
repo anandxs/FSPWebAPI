@@ -100,7 +100,7 @@ namespace Service
 
             if (_user.IsBlocked)
             {
-                throw new BlockedUserForbiddenRequest();
+                throw new BlockedUserForbiddenException();
             }
 
             return result;
@@ -148,7 +148,7 @@ namespace Service
             var principal = GetPrincipalFromExpiredToken(tokenDto.AccessToken);
             var user = await _userManager.FindByEmailAsync(principal.FindFirst(ClaimTypes.Email).Value);
 
-            if (user == null || user.RefreshToken != tokenDto.RefreshToken || user.RefreshTokenExpiryTime <= DateTime.Now)
+            if (user == null || user.RefreshTokenExpiryTime <= DateTime.Now)
             {
                 throw new RefreshTokenBadRequestException();
             }

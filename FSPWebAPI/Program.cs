@@ -1,13 +1,15 @@
-using Azure.Storage.Blobs;
 using CompanyEmployees.Extensions;
 using Contracts;
 using FSPWebAPI.Extensions;
 using FSPWebAPI.Hubs;
+using FSPWebAPI.Middlewares;
 using FSPWebAPI.Presentation.ActionFilters;
 using Microsoft.AspNetCore.HttpOverrides;
 using Microsoft.AspNetCore.Mvc;
 using NLog;
 using Repository;
+using Service;
+using Service.Contracts;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -37,6 +39,14 @@ builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSignalR();
 builder.Services.ConfigureAzureBlobStorage();
+builder.Services.AddTransient<ITokenManager, TokenManager>();
+builder.Services.AddStackExchangeRedisCache(options =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("redis");
+    options.Configuration = connectionString;
+});
+builder.Services.AddTransient<TokenValidityCheckerMiddleware>();
+builder.Services.AddTransient<UserAccountStatusCheckMiddleware>();
 
 builder.Services.AddControllers()
     .AddApplicationPart(typeof(FSPWebAPI.Presentation.AssemblyReference).Assembly);
@@ -63,6 +73,8 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 app.UseCors("CorsPolicy");
 SeedDatabase();
 app.UseAuthentication();
+app.UseMiddleware<TokenValidityCheckerMiddleware>();
+app.UseMiddleware<UserAccountStatusCheckMiddleware>();
 app.UseAuthorization();
 app.MapControllers();
 app.MapHub<ChatHub>("/chat");
