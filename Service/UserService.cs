@@ -17,19 +17,22 @@ namespace Service
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
         private readonly IEmailService _emailService;
+        private readonly ITokenManager _tokenManager;
 
         public UserService(
+            IRepositoryManager repositoryManager,
             ILoggerManager logger,
             IMapper mapper,
             UserManager<User> userManager,
             IEmailService emailService,
-            IRepositoryManager repositoryManager)
+            ITokenManager tokenManager)
         {
-            _userManager = userManager;
+            _repositoryManager = repositoryManager;
             _logger = logger;
             _mapper = mapper;
+            _userManager = userManager;
             _emailService = emailService;
-            _repositoryManager = repositoryManager;
+            _tokenManager = tokenManager;
         }
 
         public async Task<IEnumerable<UserDto>> GetUsersAsync(bool trackChanges)
@@ -100,9 +103,19 @@ namespace Service
                 throw new CannotModifySuperAdminBadRequestException();
             }
 
+
             user.IsBlocked = !user.IsBlocked;
             user.RefreshToken = null;
             await _userManager.UpdateAsync(user);
+            
+            if (user.IsBlocked)
+            {
+                await _tokenManager.BlockUserAsync(userId);
+            }
+            else
+            {
+                await _tokenManager.UnBlockUserAsync(userId);
+            }
         }
 
         private async Task<User> GetUserAndCheckIfTheyExistAsync(string userId)
