@@ -106,19 +106,6 @@ namespace FSPWebAPI.Extensions
                         IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(secretKey)),
                         ClockSkew = TimeSpan.FromDays(30) 
                     };
-
-                    options.Events = new JwtBearerEvents()
-                    { 
-                        OnMessageReceived = context =>
-                        {
-                            if (context.Request.Cookies.ContainsKey("X-Access-Token"))
-                            {
-                                context.Token = context.Request.Cookies["X-Access-Token"];
-                            }
-
-                            return Task.CompletedTask;
-                        }
-                    };
                     
                 });
         }

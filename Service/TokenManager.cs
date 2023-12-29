@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Options;
+using Microsoft.Extensions.Primitives;
 using Service.Contracts;
 using System.Security.Claims;
 
@@ -42,12 +43,9 @@ namespace Service
 
         private string GetCurrentAsync()
         {
-            if (_contextAccesor.HttpContext.Request.Cookies.TryGetValue("X-Access-Token", out var accessToken))
-            {
-                return accessToken;
-            }
+            var authorizationHeader = _contextAccesor.HttpContext.Request.Headers["Authorization"];
 
-            return "";
+            return authorizationHeader == StringValues.Empty ? string.Empty : authorizationHeader.Single().Split(" ").Last();
         }
 
         private static string GetKey(string token)
