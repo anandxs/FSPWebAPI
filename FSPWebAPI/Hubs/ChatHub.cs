@@ -57,6 +57,7 @@ namespace FSPWebAPI.Hubs
 
             var nameArray = senderName.Split(' ');
             chatMessage.Sender = new();
+            chatMessage.Sender.Id = chatMessage.SenderId;
             chatMessage.Sender.FirstName = nameArray[0];
             chatMessage.Sender.LastName = nameArray[1];
 
