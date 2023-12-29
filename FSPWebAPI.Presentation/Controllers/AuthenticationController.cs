@@ -57,33 +57,14 @@ namespace FSPWebAPI.Presentation.Controllers
 
             var tokenDto = await _service.AuthenticationService.CreateToken(true);
 
-            var options = new CookieOptions
-            {
-                HttpOnly = true,
-                SameSite = SameSiteMode.None,
-                Expires = DateTimeOffset.Now.AddDays(1),
-                Secure = true,
-            };
-
-            HttpContext.Response.Cookies.Append("X-Access-Token", tokenDto.AccessToken, options);
-            HttpContext.Response.Cookies.Append("X-Refresh-Token", tokenDto.RefreshToken, options);
-
             return Ok(tokenDto);
         }
 
         [Authorize]
         [HttpDelete]
-        public async Task<IActionResult> Logout()
+        public async Task<IActionResult> Logout(TokenDto tokenDto)
         {
-            if (!(Request.Cookies.TryGetValue("X-Access-Token", out var accessToken) && Request.Cookies.TryGetValue("X-Refresh-Token", out var refreshToken)))
-            {
-                return BadRequest();
-            }
-
-            HttpContext.Response.Cookies.Delete("X-Access-Token");
-            HttpContext.Response.Cookies.Delete("X-Refresh-Token");
-
-            await _service.AuthenticationService.RevokeRefresh(new TokenDto(accessToken, refreshToken));
+            await _service.AuthenticationService.RevokeRefresh(tokenDto);
             await _tokenManager.DeactivateCurrentAsync();
 
             return NoContent();
