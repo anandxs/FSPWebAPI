@@ -1,8 +1,4 @@
-﻿using Contracts;
-using Entities.Models;
-using Microsoft.EntityFrameworkCore;
-
-namespace Repository
+﻿namespace Repository
 {
     public class CommentRepository : RepositoryBase<TaskComment>, ICommentRepository
     {
