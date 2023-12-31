@@ -73,9 +73,9 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 app.UseCors("CorsPolicy");
 SeedDatabase();
 app.UseAuthentication();
+app.UseAuthorization();
 app.UseMiddleware<TokenValidityCheckerMiddleware>();
 app.UseMiddleware<UserAccountStatusCheckMiddleware>();
-app.UseAuthorization();
 app.MapControllers();
 app.MapHub<ChatHub>("/chat");
 app.Run();
