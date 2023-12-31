@@ -1,9 +1,4 @@
-﻿using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Service.Contracts;
-using Shared.DataTransferObjects;
-
-namespace FSPWebAPI.Presentation.Controllers
+﻿namespace FSPWebAPI.Presentation.Controllers
 {
     [Route("api/token")]
     [ApiController]

@@ -1,6 +1,4 @@
-﻿using Shared.DataTransferObjects;
-
-namespace Service.Contracts
+﻿namespace Service.Contracts
 {
     public interface ITaskService
     {

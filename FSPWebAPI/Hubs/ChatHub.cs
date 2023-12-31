@@ -1,6 +1,4 @@
 ﻿using AutoMapper;
-using Contracts;
-using Entities.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
 using Shared.DataTransferObjects;

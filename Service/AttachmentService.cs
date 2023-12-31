@@ -1,13 +1,4 @@
-﻿using AutoMapper;
-using Azure.Storage.Blobs;
-using Contracts;
-using Entities.Exceptions;
-using Entities.Models;
-using Microsoft.AspNetCore.Http;
-using Service.Contracts;
-using Shared;
-using Shared.DataTransferObjects;
-using System.Security.Claims;
+﻿using Azure.Storage.Blobs;
 
 namespace Service
 {

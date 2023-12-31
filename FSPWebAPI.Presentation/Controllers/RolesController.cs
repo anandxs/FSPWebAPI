@@ -1,11 +1,4 @@
-﻿using FSPWebAPI.Presentation.ActionFilters;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Service.Contracts;
-using Shared;
-using Shared.DataTransferObjects;
-
-namespace FSPWebAPI.Presentation.Controllers
+﻿namespace FSPWebAPI.Presentation.Controllers
 {
     [ApiController]
     [Route("api/projects/{projectId:guid}/roles")]

@@ -1,7 +1,4 @@
-﻿using Entities.Exceptions;
-using Service.Contracts;
-
-namespace FSPWebAPI.Middlewares
+﻿namespace FSPWebAPI.Middlewares
 {
     public class UserAccountStatusCheckMiddleware : IMiddleware
     {

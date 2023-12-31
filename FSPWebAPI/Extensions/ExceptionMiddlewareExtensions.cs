@@ -1,9 +1,7 @@
-﻿using Contracts;
-using Entities.ErrorModel;
-using Entities.Exceptions;
+﻿using Entities.ErrorModel;
 using Microsoft.AspNetCore.Diagnostics;
 
-namespace CompanyEmployees.Extensions
+namespace FSPWebAPI.Extensions
 {
     public static class ExceptionMiddlewareExtensions
     {

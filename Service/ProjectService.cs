@@ -1,13 +1,4 @@
-﻿using AutoMapper;
-using Contracts;
-using Entities.Exceptions;
-using Entities.Models;
-using Microsoft.AspNetCore.Identity;
-using Service.Contracts;
-using Shared;
-using Shared.DataTransferObjects;
-
-namespace Service
+﻿namespace Service
 {
     public class ProjectService : IProjectService
     {

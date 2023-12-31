@@ -1,10 +1,4 @@
-﻿using FSPWebAPI.Presentation.ActionFilters;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Mvc;
-using Service.Contracts;
-using Shared;
-using Shared.DataTransferObjects;
-using System.Security.Claims;
+﻿using System.Security.Claims;
 
 namespace FSPWebAPI.Presentation.Controllers
 {

@@ -1,9 +1,4 @@
-﻿using Contracts;
-using Entities.Models;
-using Microsoft.EntityFrameworkCore;
-using Shared;
-
-namespace Repository
+﻿namespace Repository
 {
     public class UserInviteRepository : RepositoryBase<UserInvite>, IUserInviteRepository
     {

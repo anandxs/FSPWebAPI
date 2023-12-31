@@ -15,4 +15,16 @@
     <ProjectReference Include="..\Entities\Entities.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="Contracts" />
+    <Using Include="Entities.ConfigurationModels" />
+    <Using Include="Entities.Models" />
+    <Using Include="Microsoft.AspNetCore.Identity" />
+    <Using Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" />
+    <Using Include="Microsoft.EntityFrameworkCore" />
+    <Using Include="Microsoft.Extensions.Options" />
+    <Using Include="Shared" />
+    <Using Include="System.Linq.Expressions" />
+  </ItemGroup>
+
 </Project>

@@ -1,10 +1,5 @@
-﻿using Entities.ConfigurationModels;
-using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Options;
+﻿using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Primitives;
-using Service.Contracts;
-using System.Security.Claims;
 
 namespace Service
 {

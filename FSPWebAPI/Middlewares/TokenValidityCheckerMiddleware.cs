@@ -1,9 +1,4 @@
-﻿
-using Entities.Exceptions;
-using Service.Contracts;
-using System.Net;
-
-namespace FSPWebAPI.Middlewares
+﻿namespace FSPWebAPI.Middlewares
 {
     public class TokenValidityCheckerMiddleware : IMiddleware
     {

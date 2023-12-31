@@ -1,19 +1,7 @@
-﻿using AutoMapper;
-using Contracts;
-using Entities.ConfigurationModels;
-using Entities.Exceptions;
-using Entities.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc;
+﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.WebUtilities;
-using Microsoft.Extensions.Options;
 using Microsoft.IdentityModel.Tokens;
-using NETCore.MailKit.Core;
-using Service.Contracts;
-using Shared;
-using Shared.DataTransferObjects;
 using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
 using System.Security.Cryptography;
 using System.Text;
 

@@ -30,4 +30,15 @@
     <ProjectReference Include="..\Service\Service.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Using Include="Contracts" />
+    <Using Include="Entities.ConfigurationModels" />
+    <Using Include="Entities.Exceptions" />
+    <Using Include="Entities.Models" />
+    <Using Include="LoggerService" />
+    <Using Include="Repository" />
+    <Using Include="Service" />
+    <Using Include="Service.Contracts" />
+  </ItemGroup>
+
 </Project>

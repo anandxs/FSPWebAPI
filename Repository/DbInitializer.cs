@@ -1,11 +1,4 @@
-﻿using Contracts;
-using Entities.ConfigurationModels;
-using Entities.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
-using Shared;
-
-namespace Repository
+﻿namespace Repository
 {
     public class DbInitializer : IDbInitializer
     {

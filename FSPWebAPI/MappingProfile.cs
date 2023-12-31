@@ -1,5 +1,4 @@
 ﻿using AutoMapper;
-using Entities.Models;
 using Shared.DataTransferObjects;
 
 namespace FSPWebAPI
