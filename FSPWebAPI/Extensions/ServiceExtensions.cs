@@ -1,8 +1,4 @@
 ﻿using Azure.Storage.Blobs;
-using Contracts;
-using Entities.ConfigurationModels;
-using Entities.Models;
-using LoggerService;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -10,9 +6,6 @@ using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using NETCore.MailKit.Extensions;
 using NETCore.MailKit.Infrastructure.Internal;
-using Repository;
-using Service;
-using Service.Contracts;
 using System.Text;
 
 namespace FSPWebAPI.Extensions
