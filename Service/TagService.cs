@@ -1,15 +1,4 @@
-﻿using AutoMapper;
-using Contracts;
-using Entities.Exceptions;
-using Entities.Models;
-using Microsoft.AspNetCore.Http;
-using Service.Contracts;
-using Shared;
-using Shared.DataTransferObjects;
-using System;
-using System.Security.Claims;
-
-namespace Service
+﻿namespace Service
 {
     public class TagService : ITagService
     {

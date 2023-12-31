@@ -1,16 +1,4 @@
-﻿using AutoMapper;
-using Contracts;
-using Entities.ConfigurationModels;
-using Entities.Exceptions;
-using Entities.Models;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
-using NETCore.MailKit.Core;
-using Service.Contracts;
-using Shared;
-using Shared.DataTransferObjects;
-
-namespace Service
+﻿namespace Service
 {
     public class MemberService : IMemberService
     {

@@ -1,13 +1,4 @@
-﻿using AutoMapper;
-using Azure.Storage.Blobs;
-using Contracts;
-using Entities.ConfigurationModels;
-using Entities.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.Extensions.Options;
-using NETCore.MailKit.Core;
-using Service.Contracts;
+﻿using Azure.Storage.Blobs;
 
 namespace Service
 {
