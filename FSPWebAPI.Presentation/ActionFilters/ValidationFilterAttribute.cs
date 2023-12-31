@@ -1,7 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Filters;
-
-namespace FSPWebAPI.Presentation.ActionFilters
+﻿namespace FSPWebAPI.Presentation.ActionFilters
 {
     public class ValidationFilterAttribute : IActionFilter
     {

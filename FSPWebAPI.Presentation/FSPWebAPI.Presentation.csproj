@@ -14,6 +14,16 @@
 		<ProjectReference Include="..\Service.Contracts\Service.Contracts.csproj" />
 	</ItemGroup>
 
+	<ItemGroup>
+	  <Using Include="FSPWebAPI.Presentation.ActionFilters" />
+	  <Using Include="Microsoft.AspNetCore.Authorization" />
+	  <Using Include="Microsoft.AspNetCore.Mvc" />
+	  <Using Include="Microsoft.AspNetCore.Mvc.Filters" />
+	  <Using Include="Service.Contracts" />
+	  <Using Include="Shared" />
+	  <Using Include="Shared.DataTransferObjects" />
+	</ItemGroup>
+
 	<PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|AnyCPU'">
 		<DocumentationFile>FSPWebAPI.Presentation.xml</DocumentationFile>
 		<OutputPath></OutputPath>
