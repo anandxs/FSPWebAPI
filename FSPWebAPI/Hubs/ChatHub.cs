@@ -1,12 +1,13 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.SignalR;
+using Shared;
 using Shared.DataTransferObjects;
 using System.Security.Claims;
 
 namespace FSPWebAPI.Hubs
 {
-    [Authorize]
+    [Authorize(Roles = Constants.GLOBAL_ROLE_USER)]
     public class ChatHub : Hub
     {
         private readonly IRepositoryManager _repositoryManager;
