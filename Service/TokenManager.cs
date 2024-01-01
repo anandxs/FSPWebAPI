@@ -1,40 +1,46 @@
-﻿using Microsoft.Extensions.Caching.Distributed;
+﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
 
 namespace Service
 {
     public class TokenManager : ITokenManager
     {
-        private readonly IDistributedCache _cache;
+        private readonly IMemoryCache _memoryCache;
         private readonly IHttpContextAccessor _contextAccesor;
         private readonly IOptions<JwtConfiguration> _jwtOptions;
 
-        public TokenManager(IDistributedCache cache,
-                IHttpContextAccessor httpContextAccessor
-,
-                IOptions<JwtConfiguration> jwtOptions)
+        public TokenManager(
+                IHttpContextAccessor httpContextAccessor,
+                IOptions<JwtConfiguration> jwtOptions,
+                IMemoryCache memoryCache)
         {
-            _cache = cache;
             _contextAccesor = httpContextAccessor;
             _jwtOptions = jwtOptions;
+            _memoryCache = memoryCache;
         }
 
         public async Task<bool> IsCurrentActiveTokenAsync()
-        => await IsActiveAsync(GetCurrentAsync());
+        {
+            return await IsActiveAsync(GetCurrentAsync());
+        }
 
         public async Task DeactivateCurrentAsync()
-            => await DeactivateAsync(GetCurrentAsync());
+        {
+            await DeactivateAsync(GetCurrentAsync());
+        }
 
         public async Task<bool> IsActiveAsync(string token)
-            => await _cache.GetStringAsync(GetKey(token)) == null;
+        {
+            return !_memoryCache.TryGetValue(GetKey(token), out _);
+        }
 
         public async Task DeactivateAsync(string token)
-            => await _cache.SetStringAsync(GetKey(token),
-                " ", new DistributedCacheEntryOptions
-                {
-                    AbsoluteExpirationRelativeToNow =
-                        TimeSpan.FromMinutes(Convert.ToDouble(_jwtOptions.Value.Expires))
-                });
+        {
+            _memoryCache.Set<string>(GetKey(token), " ", new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(Convert.ToDouble(_jwtOptions.Value.Expires))
+            });
+        }
 
         private string GetCurrentAsync()
         {
@@ -44,7 +50,9 @@ namespace Service
         }
 
         private static string GetKey(string token)
-            => $"tokens:{token}:deactivated";
+        {
+            return $"tokens:{token}:deactivated";
+        }
 
         public async Task<bool> IsCurrentUserBlockedAsync()
         {
@@ -57,7 +65,7 @@ namespace Service
             }
 
             var userId = claim.Value;
-            var value = await _cache.GetStringAsync(userId);
+            var value = _memoryCache.Get<string>(userId);
 
             if (value == null)
             {
@@ -69,17 +77,15 @@ namespace Service
 
         public async Task BlockUserAsync(string userId)
         {
-            await _cache.SetStringAsync(userId,
-                "blocked", new DistributedCacheEntryOptions
-                {
-                    AbsoluteExpirationRelativeToNow =
-                        TimeSpan.FromMinutes(Convert.ToDouble(_jwtOptions.Value.Expires))
-                });
+            _memoryCache.Set<string>(userId, "blocked", new MemoryCacheEntryOptions
+            {
+                AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(Convert.ToDouble(_jwtOptions.Value.Expires))
+            });
         }
 
         public async Task UnBlockUserAsync(string userId)
         {
-            await _cache.RemoveAsync(userId);
+            _memoryCache.Remove(userId);
         }
     }
 }

@@ -34,12 +34,8 @@ builder.Services.AddScoped<IDbInitializer, DbInitializer>();
 builder.Services.AddHttpContextAccessor();
 builder.Services.AddSignalR();
 builder.Services.ConfigureAzureBlobStorage();
+builder.Services.AddMemoryCache();
 builder.Services.AddTransient<ITokenManager, TokenManager>();
-builder.Services.AddStackExchangeRedisCache(options =>
-{
-    var connectionString = builder.Configuration.GetConnectionString("redis");
-    options.Configuration = connectionString;
-});
 builder.Services.AddTransient<TokenValidityCheckerMiddleware>();
 builder.Services.AddTransient<UserAccountStatusCheckMiddleware>();
 
