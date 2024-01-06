@@ -30,9 +30,9 @@ namespace Service
             BlobServiceClient blobServiceClient,
             ITokenManager tokenManager)
         {
-            _projectService = new Lazy<IProjectService>(() => new ProjectService(repositoryManager, logger, mapper, userManager));
+            _projectService = new Lazy<IProjectService>(() => new ProjectService(repositoryManager, logger, mapper, userManager, contextAccessor));
             _roleService = new Lazy<IRoleService>(() => new RoleService(repositoryManager, logger, mapper, contextAccessor));
-            _stageService = new Lazy<IStageService>(() => new StageService(repositoryManager, logger, mapper, userManager));
+            _stageService = new Lazy<IStageService>(() => new StageService(repositoryManager, logger, mapper, userManager, contextAccessor));
             _taskTypeService = new Lazy<ITaskTypeService>(() => new TaskTypeService(repositoryManager, logger, mapper, contextAccessor));
             _tagService = new Lazy<ITagService>(() => new TagService(repositoryManager, logger, mapper, contextAccessor));
             _taskService = new Lazy<ITaskService>(() => new TaskService(repositoryManager, logger, mapper, contextAccessor));
@@ -40,7 +40,7 @@ namespace Service
             _attachmentService = new Lazy<IAttachmentService>(() => new AttachmentService(repositoryManager, logger, mapper, contextAccessor, blobServiceClient));
             _authenticationService = new Lazy<IAuthenticationService>(() => new AuthenticationService(repositoryManager, logger, mapper, userManager, emailService, jwtConfiguration, clientConfiguration, adminConfiguration));
             _userService = new Lazy<IUserService>(() => new UserService(repositoryManager, logger, mapper, userManager, emailService, tokenManager));
-            _memberService = new Lazy<IMemberService>(() => new MemberService(repositoryManager, logger, mapper, userManager, emailService, clientConfiguration));
+            _memberService = new Lazy<IMemberService>(() => new MemberService(repositoryManager, logger, mapper, userManager, emailService, clientConfiguration, contextAccessor));
             _statsService = new Lazy<IStatsService>(() => new StatsService(repositoryManager, logger, mapper, contextAccessor));
         }
 

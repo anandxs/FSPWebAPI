@@ -9,6 +9,7 @@
         private readonly IEmailService _emailService;
         private readonly IOptions<ClientConfiguration> _clientOptions;
         private readonly ClientConfiguration _clientConfig;
+        private readonly IHttpContextAccessor _contextAccessor;
 
         public MemberService(
             IRepositoryManager repositoryManager,
@@ -16,7 +17,8 @@
             IMapper mapper,
             UserManager<User> userManager,
             IEmailService emailService,
-            IOptions<ClientConfiguration> clientOptions)
+            IOptions<ClientConfiguration> clientOptions,
+            IHttpContextAccessor contextAccessor)
         {
             _repositoryManager = repositoryManager;
             _logger = logger;
@@ -25,10 +27,12 @@
             _emailService = emailService;
             _clientOptions = clientOptions;
             _clientConfig = _clientOptions.Value;
+            _contextAccessor = contextAccessor;
         }
 
-        public async Task<IEnumerable<ProjectMemberDto>> GetAllProjectMembersAsync(Guid projectId, string requesterId, bool trackChanges)
+        public async Task<IEnumerable<ProjectMemberDto>> GetAllProjectMembersAsync(Guid projectId, bool trackChanges)
         {
+            var requesterId = GetRequesterId();
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
 
             if (requester == null)
@@ -43,8 +47,9 @@
             return membersDto;
         }
 
-        public async Task<string> AddMemberAsync(Guid projectId, string requesterId, MemberForCreationDto memberDto, bool trackChanges)
+        public async Task<string> AddMemberAsync(Guid projectId, MemberForCreationDto memberDto, bool trackChanges)
         {
+            var requesterId = GetRequesterId();
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
 
             if (requester == null)
@@ -115,8 +120,9 @@
             }
         }
 
-        public async Task<bool> AcceptInviteAsync(Guid projectId, string requesterId)
+        public async Task<bool> AcceptInviteAsync(Guid projectId)
         {
+            var requesterId = GetRequesterId();
             var user = await _userManager.FindByIdAsync(requesterId);
 
             if (user == null)
@@ -150,8 +156,9 @@
             return true;
         }
 
-        public async Task<ProjectMemberDto> GetProjectMemberAsync(Guid projectId, string memberId, string requesterId, bool trackChanges)
+        public async Task<ProjectMemberDto> GetProjectMemberAsync(Guid projectId, string memberId, bool trackChanges)
         {
+            var requesterId = GetRequesterId();
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
 
             if (requester == null)
@@ -170,8 +177,9 @@
             return projectMemberDto;
         }
 
-        public async Task ChangeMemberRoleAsync(Guid projectId, string requesterId, MemberForUpdateDto memberDto, bool trackChanges)
+        public async Task ChangeMemberRoleAsync(Guid projectId, MemberForUpdateDto memberDto, bool trackChanges)
         {
+            var requesterId = GetRequesterId();
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
 
             if (requester == null)
@@ -201,8 +209,9 @@
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task RemoveMemberAsync(Guid projectId, string memberId, string requesterId, bool trackChanges)
+        public async Task RemoveMemberAsync(Guid projectId, string memberId, bool trackChanges)
         {
+            var requesterId = GetRequesterId();
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
 
             if (requester == null)
@@ -243,8 +252,9 @@
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task ExitProjectAsync(Guid projectId, string requesterId, bool trackChanges)
+        public async Task ExitProjectAsync(Guid projectId, bool trackChanges)
         {
+            var requesterId = GetRequesterId();
             var members = await _repositoryManager.ProjectMemberRepository.GetAllProjectMembersAsync(projectId, trackChanges);
 
             var requester = members.Where(m => m.MemberId.Equals(requesterId)).SingleOrDefault();
@@ -277,6 +287,14 @@
                 _repositoryManager.ProjectMemberRepository.RemoveMember(requester);
                 await _repositoryManager.SaveAsync();
             }
+        }
+
+        private string GetRequesterId()
+        {
+            var claimsIdentity = (ClaimsIdentity)_contextAccessor.HttpContext.User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            return claim!.Value;
         }
     }
 }

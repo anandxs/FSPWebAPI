@@ -6,17 +6,20 @@
         private readonly ILoggerManager _logger;
         private readonly IMapper _mapper;
         private readonly UserManager<User> _userManager;
+        private readonly IHttpContextAccessor _contextAccessor;
 
-        public StageService(IRepositoryManager repositoryManager, ILoggerManager logger, IMapper mapper, UserManager<User> userManager)
+        public StageService(IRepositoryManager repositoryManager, ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IHttpContextAccessor contextAccessor)
         {
             _repositoryManager = repositoryManager;
             _logger = logger;
             _mapper = mapper;
             _userManager = userManager;
+            _contextAccessor = contextAccessor;
         }
 
-        public async Task<IEnumerable<StageDto>> GetAllStagesForProjectAsync(Guid projectId, string requesterId, bool trackChanges)
+        public async Task<IEnumerable<StageDto>> GetAllStagesForProjectAsync(Guid projectId, bool trackChanges)
         {
+            var requesterId = GetRequesterId();
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
 
             if (requester is null)
@@ -30,8 +33,9 @@
             return stagesDto;
         }
 
-        public async Task<StageDto> GetStageByIdAsync(Guid projectId, Guid stageId, string requesterId, bool trackChanges)
+        public async Task<StageDto> GetStageByIdAsync(Guid projectId, Guid stageId, bool trackChanges)
         {
+            var requesterId = GetRequesterId();
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
 
             if (requester is null)
@@ -51,8 +55,9 @@
             return stageDto;
         }
 
-        public async Task<StageDto> CreateStageAsync(Guid projectId, string requesterId, StageForCreationDto stageForCreation, bool trackChanges)
+        public async Task<StageDto> CreateStageAsync(Guid projectId, StageForCreationDto stageForCreation, bool trackChanges)
         {
+            var requesterId = GetRequesterId();
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
 
             if (requester is null)
@@ -87,8 +92,9 @@
 
             return stageDto;
         }
-        public async Task UpdateStageAsync(Guid projectId, Guid stageId, string requesterId, StageForUpdateDto stageForUpdateDto, bool trackChanges)
+        public async Task UpdateStageAsync(Guid projectId, Guid stageId, StageForUpdateDto stageForUpdateDto, bool trackChanges)
         {
+            var requesterId = GetRequesterId();
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
 
             if (requester is null)
@@ -118,8 +124,9 @@
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task ToggleStageArchiveStatusAsync(Guid projectId, Guid stageId, string requesterId, bool trackChanges)
+        public async Task ToggleStageArchiveStatusAsync(Guid projectId, Guid stageId, bool trackChanges)
         {
+            var requesterId = GetRequesterId();
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
 
             if (requester is null)
@@ -142,8 +149,9 @@
             await _repositoryManager.SaveAsync();
         }
 
-        public async Task DeleteStageAsync(Guid projectId, Guid stageId, string requesterId, bool trackChanges)
+        public async Task DeleteStageAsync(Guid projectId, Guid stageId, bool trackChanges)
         {
+            var requesterId = GetRequesterId();
             var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
 
             if (requester is null)
@@ -164,6 +172,14 @@
 
             _repositoryManager.StageRepository.DeleteStage(stage);
             await _repositoryManager.SaveAsync();
+        }
+
+        private string GetRequesterId()
+        {
+            var claimsIdentity = (ClaimsIdentity)_contextAccessor.HttpContext.User.Identity;
+            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+            return claim!.Value;
         }
     }
 }

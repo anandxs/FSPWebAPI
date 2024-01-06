@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-
-namespace FSPWebAPI.Presentation.Controllers
+﻿namespace FSPWebAPI.Presentation.Controllers
 {
     [ApiController]
     [Route("api/projects/{projectId:guid}/stages")]
@@ -17,9 +15,7 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> GetStagesForProject(Guid projectId)
         {
-            var requesterId = GetRequesterId();
-
-            var stages = await _service.StageService.GetAllStagesForProjectAsync(projectId, requesterId, false);
+            var stages = await _service.StageService.GetAllStagesForProjectAsync(projectId, false);
 
             return Ok(stages);
         }
@@ -27,9 +23,7 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpGet("{stageId:guid}", Name = "GetStageById")]
         public async Task<IActionResult> GetStageById(Guid projectId, Guid stageId)
         {
-            var requesterId = GetRequesterId();
-
-            var stage = await _service.StageService.GetStageByIdAsync(projectId, stageId, requesterId, false);
+            var stage = await _service.StageService.GetStageByIdAsync(projectId, stageId, false);
 
             return Ok(stage);
         }
@@ -38,9 +32,7 @@ namespace FSPWebAPI.Presentation.Controllers
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateStage(Guid projectId, [FromBody] StageForCreationDto stageForCreation)
         {
-            var requesterId = GetRequesterId();
-
-            var stage = await _service.StageService.CreateStageAsync(projectId, requesterId, stageForCreation, false);
+            var stage = await _service.StageService.CreateStageAsync(projectId, stageForCreation, false);
 
             return CreatedAtRoute(
                 "GetStageById", 
@@ -56,9 +48,7 @@ namespace FSPWebAPI.Presentation.Controllers
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateStage(Guid projectId, Guid stageId, [FromBody] StageForUpdateDto stageForUpdate)
         {
-            var requesterId = GetRequesterId();
-
-            await _service.StageService.UpdateStageAsync(projectId, stageId, requesterId, stageForUpdate, true);
+            await _service.StageService.UpdateStageAsync(projectId, stageId, stageForUpdate, true);
 
             return NoContent();
         }
@@ -66,9 +56,7 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpPut("{stageId:guid}/archive")]
         public async Task<IActionResult> ToggleStageArchiveStatus(Guid projectId, Guid stageId)
         {
-            var requesterId = GetRequesterId();
-
-            await _service.StageService.ToggleStageArchiveStatusAsync(projectId, stageId, requesterId, true);
+            await _service.StageService.ToggleStageArchiveStatusAsync(projectId, stageId, true);
 
             return NoContent();
         }
@@ -76,19 +64,9 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpDelete("{stageId:guid}")]
         public async Task<IActionResult> DeleteStage(Guid projectId, Guid stageId)
         {
-            var requesterId = GetRequesterId();
-
-            await _service.StageService.DeleteStageAsync(projectId, stageId, requesterId, false);
+            await _service.StageService.DeleteStageAsync(projectId, stageId, false);
 
             return NoContent();
-        }
-
-        private string GetRequesterId()
-        {
-            var claimsIdentity = (ClaimsIdentity)User.Identity!;
-            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-
-            return claim!.Value;
         }
     }
 }
