@@ -1,185 +1,184 @@
-﻿namespace Service
+﻿namespace Service;
+
+public class StageService : IStageService
 {
-    public class StageService : IStageService
+    private readonly IRepositoryManager _repositoryManager;
+    private readonly ILoggerManager _logger;
+    private readonly IMapper _mapper;
+    private readonly UserManager<User> _userManager;
+    private readonly IHttpContextAccessor _contextAccessor;
+
+    public StageService(IRepositoryManager repositoryManager, ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IHttpContextAccessor contextAccessor)
     {
-        private readonly IRepositoryManager _repositoryManager;
-        private readonly ILoggerManager _logger;
-        private readonly IMapper _mapper;
-        private readonly UserManager<User> _userManager;
-        private readonly IHttpContextAccessor _contextAccessor;
+        _repositoryManager = repositoryManager;
+        _logger = logger;
+        _mapper = mapper;
+        _userManager = userManager;
+        _contextAccessor = contextAccessor;
+    }
 
-        public StageService(IRepositoryManager repositoryManager, ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IHttpContextAccessor contextAccessor)
+    public async Task<IEnumerable<StageDto>> GetAllStagesForProjectAsync(Guid projectId, bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
+        var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
+
+        if (requester is null)
         {
-            _repositoryManager = repositoryManager;
-            _logger = logger;
-            _mapper = mapper;
-            _userManager = userManager;
-            _contextAccessor = contextAccessor;
+            throw new NotAProjectMemberForbiddenRequestException();
         }
 
-        public async Task<IEnumerable<StageDto>> GetAllStagesForProjectAsync(Guid projectId, bool trackChanges)
+        var stages = await _repositoryManager.StageRepository.GetAllStagesForProjectAsync(projectId, trackChanges);
+        var stagesDto = _mapper.Map<IEnumerable<StageDto>>(stages);
+
+        return stagesDto;
+    }
+
+    public async Task<StageDto> GetStageByIdAsync(Guid projectId, Guid stageId, bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
+        var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
+
+        if (requester is null)
         {
-            var requesterId = GetRequesterId();
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
-
-            if (requester is null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-
-            var stages = await _repositoryManager.StageRepository.GetAllStagesForProjectAsync(projectId, trackChanges);
-            var stagesDto = _mapper.Map<IEnumerable<StageDto>>(stages);
-
-            return stagesDto;
+            throw new NotAProjectMemberForbiddenRequestException();
         }
 
-        public async Task<StageDto> GetStageByIdAsync(Guid projectId, Guid stageId, bool trackChanges)
+        var stage = await _repositoryManager.StageRepository.GetStageByIdAsync(projectId, stageId, trackChanges);
+
+        if (stage is null)
         {
-            var requesterId = GetRequesterId();
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
-
-            if (requester is null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-
-            var stage = await _repositoryManager.StageRepository.GetStageByIdAsync(projectId, stageId, trackChanges);
-
-            if (stage is null)
-            {
-                throw new StageNotFoundException(stageId);
-            }
-
-            var stageDto = _mapper.Map<StageDto>(stage);
-
-            return stageDto;
+            throw new StageNotFoundException(stageId);
         }
 
-        public async Task<StageDto> CreateStageAsync(Guid projectId, StageForCreationDto stageForCreation, bool trackChanges)
+        var stageDto = _mapper.Map<StageDto>(stage);
+
+        return stageDto;
+    }
+
+    public async Task<StageDto> CreateStageAsync(Guid projectId, StageForCreationDto stageForCreation, bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
+        var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
+
+        if (requester is null)
         {
-            var requesterId = GetRequesterId();
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
-
-            if (requester is null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
-            {
-                throw new IncorrectRoleForbiddenRequestException();
-            }
-
-            var project = await _repositoryManager.ProjectRepository.GetProjectByIdAsync(projectId, trackChanges);
-
-            if (project is null)
-            {
-                throw new ProjectNotFoundException(projectId);
-            }
-
-            var existingStage = await _repositoryManager.StageRepository.GetStageByNameAsync(projectId, stageForCreation.Name, false);
-
-            if (existingStage != null)
-            {
-                throw new DuplicateEntryBadRequest();
-            }
-
-            var stage = _mapper.Map<Stage>(stageForCreation);
-
-            _repositoryManager.StageRepository.CreateStage(stage, projectId);
-            await _repositoryManager.SaveAsync();
-
-            var stageDto = _mapper.Map<StageDto>(stage);
-
-            return stageDto;
+            throw new NotAProjectMemberForbiddenRequestException();
         }
-        public async Task UpdateStageAsync(Guid projectId, Guid stageId, StageForUpdateDto stageForUpdateDto, bool trackChanges)
+        else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
         {
-            var requesterId = GetRequesterId();
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
-
-            if (requester is null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
-            {
-                throw new IncorrectRoleForbiddenRequestException();
-            }
-
-            var existingStage = await _repositoryManager.StageRepository.GetStageByNameAsync(projectId, stageForUpdateDto.Name, false);
-
-            if (existingStage != null)
-            {
-                throw new DuplicateEntryBadRequest();
-            }
-
-            var stage = await _repositoryManager.StageRepository.GetStageByIdAsync(projectId, stageId, trackChanges);
-
-            if (stage == null)
-            {
-                throw new StageNotFoundException(stageId);
-            }
-
-            _mapper.Map(stageForUpdateDto, stage);
-            await _repositoryManager.SaveAsync();
+            throw new IncorrectRoleForbiddenRequestException();
         }
 
-        public async Task ToggleStageArchiveStatusAsync(Guid projectId, Guid stageId, bool trackChanges)
+        var project = await _repositoryManager.ProjectRepository.GetProjectByIdAsync(projectId, trackChanges);
+
+        if (project is null)
         {
-            var requesterId = GetRequesterId();
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
-
-            if (requester is null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
-            {
-                throw new IncorrectRoleForbiddenRequestException();
-            }
-
-            var stage = await _repositoryManager.StageRepository.GetStageByIdAsync(projectId, stageId, trackChanges);
-
-            if (stage == null)
-            {
-                throw new StageNotFoundException(stageId);
-            }
-
-            stage.IsActive = !stage.IsActive; // maybe move to repository layer
-            await _repositoryManager.SaveAsync();
+            throw new ProjectNotFoundException(projectId);
         }
 
-        public async Task DeleteStageAsync(Guid projectId, Guid stageId, bool trackChanges)
+        var existingStage = await _repositoryManager.StageRepository.GetStageByNameAsync(projectId, stageForCreation.Name, false);
+
+        if (existingStage != null)
         {
-            var requesterId = GetRequesterId();
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
-
-            if (requester is null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
-            {
-                throw new IncorrectRoleForbiddenRequestException();
-            }
-
-            var stage = await _repositoryManager.StageRepository.GetStageByIdAsync(projectId, stageId, trackChanges);
-
-            if (stage == null)
-            {
-                throw new StageNotFoundException(stageId);
-            }
-
-            _repositoryManager.StageRepository.DeleteStage(stage);
-            await _repositoryManager.SaveAsync();
+            throw new DuplicateEntryBadRequest();
         }
 
-        private string GetRequesterId()
-        {
-            var claimsIdentity = (ClaimsIdentity)_contextAccessor.HttpContext.User.Identity;
-            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+        var stage = _mapper.Map<Stage>(stageForCreation);
 
-            return claim!.Value;
+        _repositoryManager.StageRepository.CreateStage(stage, projectId);
+        await _repositoryManager.SaveAsync();
+
+        var stageDto = _mapper.Map<StageDto>(stage);
+
+        return stageDto;
+    }
+    public async Task UpdateStageAsync(Guid projectId, Guid stageId, StageForUpdateDto stageForUpdateDto, bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
+        var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
+
+        if (requester is null)
+        {
+            throw new NotAProjectMemberForbiddenRequestException();
         }
+        else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
+        {
+            throw new IncorrectRoleForbiddenRequestException();
+        }
+
+        var existingStage = await _repositoryManager.StageRepository.GetStageByNameAsync(projectId, stageForUpdateDto.Name, false);
+
+        if (existingStage != null)
+        {
+            throw new DuplicateEntryBadRequest();
+        }
+
+        var stage = await _repositoryManager.StageRepository.GetStageByIdAsync(projectId, stageId, trackChanges);
+
+        if (stage == null)
+        {
+            throw new StageNotFoundException(stageId);
+        }
+
+        _mapper.Map(stageForUpdateDto, stage);
+        await _repositoryManager.SaveAsync();
+    }
+
+    public async Task ToggleStageArchiveStatusAsync(Guid projectId, Guid stageId, bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
+        var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
+
+        if (requester is null)
+        {
+            throw new NotAProjectMemberForbiddenRequestException();
+        }
+        else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
+        {
+            throw new IncorrectRoleForbiddenRequestException();
+        }
+
+        var stage = await _repositoryManager.StageRepository.GetStageByIdAsync(projectId, stageId, trackChanges);
+
+        if (stage == null)
+        {
+            throw new StageNotFoundException(stageId);
+        }
+
+        stage.IsActive = !stage.IsActive; // maybe move to repository layer
+        await _repositoryManager.SaveAsync();
+    }
+
+    public async Task DeleteStageAsync(Guid projectId, Guid stageId, bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
+        var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
+
+        if (requester is null)
+        {
+            throw new NotAProjectMemberForbiddenRequestException();
+        }
+        else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
+        {
+            throw new IncorrectRoleForbiddenRequestException();
+        }
+
+        var stage = await _repositoryManager.StageRepository.GetStageByIdAsync(projectId, stageId, trackChanges);
+
+        if (stage == null)
+        {
+            throw new StageNotFoundException(stageId);
+        }
+
+        _repositoryManager.StageRepository.DeleteStage(stage);
+        await _repositoryManager.SaveAsync();
+    }
+
+    private string GetRequesterId()
+    {
+        var claimsIdentity = (ClaimsIdentity)_contextAccessor.HttpContext.User.Identity;
+        var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+        return claim!.Value;
     }
 }

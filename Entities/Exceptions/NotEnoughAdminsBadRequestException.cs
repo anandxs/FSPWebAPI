@@ -1,9 +1,8 @@
-﻿namespace Entities.Exceptions
+﻿namespace Entities.Exceptions;
+
+public sealed class NotEnoughAdminsBadRequestException : BadRequestException
 {
-    public sealed class NotEnoughAdminsBadRequestException : BadRequestException
+    public NotEnoughAdminsBadRequestException() : base($"Project needs to have atleast one admin.")
     {
-        public NotEnoughAdminsBadRequestException() : base($"Project needs to have atleast one admin.")
-        {
-        }
     }
 }

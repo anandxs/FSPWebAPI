@@ -1,9 +1,8 @@
-﻿namespace Entities.ConfigurationModels
-{
-    public class ClientConfiguration
-    {
-        public string Section { get; set; } = "Client";
+﻿namespace Entities.ConfigurationModels;
 
-        public string? Url { get; set; }
-    }
+public class ClientConfiguration
+{
+    public string Section { get; set; } = "Client";
+
+    public string? Url { get; set; }
 }

@@ -1,31 +1,30 @@
-﻿namespace FSPWebAPI.Presentation.ActionFilters
+﻿namespace FSPWebAPI.Presentation.ActionFilters;
+
+public class ValidationFilterAttribute : IActionFilter
 {
-    public class ValidationFilterAttribute : IActionFilter
+    public ValidationFilterAttribute()
+    { 
+    }
+
+    public void OnActionExecuting(ActionExecutingContext context)
     {
-        public ValidationFilterAttribute()
-        { 
-        }
+        var action = context.RouteData.Values["action"];
+        var controller = context.RouteData.Values["controller"];
 
-        public void OnActionExecuting(ActionExecutingContext context)
+        var param = context.ActionArguments.SingleOrDefault(x => x.Value.ToString().Contains("Dto")).Value;
+        if (param is null)
         {
-            var action = context.RouteData.Values["action"];
-            var controller = context.RouteData.Values["controller"];
-
-            var param = context.ActionArguments.SingleOrDefault(x => x.Value.ToString().Contains("Dto")).Value;
-            if (param is null)
-            {
-                context.Result = new BadRequestObjectResult($"Object is null. Controller : {controller}, action: {action}");
-                return;
-            }
-
-            if (!context.ModelState.IsValid)
-            {
-                context.Result = new UnprocessableEntityObjectResult(context.ModelState);
-            }
+            context.Result = new BadRequestObjectResult($"Object is null. Controller : {controller}, action: {action}");
+            return;
         }
 
-        public void OnActionExecuted(ActionExecutedContext context)
-        { 
+        if (!context.ModelState.IsValid)
+        {
+            context.Result = new UnprocessableEntityObjectResult(context.ModelState);
         }
+    }
+
+    public void OnActionExecuted(ActionExecutedContext context)
+    { 
     }
 }

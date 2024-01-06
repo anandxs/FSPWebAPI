@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Shared.DataTransferObjects
+namespace Shared.DataTransferObjects;
+
+public record StageForUpdateDto
 {
-    public record StageForUpdateDto
-    {
-        [Required(ErrorMessage = "Stage name is a required field.")]
-        public string? Name { get; set; }
-    }
+    [Required(ErrorMessage = "Stage name is a required field.")]
+    public string? Name { get; set; }
 }

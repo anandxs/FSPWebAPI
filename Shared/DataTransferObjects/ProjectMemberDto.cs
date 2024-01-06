@@ -1,8 +1,7 @@
-﻿namespace Shared.DataTransferObjects
+﻿namespace Shared.DataTransferObjects;
+
+public record ProjectMemberDto
 {
-    public record ProjectMemberDto
-    {
-        public ProjectUserDto User { get; set; }
-        public RoleDto Role { get; set; }
-    }
+    public ProjectUserDto User { get; set; }
+    public RoleDto Role { get; set; }
 }

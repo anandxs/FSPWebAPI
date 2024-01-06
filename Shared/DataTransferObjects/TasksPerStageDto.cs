@@ -1,8 +1,7 @@
-﻿namespace Shared.DataTransferObjects
+﻿namespace Shared.DataTransferObjects;
+
+public record TasksPerStageDto
 {
-    public record TasksPerStageDto
-    {
-        public string? Stage { get; init; }
-        public int Count { get; init; }
-    }
+    public string? Stage { get; init; }
+    public int Count { get; init; }
 }

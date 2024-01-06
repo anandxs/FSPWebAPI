@@ -1,9 +1,8 @@
-﻿namespace Entities.Exceptions
+﻿namespace Entities.Exceptions;
+
+public sealed class TaskNotFoundException : NotFoundException
 {
-    public sealed class TaskNotFoundException : NotFoundException
+    public TaskNotFoundException(Guid id) : base($"Task with id : {id} not found.")
     {
-        public TaskNotFoundException(Guid id) : base($"Task with id : {id} not found.")
-        {
-        }
     }
 }

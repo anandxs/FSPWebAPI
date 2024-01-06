@@ -1,9 +1,8 @@
-﻿namespace Entities.Exceptions
+﻿namespace Entities.Exceptions;
+
+public abstract class UnauthorizedException : Exception
 {
-    public abstract class UnauthorizedException : Exception
+    protected UnauthorizedException(string message) : base(message)
     {
-        protected UnauthorizedException(string message) : base(message)
-        {
-        }
     }
 }

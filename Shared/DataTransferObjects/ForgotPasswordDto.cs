@@ -1,4 +1,3 @@
-﻿namespace Shared.DataTransferObjects
-{
-    public record ForgotPasswordDto(string Email);
-}
+﻿namespace Shared.DataTransferObjects;
+
+public record ForgotPasswordDto(string Email);

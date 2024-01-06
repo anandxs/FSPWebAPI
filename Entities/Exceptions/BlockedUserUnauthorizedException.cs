@@ -1,9 +1,8 @@
-﻿namespace Entities.Exceptions
+﻿namespace Entities.Exceptions;
+
+public sealed class BlockedUserUnauthorizedException : UnauthorizedException
 {
-    public sealed class BlockedUserUnauthorizedException : UnauthorizedException
+    public BlockedUserUnauthorizedException() : base($"You have been blocked from the application.")
     {
-        public BlockedUserUnauthorizedException() : base($"You have been blocked from the application.")
-        {
-        }
     }
 }

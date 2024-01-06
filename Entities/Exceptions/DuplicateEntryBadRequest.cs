@@ -1,9 +1,8 @@
-﻿namespace Entities.Exceptions
+﻿namespace Entities.Exceptions;
+
+public sealed class DuplicateEntryBadRequest : BadRequestException
 {
-    public sealed class DuplicateEntryBadRequest : BadRequestException
+    public DuplicateEntryBadRequest() : base("An entry with same name already exists.")
     {
-        public DuplicateEntryBadRequest() : base("An entry with same name already exists.")
-        {
-        }
     }
 }

@@ -1,8 +1,7 @@
-﻿namespace Shared.DataTransferObjects
+﻿namespace Shared.DataTransferObjects;
+
+public record TasksPerTypeDto
 {
-    public record TasksPerTypeDto
-    {
-        public string? Type { get; init; }
-        public int Count { get; init; }
-    }
+    public string? Type { get; init; }
+    public int Count { get; init; }
 }
