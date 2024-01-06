@@ -1,11 +1,10 @@
-﻿namespace Entities.ConfigurationModels
-{
-    public class SuperAdminConfiguration
-    {
-        public string Section { get; set; } = "SuperAdmin";
+﻿namespace Entities.ConfigurationModels;
 
-        public string? FirstName { get; set; }
-        public string? LastName { get; set; }
-        public string? Email { get; set; }
-    }
+public class SuperAdminConfiguration
+{
+    public string Section { get; set; } = "SuperAdmin";
+
+    public string? FirstName { get; set; }
+    public string? LastName { get; set; }
+    public string? Email { get; set; }
 }

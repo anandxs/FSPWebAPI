@@ -1,4 +1,3 @@
-﻿namespace Shared.DataTransferObjects
-{
-    public record IncludedStageDto(Guid StageId, string Name);
-}
+﻿namespace Shared.DataTransferObjects;
+
+public record IncludedStageDto(Guid StageId, string Name);

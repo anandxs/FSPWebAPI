@@ -1,7 +1,6 @@
-﻿namespace Contracts
+﻿namespace Contracts;
+
+public interface IDbInitializer
 {
-    public interface IDbInitializer
-    {
-        void Initialize();
-    }
+    void Initialize();
 }

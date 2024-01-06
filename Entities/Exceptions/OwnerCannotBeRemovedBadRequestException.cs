@@ -1,9 +1,8 @@
-﻿namespace Entities.Exceptions
+﻿namespace Entities.Exceptions;
+
+public sealed class OwnerCannotBeRemovedBadRequestException : BadRequestException
 {
-    public sealed class OwnerCannotBeRemovedBadRequestException : BadRequestException
+    public OwnerCannotBeRemovedBadRequestException() : base($"Owner cannot exit/be removed from project.")
     {
-        public OwnerCannotBeRemovedBadRequestException() : base($"Owner cannot exit/be removed from project.")
-        {
-        }
     }
 }

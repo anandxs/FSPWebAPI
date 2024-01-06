@@ -1,23 +1,22 @@
-﻿namespace FSPWebAPI.Middlewares
+﻿namespace FSPWebAPI.Middlewares;
+
+public class TokenValidityCheckerMiddleware : IMiddleware
 {
-    public class TokenValidityCheckerMiddleware : IMiddleware
+    private readonly ITokenManager _tokenManager;
+
+    public TokenValidityCheckerMiddleware(ITokenManager tokenManager)
     {
-        private readonly ITokenManager _tokenManager;
+        _tokenManager = tokenManager;
+    }
 
-        public TokenValidityCheckerMiddleware(ITokenManager tokenManager)
+    public async Task InvokeAsync(HttpContext context, RequestDelegate next)
+    {
+        if (await _tokenManager.IsCurrentActiveTokenAsync() || !context.User.Identity.IsAuthenticated)
         {
-            _tokenManager = tokenManager;
+            await next(context);
+            return;
         }
 
-        public async Task InvokeAsync(HttpContext context, RequestDelegate next)
-        {
-            if (await _tokenManager.IsCurrentActiveTokenAsync() || !context.User.Identity.IsAuthenticated)
-            {
-                await next(context);
-                return;
-            }
-
-            throw new BlockedUserUnauthorizedException();
-        }
+        throw new BlockedUserUnauthorizedException();
     }
 }

@@ -1,8 +1,7 @@
-﻿namespace Service.Contracts
+﻿namespace Service.Contracts;
+
+public interface IStatsService
 {
-    public interface IStatsService
-    {
-        Task<IEnumerable<TasksPerStageDto>> GetTasksPerStageAsync(Guid projectId, bool trackChanges);
-        Task<IEnumerable<TasksPerTypeDto>> GetTasksPerTypeAsync(Guid projectId, bool trackChanges);
-    }
+    Task<IEnumerable<TasksPerStageDto>> GetTasksPerStageAsync(Guid projectId, bool trackChanges);
+    Task<IEnumerable<TasksPerTypeDto>> GetTasksPerTypeAsync(Guid projectId, bool trackChanges);
 }

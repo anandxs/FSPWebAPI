@@ -1,146 +1,145 @@
-﻿namespace Service
+﻿namespace Service;
+
+public class ProjectService : IProjectService
 {
-    public class ProjectService : IProjectService
+    private readonly IRepositoryManager _repositoryManager;
+    private readonly ILoggerManager _logger;
+    private readonly IMapper _mapper;
+    private readonly UserManager<User> _userManager;
+    private readonly IHttpContextAccessor _contextAccessor;
+
+    public ProjectService(IRepositoryManager repositoryManager, ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IHttpContextAccessor contextAccessor)
     {
-        private readonly IRepositoryManager _repositoryManager;
-        private readonly ILoggerManager _logger;
-        private readonly IMapper _mapper;
-        private readonly UserManager<User> _userManager;
-        private readonly IHttpContextAccessor _contextAccessor;
+        _repositoryManager = repositoryManager;
+        _logger = logger;
+        _mapper = mapper;
+        _userManager = userManager;
+        _contextAccessor = contextAccessor;
+    }
 
-        public ProjectService(IRepositoryManager repositoryManager, ILoggerManager logger, IMapper mapper, UserManager<User> userManager, IHttpContextAccessor contextAccessor)
+    public async Task<IEnumerable<ProjectDto>> GetProjectsUserIsPartOfAsync(bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
+        var entities = await _repositoryManager.ProjectMemberRepository.GetProjectsForMemberAsync(requesterId, trackChanges);
+        
+        var projects = entities.Select(m => m.Project);
+        
+        var projectsDto = _mapper.Map<IEnumerable<ProjectDto>>(projects);
+        
+        return projectsDto;
+    }
+
+    public async Task<ProjectDto> GetProjectUserIsPartOfAsync(Guid projectId, bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
+        var entity = await _repositoryManager.ProjectMemberRepository.GetProjectForMemberAsync(requesterId, projectId, trackChanges);
+        
+        var project = entity?.Project;
+        if (entity is null || project is null)
         {
-            _repositoryManager = repositoryManager;
-            _logger = logger;
-            _mapper = mapper;
-            _userManager = userManager;
-            _contextAccessor = contextAccessor;
+            throw new ProjectNotFoundException(projectId);
+        }
+        
+        var projectDto = _mapper.Map<ProjectDto>(project);
+
+        return projectDto;
+    }
+
+    public async Task<ProjectDto> CreateProjectAsync(ProjectForCreationDto project)
+    {
+        var requesterId = GetRequesterId();
+        var requester = await _userManager.FindByIdAsync(requesterId);
+        if (requester is null)
+        {
+            throw new UserNotFoundException(requesterId);
         }
 
-        public async Task<IEnumerable<ProjectDto>> GetProjectsUserIsPartOfAsync(bool trackChanges)
+        var projectEntity = _mapper.Map<Project>(project);
+        _repositoryManager.ProjectRepository.CreateProject(projectEntity, requesterId);
+        
+        var member = new ProjectMember
         {
-            var requesterId = GetRequesterId();
-            var entities = await _repositoryManager.ProjectMemberRepository.GetProjectsForMemberAsync(requesterId, trackChanges);
-            
-            var projects = entities.Select(m => m.Project);
-            
-            var projectsDto = _mapper.Map<IEnumerable<ProjectDto>>(projects);
-            
-            return projectsDto;
-        }
-
-        public async Task<ProjectDto> GetProjectUserIsPartOfAsync(Guid projectId, bool trackChanges)
-        {
-            var requesterId = GetRequesterId();
-            var entity = await _repositoryManager.ProjectMemberRepository.GetProjectForMemberAsync(requesterId, projectId, trackChanges);
-            
-            var project = entity?.Project;
-            if (entity is null || project is null)
+            User = requester,
+            Project = projectEntity,
+            Role = new Role
             {
-                throw new ProjectNotFoundException(projectId);
-            }
-            
-            var projectDto = _mapper.Map<ProjectDto>(project);
-
-            return projectDto;
-        }
-
-        public async Task<ProjectDto> CreateProjectAsync(ProjectForCreationDto project)
-        {
-            var requesterId = GetRequesterId();
-            var requester = await _userManager.FindByIdAsync(requesterId);
-            if (requester is null)
-            {
-                throw new UserNotFoundException(requesterId);
-            }
-
-            var projectEntity = _mapper.Map<Project>(project);
-            _repositoryManager.ProjectRepository.CreateProject(projectEntity, requesterId);
-            
-            var member = new ProjectMember
-            {
-                User = requester,
+                Name = Constants.PROJECT_ROLE_ADMIN,
                 Project = projectEntity,
-                Role = new Role
-                {
-                    Name = Constants.PROJECT_ROLE_ADMIN,
-                    Project = projectEntity,
-                }
-            };
-            _repositoryManager.ProjectMemberRepository.AddProjectMember(member);
-            await _repositoryManager.SaveAsync();
-            
-            var projectToReturn = _mapper.Map<ProjectDto>(projectEntity);
+            }
+        };
+        _repositoryManager.ProjectMemberRepository.AddProjectMember(member);
+        await _repositoryManager.SaveAsync();
+        
+        var projectToReturn = _mapper.Map<ProjectDto>(projectEntity);
 
-            return projectToReturn;
-        }
+        return projectToReturn;
+    }
 
-        public async Task UpdateProjectAsync(Guid projectId, ProjectForUpdateDto projectForUpdateDto, bool trackChanges)
+    public async Task UpdateProjectAsync(Guid projectId, ProjectForUpdateDto projectForUpdateDto, bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
+        var entity = await _repositoryManager.ProjectMemberRepository.GetProjectForMemberAsync(requesterId, projectId, trackChanges);
+
+        if (entity == null)
         {
-            var requesterId = GetRequesterId();
-            var entity = await _repositoryManager.ProjectMemberRepository.GetProjectForMemberAsync(requesterId, projectId, trackChanges);
-
-            if (entity == null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-            else if (entity.Role.Name != Constants.PROJECT_ROLE_ADMIN)
-            {
-                throw new IncorrectRoleForbiddenRequestException();
-            }
-
-            _mapper.Map(projectForUpdateDto, entity.Project);
-            await _repositoryManager.SaveAsync();
+            throw new NotAProjectMemberForbiddenRequestException();
         }
-
-        public async Task ToggleArchive(Guid projectId, bool trackChanges)
+        else if (entity.Role.Name != Constants.PROJECT_ROLE_ADMIN)
         {
-            var requesterId = GetRequesterId();
-            var entity = await _repositoryManager.ProjectMemberRepository.GetProjectForMemberAsync(requesterId, projectId, trackChanges);
-
-            if (entity == null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-            else if (entity.Role.Name != Constants.PROJECT_ROLE_ADMIN)
-            {
-                throw new IncorrectRoleForbiddenRequestException();
-            }
-
-            var project = entity.Project;
-
-            project.IsActive = !project.IsActive;
-            await _repositoryManager.SaveAsync();
+            throw new IncorrectRoleForbiddenRequestException();
         }
 
-        public async Task DeleteProject(Guid projectId, bool trackChanges)
+        _mapper.Map(projectForUpdateDto, entity.Project);
+        await _repositoryManager.SaveAsync();
+    }
+
+    public async Task ToggleArchive(Guid projectId, bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
+        var entity = await _repositoryManager.ProjectMemberRepository.GetProjectForMemberAsync(requesterId, projectId, trackChanges);
+
+        if (entity == null)
         {
-            var requesterId = GetRequesterId();
-            var entity = await _repositoryManager.ProjectMemberRepository.GetProjectForMemberAsync(requesterId, projectId, trackChanges);
-
-            if (entity == null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-            else if (entity.Role.Name != Constants.PROJECT_ROLE_ADMIN)
-            {
-                throw new IncorrectRoleForbiddenRequestException();
-            }
-            else if (entity.Project.OwnerId != requesterId)
-            {
-                throw new IncorrectRoleForbiddenRequestException();
-            }
-
-            _repositoryManager.ProjectRepository.DeleteProject(entity.Project);
-            await _repositoryManager.SaveAsync();
+            throw new NotAProjectMemberForbiddenRequestException();
         }
-
-        private string GetRequesterId()
+        else if (entity.Role.Name != Constants.PROJECT_ROLE_ADMIN)
         {
-            var claimsIdentity = (ClaimsIdentity)_contextAccessor.HttpContext.User.Identity;
-            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-
-            return claim!.Value;
+            throw new IncorrectRoleForbiddenRequestException();
         }
+
+        var project = entity.Project;
+
+        project.IsActive = !project.IsActive;
+        await _repositoryManager.SaveAsync();
+    }
+
+    public async Task DeleteProject(Guid projectId, bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
+        var entity = await _repositoryManager.ProjectMemberRepository.GetProjectForMemberAsync(requesterId, projectId, trackChanges);
+
+        if (entity == null)
+        {
+            throw new NotAProjectMemberForbiddenRequestException();
+        }
+        else if (entity.Role.Name != Constants.PROJECT_ROLE_ADMIN)
+        {
+            throw new IncorrectRoleForbiddenRequestException();
+        }
+        else if (entity.Project.OwnerId != requesterId)
+        {
+            throw new IncorrectRoleForbiddenRequestException();
+        }
+
+        _repositoryManager.ProjectRepository.DeleteProject(entity.Project);
+        await _repositoryManager.SaveAsync();
+    }
+
+    private string GetRequesterId()
+    {
+        var claimsIdentity = (ClaimsIdentity)_contextAccessor.HttpContext.User.Identity;
+        var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+        return claim!.Value;
     }
 }

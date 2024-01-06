@@ -1,4 +1,3 @@
-﻿namespace FSPWebAPI.Presentation
-{
-    public static class AssemblyReference { }
-}
+﻿namespace FSPWebAPI.Presentation;
+
+public static class AssemblyReference { }

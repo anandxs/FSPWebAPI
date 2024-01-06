@@ -1,10 +1,9 @@
-﻿namespace Service.Contracts
+﻿namespace Service.Contracts;
+
+public interface IRoleService
 {
-    public interface IRoleService
-    {
-        Task<IEnumerable<RoleDto>> GetAllRolesForProjectAsync(Guid projectId, bool trackChanges);
-        Task CreateRoleAsync(Guid projectId, RoleForCreationDto role, bool trackChanges);
-        Task UpdateRoleAsync(Guid projectId, Guid roleId, RoleForUpdateDto role, bool trackChanges);
-        Task DeleteRoleAsync(Guid projectId, Guid roleId, bool trackChanges);
-    }
+    Task<IEnumerable<RoleDto>> GetAllRolesForProjectAsync(Guid projectId, bool trackChanges);
+    Task CreateRoleAsync(Guid projectId, RoleForCreationDto role, bool trackChanges);
+    Task UpdateRoleAsync(Guid projectId, Guid roleId, RoleForUpdateDto role, bool trackChanges);
+    Task DeleteRoleAsync(Guid projectId, Guid roleId, bool trackChanges);
 }

@@ -1,9 +1,8 @@
-﻿namespace Entities.Exceptions
+﻿namespace Entities.Exceptions;
+
+public sealed class RoleNotFoundException : NotFoundException
 {
-    public sealed class RoleNotFoundException : NotFoundException
+    public RoleNotFoundException(Guid id) : base($"Role with id : {id} not foound.")
     {
-        public RoleNotFoundException(Guid id) : base($"Role with id : {id} not foound.")
-        {
-        }
     }
 }

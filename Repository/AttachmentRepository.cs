@@ -1,32 +1,31 @@
-﻿namespace Repository
+﻿namespace Repository;
+
+public class AttachmentRepository : RepositoryBase<Attachment>, IAttachmentRepository
 {
-    public class AttachmentRepository : RepositoryBase<Attachment>, IAttachmentRepository
+    public AttachmentRepository(RepositoryContext repositoryContext) : base(repositoryContext)
     {
-        public AttachmentRepository(RepositoryContext repositoryContext) : base(repositoryContext)
-        {
-        }
+    }
 
-        public async Task<IEnumerable<Attachment>> GetAllTaskAttachmentsAsync(Guid taskId, bool trackChanges)
-        {
-            return await FindByCondition(a => a.TaskId.Equals(taskId), trackChanges)
-                        .ToListAsync();
-        }
+    public async Task<IEnumerable<Attachment>> GetAllTaskAttachmentsAsync(Guid taskId, bool trackChanges)
+    {
+        return await FindByCondition(a => a.TaskId.Equals(taskId), trackChanges)
+                    .ToListAsync();
+    }
 
-        public async Task<Attachment> GetAttachmentByIdAsync(Guid taskId, Guid attachmentId, bool trackChanges)
-        {
-            return await FindByCondition(a => a.TaskId.Equals(taskId) && a.AttachmentId.Equals(attachmentId), trackChanges)
-                        .SingleOrDefaultAsync();
-        }
+    public async Task<Attachment> GetAttachmentByIdAsync(Guid taskId, Guid attachmentId, bool trackChanges)
+    {
+        return await FindByCondition(a => a.TaskId.Equals(taskId) && a.AttachmentId.Equals(attachmentId), trackChanges)
+                    .SingleOrDefaultAsync();
+    }
 
-        public void AddAttachment(Guid taskId, Attachment attachment)
-        {
-            attachment.TaskId = taskId;
-            Create(attachment);
-        }
+    public void AddAttachment(Guid taskId, Attachment attachment)
+    {
+        attachment.TaskId = taskId;
+        Create(attachment);
+    }
 
-        public void RemoveAttachment(Attachment attachment)
-        {
-            Delete(attachment);
-        }
+    public void RemoveAttachment(Attachment attachment)
+    {
+        Delete(attachment);
     }
 }

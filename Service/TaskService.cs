@@ -1,176 +1,175 @@
-﻿namespace Service
+﻿namespace Service;
+
+public class TaskService : ITaskService
 {
-    public class TaskService : ITaskService
+    private readonly IRepositoryManager _repositoryManager;
+    private readonly ILoggerManager _logger;
+    private readonly IMapper _mapper;
+    private readonly IHttpContextAccessor _contextAccessor;
+
+    public TaskService(IRepositoryManager repositoryManager, ILoggerManager logger, IMapper mapper, IHttpContextAccessor contextAccessor)
     {
-        private readonly IRepositoryManager _repositoryManager;
-        private readonly ILoggerManager _logger;
-        private readonly IMapper _mapper;
-        private readonly IHttpContextAccessor _contextAccessor;
+        _repositoryManager = repositoryManager;
+        _logger = logger;
+        _mapper = mapper;
+        _contextAccessor = contextAccessor;
+    }
 
-        public TaskService(IRepositoryManager repositoryManager, ILoggerManager logger, IMapper mapper, IHttpContextAccessor contextAccessor)
+    public async Task<IEnumerable<ProjectTaskDto>> GetAllTasksForProjectAsync(Guid projectId, bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
+
+        var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
+
+        if (requester is null)
         {
-            _repositoryManager = repositoryManager;
-            _logger = logger;
-            _mapper = mapper;
-            _contextAccessor = contextAccessor;
+            throw new NotAProjectMemberForbiddenRequestException();
         }
 
-        public async Task<IEnumerable<ProjectTaskDto>> GetAllTasksForProjectAsync(Guid projectId, bool trackChanges)
+        var tasks = await _repositoryManager.TaskRepository.GetAllTasksForProjectAsync(projectId, trackChanges);
+
+        var tasksDto = _mapper.Map<IEnumerable<ProjectTaskDto>>(tasks);
+
+        return tasksDto;
+    }
+
+    public async Task<ProjectTaskDto> GetTaskByIdAsync(Guid projectId, Guid taskId, bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
+
+        var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+
+        if (requester is null)
         {
-            var requesterId = GetRequesterId();
-
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
-
-            if (requester is null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-
-            var tasks = await _repositoryManager.TaskRepository.GetAllTasksForProjectAsync(projectId, trackChanges);
-
-            var tasksDto = _mapper.Map<IEnumerable<ProjectTaskDto>>(tasks);
-
-            return tasksDto;
+            throw new NotAProjectMemberForbiddenRequestException();
         }
 
-        public async Task<ProjectTaskDto> GetTaskByIdAsync(Guid projectId, Guid taskId, bool trackChanges)
+        var task = await _repositoryManager.TaskRepository.GetTaskByIdAsync(taskId, trackChanges);
+
+        if (task == null)
         {
-            var requesterId = GetRequesterId();
-
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
-
-            if (requester is null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-
-            var task = await _repositoryManager.TaskRepository.GetTaskByIdAsync(taskId, trackChanges);
-
-            if (task == null)
-            {
-                throw new TaskNotFoundException(taskId);
-            }
-
-            var taskDto = _mapper.Map<ProjectTaskDto>(task);
-
-            return taskDto;
+            throw new TaskNotFoundException(taskId);
         }
 
-        public async Task<ProjectTaskDto> CreateTaskAsync(Guid projectId, TaskForCreationDto taskForCreationDto, bool trackChanges)
+        var taskDto = _mapper.Map<ProjectTaskDto>(task);
+
+        return taskDto;
+    }
+
+    public async Task<ProjectTaskDto> CreateTaskAsync(Guid projectId, TaskForCreationDto taskForCreationDto, bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
+
+        var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+
+        if (requester is null)
         {
-            var requesterId = GetRequesterId();
-
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
-
-            if (requester is null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
-            {
-                throw new IncorrectPasswordBadRequestException();
-            }
-
-            var task = _mapper.Map<ProjectTask>(taskForCreationDto);
-
-            if (task.AssigneeId != null)
-            {
-                var member = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, task.AssigneeId, trackChanges);
-
-                if (member == null)
-                {
-                    throw new NotAProjectMemberBadRequestException(task.AssigneeId);
-                }
-            }
-
-            var stage = await _repositoryManager.StageRepository.GetStageByIdAsync(projectId, task.StageId, trackChanges);
-
-            if (stage == null)
-            {
-                throw new StageNotFoundException(task.StageId);
-            }
-
-            var type = await _repositoryManager.TaskTypeRepository.GetTaskTypeByIdAsync(projectId, task.TypeId, trackChanges);
-
-            if (type == null)
-            {
-                throw new TaskTypeNotFoundException(task.TypeId);
-            }
-
-            task.ProjectId = projectId;
-
-            _repositoryManager.TaskRepository.CreateTask(task);
-            await _repositoryManager.SaveAsync();
-
-            var taskDto = _mapper.Map<ProjectTaskDto>(task);
-
-            return taskDto;
+            throw new NotAProjectMemberForbiddenRequestException();
+        }
+        else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
+        {
+            throw new IncorrectPasswordBadRequestException();
         }
 
-        public async Task UpdateTaskAsync(Guid projectId, Guid taskId, TaskForUpdateDto taskForUpdateDto, bool trackChanges)
+        var task = _mapper.Map<ProjectTask>(taskForCreationDto);
+
+        if (task.AssigneeId != null)
         {
-            var requesterId = GetRequesterId();
+            var member = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, task.AssigneeId, trackChanges);
 
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
-
-            if (requester is null)
+            if (member == null)
             {
-                throw new NotAProjectMemberForbiddenRequestException();
+                throw new NotAProjectMemberBadRequestException(task.AssigneeId);
             }
-
-            if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN && taskForUpdateDto.AssigneeId == null)
-            {
-                throw new IncorrectRoleForbiddenRequestException();
-            }
-
-            var task = await _repositoryManager.TaskRepository.GetTaskByIdAsync(taskId, trackChanges);
-
-            if (task == null)
-            {
-                throw new TaskNotFoundException(taskId);
-            }
-
-            if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN && requester.User.Id != task.AssigneeId)
-            {
-                throw new IncorrectRoleForbiddenRequestException();
-            }
-
-            _mapper.Map(taskForUpdateDto, task);
-            await _repositoryManager.SaveAsync();
         }
 
-        public async Task DeleteTaskAsync(Guid projectId, Guid taskId, bool trackChanges)
+        var stage = await _repositoryManager.StageRepository.GetStageByIdAsync(projectId, task.StageId, trackChanges);
+
+        if (stage == null)
         {
-            var requesterId = GetRequesterId();
-
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
-
-            if (requester is null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
-            {
-                throw new IncorrectPasswordBadRequestException();
-            }
-
-            var task = await _repositoryManager.TaskRepository.GetTaskByIdAsync(taskId, trackChanges);
-
-            if (task == null)
-            {
-                throw new TaskNotFoundException(taskId);
-            }
-
-            _repositoryManager.TaskRepository.DeleteTask(task);
-            await _repositoryManager.SaveAsync();
+            throw new StageNotFoundException(task.StageId);
         }
 
-        private string GetRequesterId()
-        {
-            var claimsIdentity = (ClaimsIdentity)_contextAccessor.HttpContext.User.Identity;
-            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+        var type = await _repositoryManager.TaskTypeRepository.GetTaskTypeByIdAsync(projectId, task.TypeId, trackChanges);
 
-            return claim!.Value;
+        if (type == null)
+        {
+            throw new TaskTypeNotFoundException(task.TypeId);
         }
+
+        task.ProjectId = projectId;
+
+        _repositoryManager.TaskRepository.CreateTask(task);
+        await _repositoryManager.SaveAsync();
+
+        var taskDto = _mapper.Map<ProjectTaskDto>(task);
+
+        return taskDto;
+    }
+
+    public async Task UpdateTaskAsync(Guid projectId, Guid taskId, TaskForUpdateDto taskForUpdateDto, bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
+
+        var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+
+        if (requester is null)
+        {
+            throw new NotAProjectMemberForbiddenRequestException();
+        }
+
+        if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN && taskForUpdateDto.AssigneeId == null)
+        {
+            throw new IncorrectRoleForbiddenRequestException();
+        }
+
+        var task = await _repositoryManager.TaskRepository.GetTaskByIdAsync(taskId, trackChanges);
+
+        if (task == null)
+        {
+            throw new TaskNotFoundException(taskId);
+        }
+
+        if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN && requester.User.Id != task.AssigneeId)
+        {
+            throw new IncorrectRoleForbiddenRequestException();
+        }
+
+        _mapper.Map(taskForUpdateDto, task);
+        await _repositoryManager.SaveAsync();
+    }
+
+    public async Task DeleteTaskAsync(Guid projectId, Guid taskId, bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
+
+        var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+
+        if (requester is null)
+        {
+            throw new NotAProjectMemberForbiddenRequestException();
+        }
+        else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
+        {
+            throw new IncorrectPasswordBadRequestException();
+        }
+
+        var task = await _repositoryManager.TaskRepository.GetTaskByIdAsync(taskId, trackChanges);
+
+        if (task == null)
+        {
+            throw new TaskNotFoundException(taskId);
+        }
+
+        _repositoryManager.TaskRepository.DeleteTask(task);
+        await _repositoryManager.SaveAsync();
+    }
+
+    private string GetRequesterId()
+    {
+        var claimsIdentity = (ClaimsIdentity)_contextAccessor.HttpContext.User.Identity;
+        var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+        return claim!.Value;
     }
 }

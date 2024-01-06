@@ -1,21 +1,20 @@
-﻿namespace Repository
+﻿namespace Repository;
+
+public class ChatRepository : RepositoryBase<ChatMessage>, IChatRepository
 {
-    public class ChatRepository : RepositoryBase<ChatMessage>, IChatRepository
+    public ChatRepository(RepositoryContext repositoryContext) : base(repositoryContext)
     {
-        public ChatRepository(RepositoryContext repositoryContext) : base(repositoryContext)
-        {
-        }
+    }
 
-        public async Task<IEnumerable<ChatMessage>> GetAllMessagesForProjectAsync(Guid projectId, bool trackChanges)
-        {
-            return await FindByCondition(c => c.ProjectId.Equals(projectId), trackChanges)
+    public async Task<IEnumerable<ChatMessage>> GetAllMessagesForProjectAsync(Guid projectId, bool trackChanges)
+    {
+        return await FindByCondition(c => c.ProjectId.Equals(projectId), trackChanges)
 		    .Include(c => c.Sender)
-                    .ToListAsync();
-        }
+                .ToListAsync();
+    }
 
-        public void AddMessage(ChatMessage message)
-        {
-            Create(message);
-        }
+    public void AddMessage(ChatMessage message)
+    {
+        Create(message);
     }
 }

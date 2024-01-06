@@ -1,7 +1,6 @@
-﻿namespace Contracts
+﻿namespace Contracts;
+
+public interface IUserRepository
 {
-    public interface IUserRepository
-    {
-        Task<IEnumerable<User>> GetAllUsers(bool trackChanges);
-    }
+    Task<IEnumerable<User>> GetAllUsers(bool trackChanges);
 }

@@ -1,8 +1,7 @@
-﻿namespace Contracts
+﻿namespace Contracts;
+
+public interface IChatRepository
 {
-    public interface IChatRepository
-    {
-        Task<IEnumerable<ChatMessage>> GetAllMessagesForProjectAsync(Guid projectId, bool trackChanges);
-        void AddMessage(ChatMessage message);
-    }
+    Task<IEnumerable<ChatMessage>> GetAllMessagesForProjectAsync(Guid projectId, bool trackChanges);
+    void AddMessage(ChatMessage message);
 }

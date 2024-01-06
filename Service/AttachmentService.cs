@@ -1,176 +1,175 @@
 ﻿using Azure.Storage.Blobs;
 
-namespace Service
+namespace Service;
+
+public class AttachmentService : IAttachmentService
 {
-    public class AttachmentService : IAttachmentService
+    private const string BlobContainerName = "attachments";
+    private readonly IRepositoryManager _repositoryManager;
+    private readonly ILoggerManager _logger;
+    private readonly IMapper _mapper;
+    private readonly IHttpContextAccessor _contextAccessor;
+    private readonly BlobServiceClient _blobServiceClient;
+
+    public AttachmentService(IRepositoryManager repositoryManager, ILoggerManager logger, IMapper mapper, IHttpContextAccessor contextAccessor, BlobServiceClient blobServiceClient)
     {
-        private const string BlobContainerName = "attachments";
-        private readonly IRepositoryManager _repositoryManager;
-        private readonly ILoggerManager _logger;
-        private readonly IMapper _mapper;
-        private readonly IHttpContextAccessor _contextAccessor;
-        private readonly BlobServiceClient _blobServiceClient;
+        _repositoryManager = repositoryManager;
+        _logger = logger;
+        _mapper = mapper;
+        _contextAccessor = contextAccessor;
+        _blobServiceClient = blobServiceClient;
+    }
 
-        public AttachmentService(IRepositoryManager repositoryManager, ILoggerManager logger, IMapper mapper, IHttpContextAccessor contextAccessor, BlobServiceClient blobServiceClient)
+    public async Task<IEnumerable<AttachmentDto>> GetAllProjectAttachmentsAsync(Guid projectId, Guid taskId, bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
+
+        var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+
+        if (requester is null)
         {
-            _repositoryManager = repositoryManager;
-            _logger = logger;
-            _mapper = mapper;
-            _contextAccessor = contextAccessor;
-            _blobServiceClient = blobServiceClient;
+            throw new NotAProjectMemberForbiddenRequestException();
         }
 
-        public async Task<IEnumerable<AttachmentDto>> GetAllProjectAttachmentsAsync(Guid projectId, Guid taskId, bool trackChanges)
+        var task = await _repositoryManager.TaskRepository.GetTaskByIdAsync(taskId, trackChanges);
+
+        if (task == null)
         {
-            var requesterId = GetRequesterId();
-
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
-
-            if (requester is null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-
-            var task = await _repositoryManager.TaskRepository.GetTaskByIdAsync(taskId, trackChanges);
-
-            if (task == null)
-            {
-                throw new TaskNotFoundException(taskId);
-            }
-
-            var attachments = await _repositoryManager.AttachmentRepository.GetAllTaskAttachmentsAsync(taskId, trackChanges);
-
-            var attachmentsDto = _mapper.Map<IEnumerable<AttachmentDto>>(attachments);
-
-            return attachmentsDto;
+            throw new TaskNotFoundException(taskId);
         }
 
-        public async Task<(Stream stream, string fileName)> GetAttachmentByIdAsync(Guid projectId, Guid taskId, Guid attachmentId, bool trackChanges)
+        var attachments = await _repositoryManager.AttachmentRepository.GetAllTaskAttachmentsAsync(taskId, trackChanges);
+
+        var attachmentsDto = _mapper.Map<IEnumerable<AttachmentDto>>(attachments);
+
+        return attachmentsDto;
+    }
+
+    public async Task<(Stream stream, string fileName)> GetAttachmentByIdAsync(Guid projectId, Guid taskId, Guid attachmentId, bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
+
+        var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+
+        if (requester is null)
         {
-            var requesterId = GetRequesterId();
+            throw new NotAProjectMemberForbiddenRequestException();
+        }
 
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+        var task = await _repositoryManager.TaskRepository.GetTaskByIdAsync(taskId, trackChanges);
 
-            if (requester is null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
+        if (task == null)
+        {
+            throw new TaskNotFoundException(taskId);
+        }
 
-            var task = await _repositoryManager.TaskRepository.GetTaskByIdAsync(taskId, trackChanges);
+        var attachment = await _repositoryManager.AttachmentRepository.GetAttachmentByIdAsync(taskId, attachmentId, trackChanges);
 
-            if (task == null)
-            {
-                throw new TaskNotFoundException(taskId);
-            }
+        if (attachment == null)
+        {
+            throw new AttachmentNotFoundException(attachmentId);
+        }
 
-            var attachment = await _repositoryManager.AttachmentRepository.GetAttachmentByIdAsync(taskId, attachmentId, trackChanges);
+        var containerClient = _blobServiceClient.GetBlobContainerClient(BlobContainerName);
+        var blobClient = containerClient.GetBlobClient($"{taskId}/{attachment.FileName}");
+        var downloadContent = await blobClient.DownloadContentAsync();
 
-            if (attachment == null)
-            {
-                throw new AttachmentNotFoundException(attachmentId);
-            }
+        var stream = new MemoryStream(downloadContent.Value.Content.ToArray());
 
+        return (stream, attachment.FileName);
+    }
+
+    public async Task AddAttachmentAsync(Guid projectId, Guid taskId, bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
+
+        var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+
+        if (requester is null)
+        {
+            throw new NotAProjectMemberForbiddenRequestException();
+        }
+
+        var task = await _repositoryManager.TaskRepository.GetTaskByIdAsync(taskId, trackChanges);
+
+        if (task == null)
+        {
+            throw new TaskNotFoundException(taskId);
+        }
+
+        if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN && requester.MemberId != task.AssigneeId)
+        {
+            throw new IncorrectRoleForbiddenRequestException();
+        }
+
+        var file = _contextAccessor.HttpContext.Request.Form.Files[0];
+        
+        using (Stream stream = file.OpenReadStream())
+        {
             var containerClient = _blobServiceClient.GetBlobContainerClient(BlobContainerName);
-            var blobClient = containerClient.GetBlobClient($"{taskId}/{attachment.FileName}");
-            var downloadContent = await blobClient.DownloadContentAsync();
+            var blobClient = containerClient.GetBlobClient($"{taskId}/{file.FileName}");
+            var exists = await blobClient.ExistsAsync();
 
-            var stream = new MemoryStream(downloadContent.Value.Content.ToArray());
+            if (exists)
+            {
+                throw new DuplicateEntryBadRequest();
+            }
 
-            return (stream, attachment.FileName);
+            await blobClient.UploadAsync(stream);
         }
 
-        public async Task AddAttachmentAsync(Guid projectId, Guid taskId, bool trackChanges)
+        var attachment = new Attachment
         {
-            var requesterId = GetRequesterId();
+            FileName = $"{file.FileName}",
+            CreatedAt = DateTime.Now,
+        };
+        _repositoryManager.AttachmentRepository.AddAttachment(taskId, attachment);
+        await _repositoryManager.SaveAsync();
+    }
 
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+    public async Task DeleteAttachmentAsync(Guid projectId, Guid taskId, Guid attachmentId, bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
 
-            if (requester is null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
+        var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
 
-            var task = await _repositoryManager.TaskRepository.GetTaskByIdAsync(taskId, trackChanges);
-
-            if (task == null)
-            {
-                throw new TaskNotFoundException(taskId);
-            }
-
-            if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN && requester.MemberId != task.AssigneeId)
-            {
-                throw new IncorrectRoleForbiddenRequestException();
-            }
-
-            var file = _contextAccessor.HttpContext.Request.Form.Files[0];
-            
-            using (Stream stream = file.OpenReadStream())
-            {
-                var containerClient = _blobServiceClient.GetBlobContainerClient(BlobContainerName);
-                var blobClient = containerClient.GetBlobClient($"{taskId}/{file.FileName}");
-                var exists = await blobClient.ExistsAsync();
-
-                if (exists)
-                {
-                    throw new DuplicateEntryBadRequest();
-                }
-
-                await blobClient.UploadAsync(stream);
-            }
-
-            var attachment = new Attachment
-            {
-                FileName = $"{file.FileName}",
-                CreatedAt = DateTime.Now,
-            };
-            _repositoryManager.AttachmentRepository.AddAttachment(taskId, attachment);
-            await _repositoryManager.SaveAsync();
-        }
-
-        public async Task DeleteAttachmentAsync(Guid projectId, Guid taskId, Guid attachmentId, bool trackChanges)
+        if (requester is null)
         {
-            var requesterId = GetRequesterId();
-
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
-
-            if (requester is null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-
-            var task = await _repositoryManager.TaskRepository.GetTaskByIdAsync(taskId, trackChanges);
-
-            if (task == null)
-            {
-                throw new TaskNotFoundException(taskId);
-            }
-
-            if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN && requester.MemberId != task.AssigneeId)
-            {
-                throw new IncorrectRoleForbiddenRequestException();
-            }
-
-            var attachment = await _repositoryManager.AttachmentRepository.GetAttachmentByIdAsync(taskId, attachmentId, trackChanges);
-
-            if (attachment is null)
-            {
-                throw new AttachmentNotFoundException(attachmentId);
-            }
-
-            var containerClient = _blobServiceClient.GetBlobContainerClient(BlobContainerName);
-            var blobClient = containerClient.GetBlobClient($"{taskId}/{attachment.FileName}");
-            await blobClient.DeleteAsync();
-
-            _repositoryManager.AttachmentRepository.RemoveAttachment(attachment);
-            await _repositoryManager.SaveAsync();
+            throw new NotAProjectMemberForbiddenRequestException();
         }
 
-        private string GetRequesterId()
+        var task = await _repositoryManager.TaskRepository.GetTaskByIdAsync(taskId, trackChanges);
+
+        if (task == null)
         {
-            var claimsIdentity = (ClaimsIdentity)_contextAccessor.HttpContext.User.Identity;
-            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-
-            return claim!.Value;
+            throw new TaskNotFoundException(taskId);
         }
+
+        if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN && requester.MemberId != task.AssigneeId)
+        {
+            throw new IncorrectRoleForbiddenRequestException();
+        }
+
+        var attachment = await _repositoryManager.AttachmentRepository.GetAttachmentByIdAsync(taskId, attachmentId, trackChanges);
+
+        if (attachment is null)
+        {
+            throw new AttachmentNotFoundException(attachmentId);
+        }
+
+        var containerClient = _blobServiceClient.GetBlobContainerClient(BlobContainerName);
+        var blobClient = containerClient.GetBlobClient($"{taskId}/{attachment.FileName}");
+        await blobClient.DeleteAsync();
+
+        _repositoryManager.AttachmentRepository.RemoveAttachment(attachment);
+        await _repositoryManager.SaveAsync();
+    }
+
+    private string GetRequesterId()
+    {
+        var claimsIdentity = (ClaimsIdentity)_contextAccessor.HttpContext.User.Identity;
+        var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+        return claim!.Value;
     }
 }

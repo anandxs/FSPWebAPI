@@ -1,90 +1,89 @@
-﻿namespace Service
+﻿namespace Service;
+
+public class StatsService : IStatsService
 {
-    public class StatsService : IStatsService
+    private readonly IRepositoryManager _repositoryManager;
+    private readonly ILoggerManager _logger;
+    private readonly IMapper _mapper;
+    private readonly IHttpContextAccessor _contextAccessor;
+
+    public StatsService(IRepositoryManager repositoryManager, ILoggerManager logger, IMapper mapper, IHttpContextAccessor contextAccessor)
     {
-        private readonly IRepositoryManager _repositoryManager;
-        private readonly ILoggerManager _logger;
-        private readonly IMapper _mapper;
-        private readonly IHttpContextAccessor _contextAccessor;
+        _repositoryManager = repositoryManager;
+        _logger = logger;
+        _mapper = mapper;
+        _contextAccessor = contextAccessor;
+    }
 
-        public StatsService(IRepositoryManager repositoryManager, ILoggerManager logger, IMapper mapper, IHttpContextAccessor contextAccessor)
+    public async Task<IEnumerable<TasksPerStageDto>> GetTasksPerStageAsync(Guid projectId, bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
+
+        var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+
+        if (requester is null)
         {
-            _repositoryManager = repositoryManager;
-            _logger = logger;
-            _mapper = mapper;
-            _contextAccessor = contextAccessor;
+            throw new NotAProjectMemberForbiddenRequestException();
+        }
+        else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
+        {
+            throw new IncorrectRoleForbiddenRequestException();
         }
 
-        public async Task<IEnumerable<TasksPerStageDto>> GetTasksPerStageAsync(Guid projectId, bool trackChanges)
+        var stages = await _repositoryManager.StageRepository.GetAllStagesForProjectAsync(projectId, trackChanges);
+        var tasks = await _repositoryManager.TaskRepository.GetAllTasksForProjectAsync(projectId, trackChanges);
+
+        var tasksPerStageDtos = new List<TasksPerStageDto>();
+
+        foreach (var stage in stages)
         {
-            var requesterId = GetRequesterId();
-
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
-
-            if (requester is null)
+            tasksPerStageDtos.Add(new TasksPerStageDto
             {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
-            {
-                throw new IncorrectRoleForbiddenRequestException();
-            }
-
-            var stages = await _repositoryManager.StageRepository.GetAllStagesForProjectAsync(projectId, trackChanges);
-            var tasks = await _repositoryManager.TaskRepository.GetAllTasksForProjectAsync(projectId, trackChanges);
-
-            var tasksPerStageDtos = new List<TasksPerStageDto>();
-
-            foreach (var stage in stages)
-            {
-                tasksPerStageDtos.Add(new TasksPerStageDto
-                {
-                    Stage = stage.Name,
-                    Count = tasks.Where(t => t.StageId.Equals(stage.StageId)).Count(),
-                });
-            }
-
-            return tasksPerStageDtos;
+                Stage = stage.Name,
+                Count = tasks.Where(t => t.StageId.Equals(stage.StageId)).Count(),
+            });
         }
 
-        public async Task<IEnumerable<TasksPerTypeDto>> GetTasksPerTypeAsync(Guid projectId, bool trackChanges)
+        return tasksPerStageDtos;
+    }
+
+    public async Task<IEnumerable<TasksPerTypeDto>> GetTasksPerTypeAsync(Guid projectId, bool trackChanges)
+    {
+        var requesterId = GetRequesterId();
+
+        var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
+
+        if (requester is null)
         {
-            var requesterId = GetRequesterId();
-
-            var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, trackChanges);
-
-            if (requester is null)
-            {
-                throw new NotAProjectMemberForbiddenRequestException();
-            }
-            else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
-            {
-                throw new IncorrectRoleForbiddenRequestException();
-            }
-
-            var types = await _repositoryManager.TaskTypeRepository.GetAllTaskTypesForProjectAsync(projectId, trackChanges);
-            var tasks = await _repositoryManager.TaskRepository.GetAllTasksForProjectAsync(projectId, trackChanges);
-
-            var tasksPerTypeDto = new List<TasksPerTypeDto>();
-
-            foreach (var type in types)
-            {
-                tasksPerTypeDto.Add(new TasksPerTypeDto
-                {
-                    Type = type.Name,
-                    Count = tasks.Where(t => t.TypeId.Equals(type.TypeId)).Count(),
-                });
-            }
-
-            return tasksPerTypeDto;
+            throw new NotAProjectMemberForbiddenRequestException();
+        }
+        else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
+        {
+            throw new IncorrectRoleForbiddenRequestException();
         }
 
-        private string GetRequesterId()
-        {
-            var claimsIdentity = (ClaimsIdentity)_contextAccessor.HttpContext.User.Identity;
-            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+        var types = await _repositoryManager.TaskTypeRepository.GetAllTaskTypesForProjectAsync(projectId, trackChanges);
+        var tasks = await _repositoryManager.TaskRepository.GetAllTasksForProjectAsync(projectId, trackChanges);
 
-            return claim!.Value;
+        var tasksPerTypeDto = new List<TasksPerTypeDto>();
+
+        foreach (var type in types)
+        {
+            tasksPerTypeDto.Add(new TasksPerTypeDto
+            {
+                Type = type.Name,
+                Count = tasks.Where(t => t.TypeId.Equals(type.TypeId)).Count(),
+            });
         }
+
+        return tasksPerTypeDto;
+    }
+
+    private string GetRequesterId()
+    {
+        var claimsIdentity = (ClaimsIdentity)_contextAccessor.HttpContext.User.Identity;
+        var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
+
+        return claim!.Value;
     }
 }

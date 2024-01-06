@@ -1,9 +1,8 @@
-﻿namespace Entities.Exceptions
+﻿namespace Entities.Exceptions;
+
+public sealed class MemberAlreadyAssignedToCardBadRequestException : BadRequestException
 {
-    public sealed class MemberAlreadyAssignedToCardBadRequestException : BadRequestException
+    public MemberAlreadyAssignedToCardBadRequestException() : base($"Member is already assigned to this card.")
     {
-        public MemberAlreadyAssignedToCardBadRequestException() : base($"Member is already assigned to this card.")
-        {
-        }
     }
 }

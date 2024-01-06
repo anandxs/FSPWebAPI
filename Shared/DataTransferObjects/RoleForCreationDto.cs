@@ -1,11 +1,10 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Shared.DataTransferObjects
+namespace Shared.DataTransferObjects;
+
+public record RoleForCreationDto
 {
-    public record RoleForCreationDto
-    {
-        [Required(ErrorMessage = "Role name is a required field.")]
-        [MaxLength(256, ErrorMessage = "Maximum length of role name is 256 characters.")]
-        public string? Name { get; init; }
-    }
+    [Required(ErrorMessage = "Role name is a required field.")]
+    [MaxLength(256, ErrorMessage = "Maximum length of role name is 256 characters.")]
+    public string? Name { get; init; }
 }

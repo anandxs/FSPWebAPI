@@ -1,10 +1,9 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace Shared.DataTransferObjects
+namespace Shared.DataTransferObjects;
+
+public record ProjectForCreationDto
 {
-    public record ProjectForCreationDto
-    {
-        [Required(ErrorMessage = "Project name is a required field.")]
-        public string? Name { get; set; }
-    }
+    [Required(ErrorMessage = "Project name is a required field.")]
+    public string? Name { get; set; }
 }
