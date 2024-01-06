@@ -17,9 +17,7 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> GetMembersForProject(Guid projectId)
         {
-            var requesterId = GetRequesterId();
-
-            var members = await _service.MemberService.GetAllProjectMembersAsync(projectId, requesterId, false);
+            var members = await _service.MemberService.GetAllProjectMembersAsync(projectId, false);
 
             return Ok(members);
         }
@@ -27,9 +25,7 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpGet("{memberId}")]
         public async Task<IActionResult> GetProjectMember(Guid projectId, string memberId)
         {
-            var requesterId = GetRequesterId();
-
-            var member = await _service.MemberService.GetProjectMemberAsync(projectId, memberId ,requesterId, false);
+            var member = await _service.MemberService.GetProjectMemberAsync(projectId, memberId, false);
 
             return Ok(member);
         }
@@ -38,9 +34,7 @@ namespace FSPWebAPI.Presentation.Controllers
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> AddMember(Guid projectId, [FromBody] MemberForCreationDto memberDto)
         {
-            var requesterId = GetRequesterId();
-
-            var result = await _service.MemberService.AddMemberAsync(projectId, requesterId, memberDto, false);
+            var result = await _service.MemberService.AddMemberAsync(projectId, memberDto, false);
 
             return Ok(new { message = result });
         }
@@ -48,9 +42,7 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpPost("accept")]
         public async Task<IActionResult> AcceptInvite(Guid projectId)
         {
-            var requesterId = GetRequesterId();
-
-            var result = await _service.MemberService.AcceptInviteAsync(projectId, requesterId);
+            var result = await _service.MemberService.AcceptInviteAsync(projectId);
 
             if (result)
                 return Ok(new { message = "Successfully joined project"});
@@ -61,9 +53,7 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpPut]
         public async Task<IActionResult> ChangeMemberRole(Guid projectId, [FromBody] MemberForUpdateDto memberDto)
         {
-            var requesterId = GetRequesterId();
-
-            await _service.MemberService.ChangeMemberRoleAsync(projectId, requesterId, memberDto, true);
+            await _service.MemberService.ChangeMemberRoleAsync(projectId, memberDto, true);
 
             return NoContent();
         }
@@ -78,7 +68,7 @@ namespace FSPWebAPI.Presentation.Controllers
                 return BadRequest("You cannot remove yourself.");
             }
 
-            await _service.MemberService.RemoveMemberAsync(projectId, memberId, requesterId, false);
+            await _service.MemberService.RemoveMemberAsync(projectId, memberId, false);
 
             return NoContent();
         }
@@ -86,9 +76,7 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpDelete]
         public async Task<IActionResult> ExitProject(Guid projectId)
         {
-            var requesterId = GetRequesterId();
-
-            await _service.MemberService.ExitProjectAsync(projectId, requesterId, false);
+            await _service.MemberService.ExitProjectAsync(projectId, false);
 
             return NoContent();
         }

@@ -1,6 +1,4 @@
-﻿using System.Security.Claims;
-
-namespace FSPWebAPI.Presentation.Controllers
+﻿namespace FSPWebAPI.Presentation.Controllers
 {
     [ApiController]
     [Route("api/projects")]
@@ -17,9 +15,7 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpGet]
         public async Task<IActionResult> GetProjectsUserIsPartOf()
         {
-            var requesterId = GetRequesterId();
-
-            var projects = await _service.ProjectService.GetProjectsUserIsPartOfAsync(requesterId, false);
+            var projects = await _service.ProjectService.GetProjectsUserIsPartOfAsync(false);
 
             return Ok(projects);
         }
@@ -27,9 +23,7 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpGet("{projectId:guid}", Name = "GetProjectById")]
         public async Task<IActionResult> GetProjectUserIsPartOf(Guid projectId)
         {
-            var requesterId = GetRequesterId();
-
-            var project = await _service.ProjectService.GetProjectUserIsPartOfAsync(requesterId, projectId, false);
+            var project = await _service.ProjectService.GetProjectUserIsPartOfAsync(projectId, false);
 
             return Ok(project);
         }
@@ -38,9 +32,7 @@ namespace FSPWebAPI.Presentation.Controllers
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> CreateProject([FromBody] ProjectForCreationDto projectDto)
         {
-            var requesterId = GetRequesterId();
-
-            var project = await _service.ProjectService.CreateProjectAsync(requesterId, projectDto);
+            var project = await _service.ProjectService.CreateProjectAsync(projectDto);
 
             return CreatedAtRoute("GetProjectById", new { projectId = project.ProjectId }, project);
         }
@@ -49,9 +41,7 @@ namespace FSPWebAPI.Presentation.Controllers
         [ServiceFilter(typeof(ValidationFilterAttribute))]
         public async Task<IActionResult> UpdateProject(Guid projectId, [FromBody] ProjectForUpdateDto projectDto)
         {
-            var requesterId = GetRequesterId();
-
-            await _service.ProjectService.UpdateProjectAsync(requesterId, projectId, projectDto, true);
+            await _service.ProjectService.UpdateProjectAsync(projectId, projectDto, true);
 
             return NoContent();
         }
@@ -59,9 +49,7 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpPut("{projectId:guid}/archive")]
         public async Task<IActionResult> ToggleArchiveStatus(Guid projectId)
         {
-            var requesterId = GetRequesterId();
-
-            await _service.ProjectService.ToggleArchive(requesterId, projectId, true);
+            await _service.ProjectService.ToggleArchive(projectId, true);
 
             return NoContent();
         }
@@ -69,19 +57,9 @@ namespace FSPWebAPI.Presentation.Controllers
         [HttpDelete("{projectId:guid}")]
         public async Task<IActionResult> DeleteProject(Guid projectId)
         {
-            var requesterId = GetRequesterId();
-
-            await _service.ProjectService.DeleteProject(requesterId, projectId, false);
+            await _service.ProjectService.DeleteProject(projectId, false);
 
             return NoContent();
-        }
-
-        private string GetRequesterId()
-        {
-            var claimsIdentity = (ClaimsIdentity)User.Identity!;
-            var claim = claimsIdentity.FindFirst(ClaimTypes.NameIdentifier);
-
-            return claim!.Value;
         }
     }
 }
