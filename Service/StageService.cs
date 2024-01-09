@@ -1,4 +1,6 @@
-﻿namespace Service;
+﻿using Entities;
+
+namespace Service;
 
 public class StageService : IStageService
 {
@@ -170,8 +172,18 @@ public class StageService : IStageService
             throw new StageNotFoundException(stageId);
         }
 
-        _repositoryManager.StageRepository.DeleteStage(stage);
-        await _repositoryManager.SaveAsync();
+        try
+        {
+            _repositoryManager.StageRepository.DeleteStage(stage);
+            await _repositoryManager.SaveAsync();
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError("");
+            _logger.LogError(ex.ToString());
+            _logger.LogError("");
+            throw new StageNotEmptyBadRequestException();
+        }
     }
 
     private string GetRequesterId()
