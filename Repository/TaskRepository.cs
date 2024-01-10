@@ -35,4 +35,10 @@ public class TaskRepository : RepositoryBase<ProjectTask>, ITaskRepository
     {
         Delete(task);
     }
+
+    public async Task<float> GetTotalHoursRequiredForProjectAsync(Guid projectId)
+    {
+        return await FindByCondition(task => task.ProjectId.Equals(projectId), false)
+                .SumAsync(task => task.TotalHours);
+    }
 }

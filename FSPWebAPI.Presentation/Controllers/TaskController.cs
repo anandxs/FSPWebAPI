@@ -60,4 +60,12 @@ public class TaskController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpGet("totalhours")]
+    public async Task<IActionResult> GetTotalHoursRequiredForProject(Guid projectId)
+    {
+        var result = await _service.TaskService.GetTotalHoursRequiredForProjectAsync(projectId);
+
+        return Ok(result);
+    }
 }

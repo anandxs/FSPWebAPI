@@ -68,7 +68,7 @@ public class TaskService : ITaskService
         }
         else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
         {
-            throw new IncorrectPasswordBadRequestException();
+            throw new IncorrectRoleForbiddenRequestException();
         }
 
         var task = _mapper.Map<ProjectTask>(taskForCreationDto);
@@ -151,7 +151,7 @@ public class TaskService : ITaskService
         }
         else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
         {
-            throw new IncorrectPasswordBadRequestException();
+            throw new IncorrectRoleForbiddenRequestException();
         }
 
         var task = await _repositoryManager.TaskRepository.GetTaskByIdAsync(taskId, trackChanges);
@@ -163,6 +163,26 @@ public class TaskService : ITaskService
 
         _repositoryManager.TaskRepository.DeleteTask(task);
         await _repositoryManager.SaveAsync();
+    }
+
+    public async Task<float> GetTotalHoursRequiredForProjectAsync(Guid projectId)
+    {
+        var requesterId = GetRequesterId();
+
+        var requester = await _repositoryManager.ProjectMemberRepository.GetProjectMemberAsync(projectId, requesterId, false);
+
+        if (requester is null)
+        {
+            throw new NotAProjectMemberForbiddenRequestException();
+        }
+        else if (requester.Role.Name != Constants.PROJECT_ROLE_ADMIN)
+        {
+            throw new IncorrectRoleForbiddenRequestException();
+        }
+
+        var totalHours = await _repositoryManager.TaskRepository.GetTotalHoursRequiredForProjectAsync(projectId);
+
+        return totalHours;
     }
 
     private string GetRequesterId()
